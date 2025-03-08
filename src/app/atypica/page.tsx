@@ -1,6 +1,35 @@
 "use client";
 
-import { useChat, type Message } from "@ai-sdk/react";
+import { useChat, Message } from "@ai-sdk/react";
+import { XHSSearchResult } from "@/tools/xiaohongshu/search";
+
+type ToolInvocation = Extract<
+  NonNullable<Message["parts"]>[number],
+  { type: "tool-invocation" }
+>["toolInvocation"];
+
+export const XHSResult = ({ result }: { result: XHSSearchResult }) => {
+  return <div>{result.notes.map((note) => note.title).join(", ")}</div>;
+};
+
+const ToolInvocationRenderer = ({
+  invocation,
+}: {
+  invocation: ToolInvocation;
+}) => {
+  if (invocation.state === "partial-call" || invocation.state === "call") {
+    return <div>Pending...</div>;
+  }
+
+  if (invocation.state === "result") {
+    if (invocation.toolName === "xhsSearch") {
+      return <XHSResult result={invocation.result} />;
+    }
+    return <div>{JSON.stringify(invocation)}</div>;
+  }
+
+  return null;
+};
 
 const PartRenderer = ({
   part,
@@ -13,7 +42,7 @@ const PartRenderer = ({
     case "reasoning":
       return <div>{part.reasoning}</div>;
     case "tool-invocation":
-      return <div>{JSON.stringify(part.toolInvocation)}</div>;
+      return <ToolInvocationRenderer invocation={part.toolInvocation} />;
     case "source":
       return <div>{JSON.stringify(part.source)}</div>;
   }

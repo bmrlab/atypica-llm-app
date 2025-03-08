@@ -1,5 +1,6 @@
 import { createOpenAI } from "@ai-sdk/openai";
 import { streamText, tool } from "ai";
+import { xhsSearch } from "@/tools/xiaohongshu/search";
 import { z } from "zod";
 
 // Allow streaming responses up to 30 seconds
@@ -17,6 +18,16 @@ export async function POST(req: Request) {
     model: openai("claude-3-5-sonnet"),
     messages,
     tools: {
+      xhsSearch: tool({
+        description: "Search for notes on Xiaohongshu (小红书)",
+        parameters: z.object({
+          keyword: z.string().describe("Search keyword"),
+        }),
+        execute: async ({ keyword }) => {
+          const result = await xhsSearch({ keyword });
+          return result;
+        },
+      }),
       weather: tool({
         description: "Get the weather in a location (fahrenheit)",
         parameters: z.object({
