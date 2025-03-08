@@ -2,7 +2,7 @@
 import { motion } from "framer-motion";
 import { BotIcon, UserIcon } from "./icons";
 import { Markdown } from "./markdown";
-import { ReactNode } from "react";
+import { ReactNode, PropsWithChildren } from "react";
 import { StreamableValue, useStreamableValue } from "ai/rsc";
 import { ToolInvocation, Message as MessageType } from "ai";
 import {
@@ -64,10 +64,14 @@ const ToolInvocationMessage = ({
         </pre>
         {toolName === "xhsSearch" ? (
           <XHSSearchResultMessage result={result} />
-        ) : toolName === "xhsUserPosts" ? (
+        ) : // <pre className="text-xs whitespace-pre-wrap">{result}</pre>
+        toolName === "xhsUserPosts" ? (
           <XHSUserPostsResultMessage result={result} />
         ) : (
-          <pre className="text-xs">{JSON.stringify(result, null, 2)}</pre>
+          // <pre className="text-xs whitespace-pre-wrap">{result}</pre>
+          <pre className="text-xs whitespace-pre-wrap">
+            {JSON.stringify(result, null, 2)}
+          </pre>
         )}
       </div>
     );
@@ -76,16 +80,22 @@ const ToolInvocationMessage = ({
   }
 };
 
-export const Message = ({
-  role,
-  // content,
-  parts,
-}: {
+export const Message = (message: {
   role: string;
   content: string | ReactNode;
   parts: MessageType["parts"];
-  // toolInvocations: Array<ToolInvocation> | undefined;
 }) => {
+  console.log("On Message: ", message);
+  const { role, parts } = message;
+
+  const PlainText = ({ children }: PropsWithChildren) => {
+    return (
+      <div className="text-zinc-800 dark:text-zinc-300 flex flex-col gap-4 text-sm">
+        <Markdown>{children as string}</Markdown>
+      </div>
+    );
+  };
+
   return (
     <motion.div
       className={`flex flex-row gap-4 px-4 w-full md:w-[1200px] md:px-0 first-of-type:pt-20`}
@@ -97,50 +107,25 @@ export const Message = ({
       </div>
 
       <div className="flex flex-col gap-6 w-full">
-        {/* {content && (
-          <div className="text-zinc-800 dark:text-zinc-300 flex flex-col gap-4">
-            <Markdown>{content as string}</Markdown>
-          </div>
-        )} */}
-
         {parts && (
           <div className="flex flex-col gap-4">
-            {parts.map((part, index) => {
+            {/* 目前先只保留最后5条用于避免页面越来越卡 */}
+            {parts.slice(-5).map((part, i) => {
               switch (part.type) {
                 case "text":
-                  return (
-                    <div
-                      key={index}
-                      className="text-zinc-800 dark:text-zinc-300 flex flex-col gap-4 text-sm"
-                    >
-                      <Markdown>{part.text}</Markdown>
-                    </div>
-                  );
+                  return <PlainText key={i}>{part.text}</PlainText>;
                 case "reasoning":
+                  return <PlainText key={i}>{part.reasoning}</PlainText>;
+                case "source":
                   return (
-                    <div
-                      key={index}
-                      className="text-zinc-800 dark:text-zinc-300 flex flex-col gap-4 text-sm"
-                    >
-                      <Markdown>{part.reasoning}</Markdown>
-                    </div>
+                    <PlainText key={i}>{JSON.stringify(part.source)}</PlainText>
                   );
                 case "tool-invocation":
                   return (
                     <ToolInvocationMessage
-                      key={index}
+                      key={i}
                       toolInvocation={part.toolInvocation}
                     />
-                  );
-
-                case "source":
-                  return (
-                    <div
-                      key={index}
-                      className="text-zinc-800 dark:text-zinc-300 flex flex-col gap-4 text-sm"
-                    >
-                      <Markdown>{JSON.stringify(part.source)}</Markdown>
-                    </div>
                   );
                 default:
                   return null;

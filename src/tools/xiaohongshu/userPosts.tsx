@@ -1,3 +1,5 @@
+import { PlainTextToolResult } from "@/app/api/chat/route";
+
 interface XHSUserNote {
   id: string;
   title: string;
@@ -19,8 +21,9 @@ interface XHSUserNote {
   }[];
 }
 
-export interface XHSUserPostsResult {
+export interface XHSUserPostsResult extends PlainTextToolResult {
   notes: XHSUserNote[];
+  plainText: string;
 }
 
 function parseXHSUserPosts(data: {
@@ -29,7 +32,9 @@ function parseXHSUserPosts(data: {
   };
 }): XHSUserPostsResult {
   const notes: XHSUserNote[] = [];
-  data.data.notes.forEach((note) => {
+  // 只取前十条
+  const topUserNotes = (data?.data?.notes ?? []).slice(0, 10);
+  topUserNotes.forEach((note) => {
     notes.push({
       id: note.id,
       title: note.title,
@@ -51,8 +56,18 @@ function parseXHSUserPosts(data: {
       })),
     });
   });
+  //
+  const plainText = JSON.stringify(
+    notes.map((note) => ({
+      userid: note.user.userid,
+      nickname: note.user.nickname,
+      title: note.title,
+      desc: note.desc,
+    })),
+  );
   return {
     notes,
+    plainText,
   };
 }
 
@@ -62,12 +77,12 @@ export async function xhsUserPosts({ userId }: { userId: string }) {
       token: process.env.XHS_API_TOKEN!,
       userId,
     };
-
     const queryString = new URLSearchParams(params).toString();
     const response = await fetch(
       `${process.env.XHS_API_BASE_URL}/get-user-note-list/v1?${queryString}`,
     );
     const data = await response.json();
+    console.log("Response text:", JSON.stringify(data).slice(0, 100));
     const result = parseXHSUserPosts(data);
     return result;
   } catch (error) {

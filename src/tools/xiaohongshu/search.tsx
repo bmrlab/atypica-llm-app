@@ -1,3 +1,5 @@
+import { PlainTextToolResult } from "@/app/api/chat/route";
+
 interface XHSNote {
   id: string;
   title: string;
@@ -19,9 +21,10 @@ interface XHSNote {
   }[];
 }
 
-export interface XHSSearchResult {
+export interface XHSSearchResult extends PlainTextToolResult {
   notes: XHSNote[];
-  total: number;
+  // total: number;
+  plainText: string;
 }
 
 function parseXHSSearchResult(data: {
@@ -33,7 +36,9 @@ function parseXHSSearchResult(data: {
   };
 }): XHSSearchResult {
   const notes: XHSNote[] = [];
-  const items = data.data.items.filter((item) => item.model_type === "note");
+  const items = (data?.data?.items ?? []).filter(
+    (item) => item.model_type === "note",
+  );
   items.forEach(({ note }) => {
     notes.push({
       id: note.id,
@@ -56,9 +61,18 @@ function parseXHSSearchResult(data: {
       })),
     });
   });
+  // 这个方法返回的结果会发给 LLM 用来生成回复，只需要把 LLM 能够使用的文本给它就行，节省很多 tokens
+  const plainText = JSON.stringify(
+    notes.map((note) => ({
+      userid: note.user.userid,
+      nickname: note.user.nickname,
+      title: note.title,
+      desc: note.desc,
+    })),
+  );
   return {
     notes,
-    total: notes.length,
+    plainText,
   };
 }
 
@@ -76,8 +90,9 @@ export async function xhsSearch({ keyword }: { keyword: string }) {
       `${process.env.XHS_API_BASE_URL}/search-note/v2?${queryString}`,
     );
     const data = await response.json();
-    const searchResult = parseXHSSearchResult(data);
-    return searchResult;
+    console.log("Response text:", JSON.stringify(data).slice(0, 100));
+    const result = parseXHSSearchResult(data);
+    return result;
   } catch (error) {
     console.error("Error fetching XHS feed:", error);
     throw error;

@@ -12,6 +12,55 @@ const openai = createOpenAI({
   baseURL: process.env.OPENAI_BASE_URL,
 });
 
+export interface PlainTextToolResult {
+  plainText: string;
+}
+
+const tools = {
+  xhsSearch: tool({
+    description: "Search for notes on Xiaohongshu (小红书)",
+    parameters: z.object({
+      keyword: z.string().describe("Search keyword"),
+    }),
+    // 这个方法返回的结果会发给 LLM 用来生成回复，只需要把 LLM 能够使用的文本给它就行，节省很多 tokens
+    experimental_toToolResultContent: (result: PlainTextToolResult) => {
+      return [{ type: "text", text: result.plainText }];
+    },
+    execute: async ({ keyword }) => {
+      const result = await xhsSearch({ keyword });
+      return result;
+      // return await processToolResponse(xhsSearch({ keyword }));
+    },
+  }),
+  xhsUserPosts: tool({
+    description: "Get posts from a specific user on Xiaohongshu (小红书)",
+    parameters: z.object({
+      userId: z.string().describe("The user ID to fetch posts from"),
+    }),
+    experimental_toToolResultContent: (result: PlainTextToolResult) => {
+      return [{ type: "text", text: result.plainText }];
+    },
+    execute: async ({ userId }) => {
+      const result = await xhsUserPosts({ userId });
+      return result;
+      // return await processToolResponse(xhsUserPosts({ userId }));
+    },
+  }),
+  weather: tool({
+    description: "Get the weather in a location (fahrenheit)",
+    parameters: z.object({
+      location: z.string().describe("The location to get the weather for"),
+    }),
+    execute: async ({ location }) => {
+      const temperature = Math.round(Math.random() * (90 - 32) + 32);
+      return {
+        location,
+        temperature,
+      };
+    },
+  }),
+};
+
 export async function POST(req: Request) {
   const { messages } = await req.json();
 
@@ -19,42 +68,8 @@ export async function POST(req: Request) {
     // model: openai("o3-mini"),
     model: openai("claude-3-7-sonnet"),
     messages,
-    maxSteps: 30,
-    tools: {
-      xhsSearch: tool({
-        description: "Search for notes on Xiaohongshu (小红书)",
-        parameters: z.object({
-          keyword: z.string().describe("Search keyword"),
-        }),
-        execute: async ({ keyword }) => {
-          const result = await xhsSearch({ keyword });
-          return result;
-        },
-      }),
-      xhsUserPosts: tool({
-        description: "Get posts from a specific user on Xiaohongshu (小红书)",
-        parameters: z.object({
-          userId: z.string().describe("The user ID to fetch posts from"),
-        }),
-        execute: async ({ userId }) => {
-          const result = await xhsUserPosts({ userId });
-          return result;
-        },
-      }),
-      weather: tool({
-        description: "Get the weather in a location (fahrenheit)",
-        parameters: z.object({
-          location: z.string().describe("The location to get the weather for"),
-        }),
-        execute: async ({ location }) => {
-          const temperature = Math.round(Math.random() * (90 - 32) + 32);
-          return {
-            location,
-            temperature,
-          };
-        },
-      }),
-    },
+    // maxSteps: 30,
+    tools,
     onError: async (error) => {
       console.error("Error occurred:", error);
     },

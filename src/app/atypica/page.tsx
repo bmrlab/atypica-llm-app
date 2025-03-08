@@ -19,7 +19,7 @@ export default function Chat() {
     maxSteps: 30,
   });
 
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   const [messagesContainerRef, messagesEndRef] =
     useScrollToBottom<HTMLDivElement>();
 
@@ -52,7 +52,7 @@ export default function Chat() {
           className="flex flex-col gap-6 h-full w-dvw items-center overflow-y-scroll"
         >
           {/* 目前先只保留最后5条用于避免页面越来越卡 */}
-          {messages.slice(-10).map((message) => (
+          {messages.slice(-5).map((message) => (
             <Message
               key={message.id}
               role={message.role}
@@ -106,13 +106,23 @@ export default function Chat() {
           className="flex flex-col gap-2 relative items-center"
           onSubmit={customSubmit}
         >
-          <input
+          <textarea
             ref={inputRef}
-            className="bg-zinc-100 rounded-md px-3 py-2 w-full outline-none dark:bg-zinc-700 text-sm text-zinc-800 dark:text-zinc-300 md:max-w-[1200px] max-w-[calc(100dvw-32px)]"
+            className="bg-zinc-100 rounded-md px-4 py-3.5 w-full outline-none dark:bg-zinc-700 text-sm text-zinc-800 dark:text-zinc-300 md:max-w-[1200px] max-w-[calc(100dvw-32px)]"
             placeholder="Send a message..."
+            rows={3}
             value={input}
             onChange={(event) => {
               setInput(event.target.value);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                if (input.trim()) {
+                  const form = e.currentTarget.form;
+                  if (form) form.requestSubmit();
+                }
+              }
             }}
           />
         </form>
