@@ -1,15 +1,38 @@
 "use client";
 
-import { useChat } from "@ai-sdk/react";
+import { useChat, type Message } from "@ai-sdk/react";
+
+const PartRenderer = ({
+  part,
+}: {
+  part: NonNullable<Message["parts"]>[number];
+}) => {
+  switch (part.type) {
+    case "text":
+      return <div>{part.text}</div>;
+    case "reasoning":
+      return <div>{part.reasoning}</div>;
+    case "tool-invocation":
+      return <div>{JSON.stringify(part.toolInvocation)}</div>;
+    case "source":
+      return <div>{JSON.stringify(part.source)}</div>;
+  }
+};
 
 export default function Chat() {
-  const { messages, input, handleInputChange, handleSubmit } = useChat();
+  const { messages, input, handleInputChange, handleSubmit } = useChat({
+    maxSteps: 5,
+  });
   return (
     <div className="flex flex-col w-full max-w-md py-24 mx-auto stretch">
       {messages.map((m) => (
         <div key={m.id} className="whitespace-pre-wrap">
           {m.role === "user" ? "User: " : "AI: "}
-          {m.content}
+          {m.parts?.map((part, index) => (
+            <div key={index} className="ml-4 mt-2">
+              <PartRenderer part={part} />
+            </div>
+          ))}
         </div>
       ))}
 
