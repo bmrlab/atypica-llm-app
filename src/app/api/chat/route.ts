@@ -1,6 +1,7 @@
 import { createOpenAI } from "@ai-sdk/openai";
 import { streamText, tool } from "ai";
 import { xhsSearch } from "@/tools/xiaohongshu/search";
+import { xhsUserPosts } from "@/tools/xiaohongshu/userPosts";
 import { z } from "zod";
 
 // Allow streaming responses up to 30 seconds
@@ -15,8 +16,10 @@ export async function POST(req: Request) {
   const { messages } = await req.json();
 
   const result = streamText({
-    model: openai("claude-3-5-sonnet"),
+    // model: openai("o3-mini"),
+    model: openai("claude-3-7-sonnet"),
     messages,
+    maxSteps: 30,
     tools: {
       xhsSearch: tool({
         description: "Search for notes on Xiaohongshu (小红书)",
@@ -25,6 +28,16 @@ export async function POST(req: Request) {
         }),
         execute: async ({ keyword }) => {
           const result = await xhsSearch({ keyword });
+          return result;
+        },
+      }),
+      xhsUserPosts: tool({
+        description: "Get posts from a specific user on Xiaohongshu (小红书)",
+        parameters: z.object({
+          userId: z.string().describe("The user ID to fetch posts from"),
+        }),
+        execute: async ({ userId }) => {
+          const result = await xhsUserPosts({ userId });
           return result;
         },
       }),
@@ -41,6 +54,9 @@ export async function POST(req: Request) {
           };
         },
       }),
+    },
+    onError: async (error) => {
+      console.error("Error occurred:", error);
     },
   });
 

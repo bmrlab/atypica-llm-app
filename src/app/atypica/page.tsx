@@ -6,13 +6,30 @@ import { motion } from "framer-motion";
 import { useRef } from "react";
 
 export default function Chat() {
-  const { messages, handleSubmit, input, setInput, append } = useChat({
-    maxSteps: 5,
+  const {
+    messages,
+    setMessages,
+    error,
+    handleSubmit,
+    input,
+    setInput,
+    append,
+    status,
+  } = useChat({
+    maxSteps: 30,
   });
 
   const inputRef = useRef<HTMLInputElement>(null);
   const [messagesContainerRef, messagesEndRef] =
     useScrollToBottom<HTMLDivElement>();
+
+  function customSubmit(event: React.FormEvent<HTMLFormElement>) {
+    if (error != null) {
+      setMessages(messages.slice(0, -1)); // remove last message
+    }
+
+    handleSubmit(event);
+  }
 
   const suggestedActions = [
     {
@@ -34,7 +51,8 @@ export default function Chat() {
           ref={messagesContainerRef}
           className="flex flex-col gap-6 h-full w-dvw items-center overflow-y-scroll"
         >
-          {messages.map((message) => (
+          {/* 目前先只保留最后5条用于避免页面越来越卡 */}
+          {messages.slice(-10).map((message) => (
             <Message
               key={message.id}
               role={message.role}
@@ -42,10 +60,21 @@ export default function Chat() {
               parts={message.parts}
             ></Message>
           ))}
+          {error && (
+            <div className="flex justify-center items-center text-red-500 dark:text-red-400 text-sm">
+              {error.toString()}
+            </div>
+          )}
           <div ref={messagesEndRef} />
         </div>
 
-        <div className="grid sm:grid-cols-2 gap-2 w-full px-4 md:px-0 mx-auto md:max-w-[500px] mb-4">
+        {status && (
+          <div className="flex justify-center items-center text-zinc-500 dark:text-zinc-400 text-sm">
+            {status}
+          </div>
+        )}
+
+        <div className="grid sm:grid-cols-2 gap-2 w-full px-4 md:px-0 mx-auto md:max-w-[1200px] mb-4">
           {messages.length === 0 &&
             suggestedActions.map((suggestedAction, index) => (
               <motion.div
@@ -75,11 +104,11 @@ export default function Chat() {
 
         <form
           className="flex flex-col gap-2 relative items-center"
-          onSubmit={handleSubmit}
+          onSubmit={customSubmit}
         >
           <input
             ref={inputRef}
-            className="bg-zinc-100 rounded-md px-2 py-1.5 w-full outline-none dark:bg-zinc-700 text-zinc-800 dark:text-zinc-300 md:max-w-[500px] max-w-[calc(100dvw-32px)]"
+            className="bg-zinc-100 rounded-md px-3 py-2 w-full outline-none dark:bg-zinc-700 text-sm text-zinc-800 dark:text-zinc-300 md:max-w-[1200px] max-w-[calc(100dvw-32px)]"
             placeholder="Send a message..."
             value={input}
             onChange={(event) => {

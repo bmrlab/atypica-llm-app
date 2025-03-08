@@ -1,13 +1,14 @@
 "use client";
-
 import { motion } from "framer-motion";
 import { BotIcon, UserIcon } from "./icons";
 import { Markdown } from "./markdown";
 import { ReactNode } from "react";
 import { StreamableValue, useStreamableValue } from "ai/rsc";
 import { ToolInvocation, Message as MessageType } from "ai";
-
-import { XHSSearchResultMessage } from "@/tools/xiaohongshu/search";
+import {
+  XHSSearchResultMessage,
+  XHSUserPostsResultMessage,
+} from "@/tools/xiaohongshu/ui";
 
 export const TextStreamMessage = ({
   content,
@@ -40,19 +41,39 @@ const ToolInvocationMessage = ({
 }: {
   toolInvocation: ToolInvocation;
 }) => {
-  if (toolInvocation.state === "result") {
-    const { toolName, toolCallId, result } = toolInvocation;
+  if (
+    toolInvocation.state === "call" ||
+    toolInvocation.state === "partial-call"
+  ) {
+    const { toolName, toolCallId, args } = toolInvocation;
     return (
       <div key={toolCallId}>
+        <div className="text-zinc-800 dark:text-zinc-300 flex flex-col gap-4">
+          <pre className="text-xs">
+            正在执行 <strong>{toolName}</strong>({JSON.stringify(args)})
+          </pre>
+        </div>
+      </div>
+    );
+  } else if (toolInvocation.state === "result") {
+    const { toolName, toolCallId, args, result } = toolInvocation;
+    return (
+      <div key={toolCallId}>
+        <pre className="text-xs my-2">
+          <strong>{toolName}</strong>({JSON.stringify(args)}) 执行结果
+        </pre>
         {toolName === "xhsSearch" ? (
           <XHSSearchResultMessage result={result} />
+        ) : toolName === "xhsUserPosts" ? (
+          <XHSUserPostsResultMessage result={result} />
         ) : (
           <pre className="text-xs">{JSON.stringify(result, null, 2)}</pre>
         )}
       </div>
     );
+  } else {
+    return null;
   }
-  return null;
 };
 
 export const Message = ({
@@ -67,7 +88,7 @@ export const Message = ({
 }) => {
   return (
     <motion.div
-      className={`flex flex-row gap-4 px-4 w-full md:w-[500px] md:px-0 first-of-type:pt-20`}
+      className={`flex flex-row gap-4 px-4 w-full md:w-[1200px] md:px-0 first-of-type:pt-20`}
       initial={{ y: 5, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
     >

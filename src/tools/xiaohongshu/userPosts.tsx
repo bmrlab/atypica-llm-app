@@ -1,9 +1,9 @@
-interface XHSNote {
+interface XHSUserNote {
   id: string;
   title: string;
   desc: string;
   type: string;
-  liked_count: number;
+  nice_count: number;
   collected_count: number;
   comments_count: number;
   user: {
@@ -19,28 +19,23 @@ interface XHSNote {
   }[];
 }
 
-export interface XHSSearchResult {
-  notes: XHSNote[];
-  total: number;
+export interface XHSUserPostsResult {
+  notes: XHSUserNote[];
 }
 
-function parseXHSSearchResult(data: {
+function parseXHSUserPosts(data: {
   data: {
-    items: {
-      model_type: string;
-      note: XHSNote;
-    }[];
+    notes: XHSUserNote[];
   };
-}): XHSSearchResult {
-  const notes: XHSNote[] = [];
-  const items = data.data.items.filter((item) => item.model_type === "note");
-  items.forEach(({ note }) => {
+}): XHSUserPostsResult {
+  const notes: XHSUserNote[] = [];
+  data.data.notes.forEach((note) => {
     notes.push({
       id: note.id,
       title: note.title,
       desc: note.desc,
       type: note.type,
-      liked_count: note.liked_count,
+      nice_count: note.nice_count,
       collected_count: note.collected_count,
       comments_count: note.comments_count,
       user: {
@@ -58,28 +53,25 @@ function parseXHSSearchResult(data: {
   });
   return {
     notes,
-    total: notes.length,
   };
 }
 
-export async function xhsSearch({ keyword }: { keyword: string }) {
+export async function xhsUserPosts({ userId }: { userId: string }) {
   try {
     const params = {
       token: process.env.XHS_API_TOKEN!,
-      keyword,
-      page: "1",
-      sort: "general",
-      noteType: "_0",
+      userId,
     };
+
     const queryString = new URLSearchParams(params).toString();
     const response = await fetch(
-      `${process.env.XHS_API_BASE_URL}/search-note/v2?${queryString}`,
+      `${process.env.XHS_API_BASE_URL}/get-user-note-list/v1?${queryString}`,
     );
     const data = await response.json();
-    const searchResult = parseXHSSearchResult(data);
-    return searchResult;
+    const result = parseXHSUserPosts(data);
+    return result;
   } catch (error) {
-    console.error("Error fetching XHS feed:", error);
+    console.error("Error fetching XHS user posts:", error);
     throw error;
   }
 }
