@@ -81,12 +81,13 @@ const ToolInvocationMessage = ({
   }
 };
 
-export const Message = (message: {
+export const ChatMessage = (message: {
+  nickname?: string;
   role: string;
   content: string | ReactNode;
   parts: MessageType["parts"];
 }) => {
-  const { role, parts } = message;
+  const { nickname, role, parts } = message;
 
   const PlainText = ({ children }: PropsWithChildren) => {
     return (
@@ -98,7 +99,7 @@ export const Message = (message: {
 
   return (
     <motion.div
-      className={`flex flex-row gap-4 px-4 w-full md:w-[1200px] md:px-0 first-of-type:pt-20`}
+      className={`flex flex-row gap-4 px-4 w-full first-of-type:pt-20`}
       initial={{ y: 5, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
     >
@@ -107,6 +108,11 @@ export const Message = (message: {
       </div>
 
       <div className="flex flex-col gap-6 w-full">
+        {nickname && (
+          <div className="leading-[24px] text-zinc-800 text-sm font-medium">
+            {nickname}
+          </div>
+        )}
         {parts && (
           <div className="flex flex-col gap-4">
             {/* 目前先只保留最后5条用于避免页面越来越卡 */}

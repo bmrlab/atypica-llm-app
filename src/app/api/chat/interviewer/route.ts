@@ -2,6 +2,12 @@ import { createOpenAI } from "@ai-sdk/openai";
 import { streamText } from "ai";
 import tools from "@/tools";
 
+const system = `你是耐克的产品经理，正在给新款运动鞋命名。
+你们正在考虑「Nike Air Max Pro」和「Nike Air Force Plus」这两个名字哪个更适合。
+你将面对用户，听完用户的自我介绍以后，你需要对用户进行访谈，以获得答案。
+访谈开始前和访谈过程中，你可以时不时的请教专家。
+`;
+
 const openai = createOpenAI({
   apiKey: process.env.OPENAI_API_KEY,
   baseURL: process.env.OPENAI_BASE_URL,
@@ -13,10 +19,11 @@ export async function POST(req: Request) {
   const result = streamText({
     // model: openai("o3-mini"),
     model: openai("claude-3-7-sonnet"),
-    system:
-      "你的任务是利用提供的工具寻找符合要求的人设。开始之前，请先咨询专家意见。在寻找过程中，要不断思考并反思，大胆推翻之前的假设 - 这种思维方式值得鼓励。请记住要结合专家意见和搜索结果，反复验证和调整你的判断。",
+    system,
     messages,
-    tools,
+    tools: {
+      reasoningThinking: tools.reasoningThinking,
+    },
     maxSteps: 2,
     onError: async (error) => {
       console.error("Error occurred:", error);

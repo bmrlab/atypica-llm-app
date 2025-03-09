@@ -1,6 +1,6 @@
 "use client";
 import { useChat } from "@ai-sdk/react";
-import { Message } from "@/components/Message";
+import { ChatMessage } from "@/components/Message";
 import { useScrollToBottom } from "@/components/use-scroll-to-bottom";
 import { motion } from "framer-motion";
 import { useRef } from "react";
@@ -55,12 +55,12 @@ export default function ScoutPage() {
         >
           {/* 目前先只保留最后5条用于避免页面越来越卡 */}
           {messages.slice(-5).map((message) => (
-            <Message
+            <ChatMessage
               key={message.id}
               role={message.role}
               content={message.content}
               parts={message.parts}
-            ></Message>
+            ></ChatMessage>
           ))}
           {error && (
             <div className="flex justify-center items-center text-red-500 dark:text-red-400 text-sm">
