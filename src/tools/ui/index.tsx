@@ -1,8 +1,9 @@
 import Image from "next/image";
 import { FC } from "react";
 import { ImageCarousel } from "./carousel";
-import { XHSSearchResult } from "./search";
-import { XHSUserPostsResult } from "./userPosts";
+import { XHSSearchResult } from "../xiaohongshu/search";
+import { XHSUserPostsResult } from "../xiaohongshu/userPosts";
+import { ReasoningThinkingResult } from "../experts/reasoning";
 
 export const XHSSearchResultMessage: FC<{ result: XHSSearchResult }> = ({
   result: { notes },
@@ -68,6 +69,16 @@ export const XHSUserPostsResultMessage: FC<{ result: XHSUserPostsResult }> = ({
           </div>
         </div>
       ))}
+    </div>
+  );
+};
+
+export const ReasoningThinkingResultMessage: FC<{
+  result: ReasoningThinkingResult;
+}> = ({ result: { reasoning } }) => {
+  return (
+    <div className="p-3 bg-gray-50 border border-gray-100 rounded-lg text-xs">
+      {reasoning}
     </div>
   );
 };

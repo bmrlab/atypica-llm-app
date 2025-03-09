@@ -2,6 +2,7 @@ import { createOpenAI } from "@ai-sdk/openai";
 import { streamText, tool } from "ai";
 import { xhsSearch } from "@/tools/xiaohongshu/search";
 import { xhsUserPosts } from "@/tools/xiaohongshu/userPosts";
+import { reasoningThinking } from "@/tools/experts/reasoning";
 import { z } from "zod";
 
 // Allow streaming responses up to 30 seconds
@@ -17,6 +18,20 @@ export interface PlainTextToolResult {
 }
 
 const tools = {
+  reasoningThinking: tool({
+    description:
+      "Get expert analysis and step-by-step thinking on a topic or question",
+    parameters: z.object({
+      query: z.string().describe("The question or topic to analyze"),
+    }),
+    experimental_toToolResultContent: (result: PlainTextToolResult) => {
+      return [{ type: "text", text: result.plainText }];
+    },
+    execute: async ({ query }) => {
+      const result = await reasoningThinking({ query });
+      return result;
+    },
+  }),
   xhsSearch: tool({
     description: "Search for notes on Xiaohongshu (小红书)",
     parameters: z.object({

@@ -6,9 +6,10 @@ import { ReactNode, PropsWithChildren } from "react";
 import { StreamableValue, useStreamableValue } from "ai/rsc";
 import { ToolInvocation, Message as MessageType } from "ai";
 import {
+  ReasoningThinkingResultMessage,
   XHSSearchResultMessage,
   XHSUserPostsResultMessage,
-} from "@/tools/xiaohongshu/ui";
+} from "@/tools/ui";
 
 export const TextStreamMessage = ({
   content,
@@ -49,7 +50,7 @@ const ToolInvocationMessage = ({
     return (
       <div key={toolCallId}>
         <div className="text-zinc-800 dark:text-zinc-300 flex flex-col gap-4">
-          <pre className="text-xs">
+          <pre className="text-xs whitespace-pre-wrap">
             正在执行 <strong>{toolName}</strong>({JSON.stringify(args)})
           </pre>
         </div>
@@ -59,16 +60,16 @@ const ToolInvocationMessage = ({
     const { toolName, toolCallId, args, result } = toolInvocation;
     return (
       <div key={toolCallId}>
-        <pre className="text-xs my-2">
+        <pre className="text-xs my-2 whitespace-pre-wrap">
           <strong>{toolName}</strong>({JSON.stringify(args)}) 执行结果
         </pre>
         {toolName === "xhsSearch" ? (
           <XHSSearchResultMessage result={result} />
-        ) : // <pre className="text-xs whitespace-pre-wrap">{result}</pre>
-        toolName === "xhsUserPosts" ? (
+        ) : toolName === "xhsUserPosts" ? (
           <XHSUserPostsResultMessage result={result} />
+        ) : toolName === "reasoningThinking" ? (
+          <ReasoningThinkingResultMessage result={result} />
         ) : (
-          // <pre className="text-xs whitespace-pre-wrap">{result}</pre>
           <pre className="text-xs whitespace-pre-wrap">
             {JSON.stringify(result, null, 2)}
           </pre>
