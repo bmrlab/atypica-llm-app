@@ -1,4 +1,4 @@
-import { PlainTextToolResult } from "@/app/api/chat/route";
+import { PlainTextToolResult } from "@/tools/utils";
 import { createDeepSeek } from "@ai-sdk/deepseek";
 import { generateText } from "ai";
 
@@ -26,7 +26,6 @@ ${query}
 3. 逐步推理过程
 4. 结论`;
   try {
-    console.log(query);
     const result = await generateText({
       model: deepseek("Pro/deepseek-ai/DeepSeek-R1"),
       messages: [{ role: "user", content: prompt }],

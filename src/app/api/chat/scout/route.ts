@@ -4,6 +4,7 @@ import { xhsSearch } from "@/tools/xiaohongshu/search";
 import { xhsUserPosts } from "@/tools/xiaohongshu/userPosts";
 import { reasoningThinking } from "@/tools/experts/reasoning";
 import { z } from "zod";
+import { PlainTextToolResult } from "@/tools/utils";
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
@@ -13,14 +14,9 @@ const openai = createOpenAI({
   baseURL: process.env.OPENAI_BASE_URL,
 });
 
-export interface PlainTextToolResult {
-  plainText: string;
-}
-
 const tools = {
   reasoningThinking: tool({
-    description:
-      "Get expert analysis and step-by-step thinking on a topic or question",
+    description: "针对特定话题或问题提供专家分析和逐步思考过程",
     parameters: z.object({
       query: z.string().describe("The question or topic to analyze"),
     }),
@@ -33,7 +29,7 @@ const tools = {
     },
   }),
   xhsSearch: tool({
-    description: "Search for notes on Xiaohongshu (小红书)",
+    description: "在小红书上搜索笔记",
     parameters: z.object({
       keyword: z.string().describe("Search keyword"),
     }),
@@ -48,7 +44,7 @@ const tools = {
     },
   }),
   xhsUserPosts: tool({
-    description: "Get posts from a specific user on Xiaohongshu (小红书)",
+    description: "获取小红书特定用户的帖子",
     parameters: z.object({
       userId: z.string().describe("The user ID to fetch posts from"),
     }),
@@ -61,19 +57,19 @@ const tools = {
       // return await processToolResponse(xhsUserPosts({ userId }));
     },
   }),
-  weather: tool({
-    description: "Get the weather in a location (fahrenheit)",
-    parameters: z.object({
-      location: z.string().describe("The location to get the weather for"),
-    }),
-    execute: async ({ location }) => {
-      const temperature = Math.round(Math.random() * (90 - 32) + 32);
-      return {
-        location,
-        temperature,
-      };
-    },
-  }),
+  // weather: tool({
+  //   description: "获取指定地点的天气（华氏度）",
+  //   parameters: z.object({
+  //     location: z.string().describe("The location to get the weather for"),
+  //   }),
+  //   execute: async ({ location }) => {
+  //     const temperature = Math.round(Math.random() * (90 - 32) + 32);
+  //     return {
+  //       location,
+  //       temperature,
+  //     };
+  //   },
+  // }),
 };
 
 export async function POST(req: Request) {
@@ -82,9 +78,11 @@ export async function POST(req: Request) {
   const result = streamText({
     // model: openai("o3-mini"),
     model: openai("claude-3-7-sonnet"),
+    system:
+      "你的任务是利用提供的工具寻找符合要求的人设。开始之前，请先咨询专家意见。在寻找过程中，要不断思考并反思，大胆推翻之前的假设 - 这种思维方式值得鼓励。请记住要结合专家意见和搜索结果，反复验证和调整你的判断。",
     messages,
-    // maxSteps: 30,
     tools,
+    maxSteps: 2,
     onError: async (error) => {
       console.error("Error occurred:", error);
     },

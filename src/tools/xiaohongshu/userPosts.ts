@@ -1,4 +1,4 @@
-import { PlainTextToolResult } from "@/app/api/chat/route";
+import { PlainTextToolResult } from "@/tools/utils";
 
 interface XHSUserNote {
   id: string;

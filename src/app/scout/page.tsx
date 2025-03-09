@@ -5,7 +5,7 @@ import { useScrollToBottom } from "@/components/use-scroll-to-bottom";
 import { motion } from "framer-motion";
 import { useRef } from "react";
 
-export default function Chat() {
+export default function ScoutPage() {
   const {
     messages,
     setMessages,
@@ -17,6 +17,7 @@ export default function Chat() {
     status,
   } = useChat({
     maxSteps: 30,
+    api: "/api/chat/scout",
   });
 
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -33,14 +34,15 @@ export default function Chat() {
 
   const suggestedActions = [
     {
-      title: "Where is",
-      label: "my watch?",
-      action: "where is my watch?",
+      title: "帮我找3个博主",
+      label: "热爱穿搭、巧克力、本地美食",
+      action: "帮我找3个博主，热爱穿搭、巧克力、本地美食",
     },
     {
-      title: "What orders",
-      label: "have shipped?",
-      action: "what orders have shipped?",
+      title: "寻找10个用户",
+      label: "参与调研我的新产品",
+      action:
+        "从小红书上找10个用户，参与我新款巧克力味运动鞋的产品调研。你需要找到他们，然后写 prompt 构建他们的 persona agent",
     },
   ];
 

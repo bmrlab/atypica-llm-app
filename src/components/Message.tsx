@@ -86,7 +86,6 @@ export const Message = (message: {
   content: string | ReactNode;
   parts: MessageType["parts"];
 }) => {
-  console.log("On Message: ", message);
   const { role, parts } = message;
 
   const PlainText = ({ children }: PropsWithChildren) => {
