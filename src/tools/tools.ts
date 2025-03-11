@@ -1,10 +1,11 @@
 import { tool } from "ai";
 import { xhsSearch } from "@/tools/xiaohongshu/search";
-import { xhsUserNotes } from "@/tools/xiaohongshu/userNotes";
+import { xhsUserNotes } from "@/tools/xiaohongshu/user-notes";
 import { reasoningThinking } from "@/tools/experts/reasoning";
 import { z } from "zod";
 import { PlainTextToolResult } from "@/tools/utils";
-import { xhsNoteComments } from "./xiaohongshu/noteComments";
+import { xhsNoteComments } from "./xiaohongshu/note-comments";
+import { savePersona } from "./system/save-persona";
 
 const tools = {
   reasoningThinking: tool({
@@ -60,6 +61,22 @@ const tools = {
     },
     execute: async ({ noteid }) => {
       const result = await xhsNoteComments({ noteid });
+      return result;
+    },
+  }),
+  savePersona: tool({
+    description: "将生成的 persona prompt 保存到本地文件",
+    parameters: z.object({
+      title: z.string().describe("Persona 的标题"),
+      source: z.string().describe("数据来源"),
+      tags: z.array(z.string()).describe("相关标签"),
+      personaPrompt: z.string().describe("生成的 persona prompt 内容"),
+    }),
+    experimental_toToolResultContent: (result: PlainTextToolResult) => {
+      return [{ type: "text", text: result.plainText }];
+    },
+    execute: async ({ title, source, tags, personaPrompt }) => {
+      const result = await savePersona({ title, source, tags, personaPrompt });
       return result;
     },
   }),

@@ -1,6 +1,6 @@
 import { createOpenAI } from "@ai-sdk/openai";
 import { streamText } from "ai";
-import tools from "@/tools";
+import tools from "@/tools/tools";
 
 const system = `你是一个专业的用户画像分析助手。你的目标是通过全面的信息搜集，构建完整的用户画像和对话角色。
 
@@ -46,6 +46,8 @@ const system = `你是一个专业的用户画像分析助手。你的目标是�
    - 消费特征和行为习惯
    - 表达特点和典型用语
    - 情感态度和价值观
+3. prompt 应该以“你是”开头，并在结尾强调这个角色在对话时要尽量从自己的背景、经历、兴趣爱好等方面出发，展现独特的个性，表达自己的观点和态度。
+3. 将每一个persona都保存到本地文件
 </persona_output>
 `;
 
@@ -67,8 +69,9 @@ export async function POST(req: Request) {
       xhsSearch: tools.xhsSearch,
       xhsUserNotes: tools.xhsUserNotes,
       xhsNoteComments: tools.xhsNoteComments,
+      savePersona: tools.savePersona,
     },
-    maxSteps: 2,
+    maxSteps: 3,
     onError: async (error) => {
       console.error("Error occurred:", error);
     },

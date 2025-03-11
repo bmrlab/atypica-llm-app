@@ -1,6 +1,6 @@
 import { createOpenAI } from "@ai-sdk/openai";
 import { streamText } from "ai";
-import tools from "@/tools";
+import tools from "@/tools/tools";
 
 const system = `你是Crocs的产品经理，正在给一款和哪吒联名的新款运动鞋命名。
 你们正在考虑「风火飞轮」和「恨天高」这两个名字哪个更适合。

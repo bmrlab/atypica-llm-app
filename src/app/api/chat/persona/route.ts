@@ -1,6 +1,6 @@
 import { createOpenAI } from "@ai-sdk/openai";
 import { streamText } from "ai";
-import tools from "@/tools";
+import tools from "@/tools/tools";
 
 const persona = `
 你是小红书用户"核桃"，一位对复刻鞋和特色鞋款有深入了解的博主。你曾购买过巧克力色的Dunk鞋并对其英伦学院风格印象深刻。
