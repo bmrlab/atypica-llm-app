@@ -1,4 +1,6 @@
 "use client";
+import { useParams } from "next/navigation";
+import { useCallback, useMemo, useRef, useState, useEffect } from "react";
 import { ChatRequestOptions } from "ai";
 import {
   Message as MessageData,
@@ -7,9 +9,26 @@ import {
 } from "@ai-sdk/react";
 import { ChatMessage } from "@/components/Message";
 import { useScrollToBottom } from "@/components/use-scroll-to-bottom";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { Persona } from "@/app/api/personas/route";
+import { Markdown } from "@/components/markdown";
 
 export default function InterviewPage() {
+  const { id } = useParams();
+  const [persona, setPersona] = useState<Persona | null>(null);
+
+  useEffect(() => {
+    const fetchPersona = async () => {
+      try {
+        const response = await fetch(`/api/personas/${id}`);
+        const data = await response.json();
+        setPersona(data);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    fetchPersona();
+  }, [id]);
+
   const [stop, setStop] = useState(false);
   // const [newQuestion, setNewQuestion] = useState<MessageData | null>(null);
 
@@ -43,9 +62,17 @@ export default function InterviewPage() {
     }
   }, [interviewer.messages]);
 
-  const { messages, error, append, status } = useChat({
+  const {
+    messages,
+    error: chatError,
+    append,
+    status,
+  } = useChat({
     maxSteps: 5,
     api: "/api/chat/persona",
+    body: {
+      persona: persona?.prompt,
+    },
     onFinish: (message, options) => {
       if (options.finishReason === "stop") {
         // 所有 tool call 都结束，给了最后回答
@@ -62,12 +89,15 @@ export default function InterviewPage() {
   appendRef.current = append;
 
   const startConversation = useCallback(() => {
+    if (!persona) {
+      return;
+    }
     setStop(false);
     append({
       role: "user",
       content: "你好，请介绍一下自己",
     });
-  }, [append]);
+  }, [append, persona]);
 
   const stopConversation = useCallback(() => {
     setStop(true);
@@ -78,6 +108,9 @@ export default function InterviewPage() {
 
   return (
     <div className="flex flex-row justify-center pb-20 h-dvh bg-white dark:bg-zinc-900">
+      <div className="mr-10 pt-20 text-xs ml-10 w-[400px] h-full overflow-auto">
+        <Markdown>{persona?.prompt ?? ""}</Markdown>
+      </div>
       <div className="flex flex-col justify-between gap-4 w-[800px] h-full">
         <div
           ref={messagesContainerRef}
@@ -92,9 +125,9 @@ export default function InterviewPage() {
               parts={message.parts}
             ></ChatMessage>
           ))}
-          {error && (
+          {chatError && (
             <div className="flex justify-center items-center text-red-500 dark:text-red-400 text-sm">
-              {error.toString()}
+              {chatError.toString()}
             </div>
           )}
           <div ref={messagesEndRef} />
@@ -126,7 +159,7 @@ export default function InterviewPage() {
           </div>
         )}
       </div>
-      <div className="ml-10 w-[400px] h-full overflow-auto scale-75">
+      <div className="ml-10 w-[400px] h-full overflow-auto">
         {interviewerMessage && (
           <ChatMessage
             key={interviewerMessage.id}

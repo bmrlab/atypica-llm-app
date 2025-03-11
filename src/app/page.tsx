@@ -25,7 +25,7 @@ export default function Home() {
             </Link>
 
             <Link
-              href="/interview"
+              href="/personas"
               className="relative overflow-hidden rounded-2xl bg-white dark:bg-gray-800 p-8 shadow-lg"
             >
               <div className="relative z-10">
