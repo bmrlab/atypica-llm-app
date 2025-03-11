@@ -10,7 +10,7 @@ import {
   XHSNoteCommentsResultMessage,
   XHSSearchResultMessage,
   XHSUserNotesResultMessage,
-} from "@/tools/ui";
+} from "@/tools/ui/tool-message";
 
 export const TextStreamMessage = ({
   content,

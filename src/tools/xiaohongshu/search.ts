@@ -64,12 +64,11 @@ function parseXHSSearchResult(data: {
   // 这个方法返回的结果会发给 LLM 用来生成回复，只需要把 LLM 能够使用的文本给它就行，节省很多 tokens
   const plainText = JSON.stringify(
     notes.map((note) => ({
-      id: note.id,
+      noteid: note.id,
       userid: note.user.userid,
       nickname: note.user.nickname,
       title: note.title,
       desc: note.desc,
-      collected_count: note.collected_count,
       comments_count: note.comments_count,
     })),
   );

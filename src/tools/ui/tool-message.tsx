@@ -2,9 +2,10 @@ import Image from "next/image";
 import { FC } from "react";
 import { ImageCarousel } from "./carousel";
 import { XHSSearchResult } from "../xiaohongshu/search";
-import { XHSUserNotesResult } from "../xiaohongshu/userNotes";
+import { XHSUserNotesResult } from "../xiaohongshu/user-notes";
 import { ReasoningThinkingResult } from "../experts/reasoning";
-import { XHSNoteCommentsResult } from "../xiaohongshu/noteComments";
+import { XHSNoteCommentsResult } from "../xiaohongshu/note-comments";
+import { Markdown } from "@/components/markdown";
 
 export const XHSSearchResultMessage: FC<{ result: XHSSearchResult }> = ({
   result: { notes },
@@ -108,10 +109,11 @@ export const XHSNoteCommentsResultMessage: FC<{
 
 export const ReasoningThinkingResultMessage: FC<{
   result: ReasoningThinkingResult;
-}> = ({ result: { reasoning } }) => {
+}> = ({ result: { reasoning, text } }) => {
   return (
     <div className="p-3 bg-gray-50 border border-gray-100 rounded-lg text-xs">
-      {reasoning}
+      <div className="text-gray-600 mb-3">{reasoning}</div>
+      <Markdown>{text}</Markdown>
     </div>
   );
 };

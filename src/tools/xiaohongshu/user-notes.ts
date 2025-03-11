@@ -59,10 +59,12 @@ function parseXHSUserNotes(data: {
   //
   const plainText = JSON.stringify(
     notes.map((note) => ({
+      nodeid: note.id,
       userid: note.user.userid,
       nickname: note.user.nickname,
       title: note.title,
       desc: note.desc,
+      comments_count: note.comments_count,
     })),
   );
   return {
