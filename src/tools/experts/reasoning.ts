@@ -13,18 +13,18 @@ export interface ReasoningThinkingResult extends PlainTextToolResult {
 }
 
 export async function reasoningThinking({
-  query,
+  contextSummary,
+  question,
 }: {
-  query: string;
+  contextSummary: string;
+  question: string;
 }): Promise<ReasoningThinkingResult> {
   const prompt = `作为专业顾问，请逐步仔细思考这个问题：
-${query}
+${question}
 
-请按以下结构回答：
-1. 初步分析
-2. 关键考虑因素
-3. 逐步推理过程
-4. 结论`;
+以下是问题有关的背景：
+${contextSummary}
+`;
   try {
     const result = await generateText({
       model: deepseek("Pro/deepseek-ai/DeepSeek-R1"),

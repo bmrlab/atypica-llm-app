@@ -48,10 +48,10 @@ export default function ScoutPage() {
 
   return (
     <div className="flex flex-row justify-center pb-20 h-dvh bg-white dark:bg-zinc-900">
-      <div className="flex flex-col justify-between gap-4">
+      <div className="flex flex-col justify-between gap-4 w-[1200px] overflow-hidden">
         <div
           ref={messagesContainerRef}
-          className="flex flex-col gap-6 h-full w-dvw items-center overflow-y-scroll"
+          className="flex flex-col gap-6 h-full w-full items-center overflow-y-scroll"
         >
           {/* 目前先只保留最后5条用于避免页面越来越卡 */}
           {messages.slice(-5).map((message) => (
@@ -76,7 +76,7 @@ export default function ScoutPage() {
           </div>
         )}
 
-        <div className="grid sm:grid-cols-2 gap-2 w-full px-4 md:px-0 mx-auto md:max-w-[1200px] mb-4">
+        <div className="grid sm:grid-cols-2 gap-2 w-full px-4 mx-auto mb-4">
           {messages.length === 0 &&
             suggestedActions.map((suggestedAction, index) => (
               <motion.div

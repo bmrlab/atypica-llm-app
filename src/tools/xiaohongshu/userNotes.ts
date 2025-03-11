@@ -21,16 +21,16 @@ interface XHSUserNote {
   }[];
 }
 
-export interface XHSUserPostsResult extends PlainTextToolResult {
+export interface XHSUserNotesResult extends PlainTextToolResult {
   notes: XHSUserNote[];
   plainText: string;
 }
 
-function parseXHSUserPosts(data: {
+function parseXHSUserNotes(data: {
   data: {
     notes: XHSUserNote[];
   };
-}): XHSUserPostsResult {
+}): XHSUserNotesResult {
   const notes: XHSUserNote[] = [];
   // 只取前十条
   const topUserNotes = (data?.data?.notes ?? []).slice(0, 10);
@@ -71,11 +71,11 @@ function parseXHSUserPosts(data: {
   };
 }
 
-export async function xhsUserPosts({ userId }: { userId: string }) {
+export async function xhsUserNotes({ userid }: { userid: string }) {
   try {
     const params = {
       token: process.env.XHS_API_TOKEN!,
-      userId,
+      userId: userid,
     };
     const queryString = new URLSearchParams(params).toString();
     const response = await fetch(
@@ -83,7 +83,7 @@ export async function xhsUserPosts({ userId }: { userId: string }) {
     );
     const data = await response.json();
     console.log("Response text:", JSON.stringify(data).slice(0, 100));
-    const result = parseXHSUserPosts(data);
+    const result = parseXHSUserNotes(data);
     return result;
   } catch (error) {
     console.error("Error fetching XHS user posts:", error);

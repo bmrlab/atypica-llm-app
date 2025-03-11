@@ -2,8 +2,9 @@ import Image from "next/image";
 import { FC } from "react";
 import { ImageCarousel } from "./carousel";
 import { XHSSearchResult } from "../xiaohongshu/search";
-import { XHSUserPostsResult } from "../xiaohongshu/userPosts";
+import { XHSUserNotesResult } from "../xiaohongshu/userNotes";
 import { ReasoningThinkingResult } from "../experts/reasoning";
+import { XHSNoteCommentsResult } from "../xiaohongshu/noteComments";
 
 export const XHSSearchResultMessage: FC<{ result: XHSSearchResult }> = ({
   result: { notes },
@@ -32,6 +33,10 @@ export const XHSSearchResultMessage: FC<{ result: XHSSearchResult }> = ({
             <p className="text-gray-600 text-xs mt-1 line-clamp-2">
               {note.desc}
             </p>
+            {/* <div>{note.id}</div> */}
+            <div className="text-gray-600 text-xs">
+              <strong>评论数</strong>：{note.comments_count}
+            </div>
           </div>
         </div>
       ))}
@@ -39,7 +44,7 @@ export const XHSSearchResultMessage: FC<{ result: XHSSearchResult }> = ({
   );
 };
 
-export const XHSUserPostsResultMessage: FC<{ result: XHSUserPostsResult }> = ({
+export const XHSUserNotesResultMessage: FC<{ result: XHSUserNotesResult }> = ({
   result: { notes },
 }) => {
   return (
@@ -65,6 +70,34 @@ export const XHSUserPostsResultMessage: FC<{ result: XHSUserPostsResult }> = ({
             <h3 className="font-medium text-sm line-clamp-1">{note.title}</h3>
             <p className="text-gray-600 text-xs mt-1 line-clamp-2">
               {note.desc}
+            </p>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+export const XHSNoteCommentsResultMessage: FC<{
+  result: XHSNoteCommentsResult;
+}> = ({ result: { comments } }) => {
+  return (
+    <div className="p-6 bg-gray-50 border border-gray-100 rounded-lg">
+      {/* 只挑选 10 条展示 */}
+      {comments.slice(0, 10).map((comment) => (
+        <div
+          key={comment.id}
+          className="flex items-start justify-start gap-3 mb-4"
+        >
+          <div className="relative mt-2 w-8 h-8 rounded-full overflow-hidden">
+            <Image src={comment.user.images} alt="User Avatar" fill />
+          </div>
+          <div>
+            <strong className="text-xs text-gray-600">
+              {comment.user.nickname}
+            </strong>
+            <p className="text-gray-600 text-xs mt-1 line-clamp-2">
+              {comment.content}
             </p>
           </div>
         </div>

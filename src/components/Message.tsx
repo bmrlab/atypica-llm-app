@@ -7,8 +7,9 @@ import { StreamableValue, useStreamableValue } from "ai/rsc";
 import { ToolInvocation, Message as MessageType } from "ai";
 import {
   ReasoningThinkingResultMessage,
+  XHSNoteCommentsResultMessage,
   XHSSearchResultMessage,
-  XHSUserPostsResultMessage,
+  XHSUserNotesResultMessage,
 } from "@/tools/ui";
 
 export const TextStreamMessage = ({
@@ -65,8 +66,10 @@ const ToolInvocationMessage = ({
         </pre>
         {toolName === "xhsSearch" ? (
           <XHSSearchResultMessage result={result} />
-        ) : toolName === "xhsUserPosts" ? (
-          <XHSUserPostsResultMessage result={result} />
+        ) : toolName === "xhsUserNotes" ? (
+          <XHSUserNotesResultMessage result={result} />
+        ) : toolName === "xhsNoteComments" ? (
+          <XHSNoteCommentsResultMessage result={result} />
         ) : toolName === "reasoningThinking" ? (
           <ReasoningThinkingResultMessage result={result} />
         ) : (
@@ -116,7 +119,8 @@ export const ChatMessage = (message: {
         {parts && (
           <div className="flex flex-col gap-4">
             {/* 目前先只保留最后5条用于避免页面越来越卡 */}
-            {parts.slice(-5).map((part, i) => {
+            {/* {parts.slice(-5).map((part, i) => { */}
+            {parts.map((part, i) => {
               switch (part.type) {
                 case "text":
                   return <PlainText key={i}>{part.text}</PlainText>;
