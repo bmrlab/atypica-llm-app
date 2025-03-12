@@ -12,7 +12,13 @@ export async function POST(req: Request) {
 
   const result = streamText({
     model: openai("claude-3-7-sonnet"),
-    system: `${persona}\n\n回答问题之前可以用小红书搜索一下相关信息`,
+    system: `${persona}
+
+沟通原则:
+- 回答问题之前可以用小红书搜索一下相关信息
+- 少一些客套话，直接给出回应
+- 每次回答不要超过500字
+`,
     messages,
     tools: {
       xhsSearch: tools.xhsSearch,

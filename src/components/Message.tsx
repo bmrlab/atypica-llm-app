@@ -47,20 +47,18 @@ const ToolInvocationMessage = ({
     toolInvocation.state === "call" ||
     toolInvocation.state === "partial-call"
   ) {
-    const { toolName, toolCallId, args } = toolInvocation;
+    const { toolName, args } = toolInvocation;
     return (
-      <div key={toolCallId}>
-        <div className="text-zinc-800 dark:text-zinc-300 flex flex-col gap-4">
-          <pre className="text-xs whitespace-pre-wrap">
-            正在执行 <strong>{toolName}</strong>({JSON.stringify(args)})
-          </pre>
-        </div>
+      <div className="text-zinc-800 dark:text-zinc-300 flex flex-col gap-4">
+        <pre className="text-xs whitespace-pre-wrap">
+          正在执行 <strong>{toolName}</strong>({JSON.stringify(args)})
+        </pre>
       </div>
     );
   } else if (toolInvocation.state === "result") {
-    const { toolName, toolCallId, args, result } = toolInvocation;
+    const { toolName, args, result } = toolInvocation;
     return (
-      <div key={toolCallId}>
+      <div>
         <pre className="text-xs my-2 whitespace-pre-wrap">
           <strong>{toolName}</strong>({JSON.stringify(args)}) 执行结果
         </pre>
@@ -118,8 +116,6 @@ export const ChatMessage = (message: {
         )}
         {parts && (
           <div className="flex flex-col gap-4">
-            {/* 目前先只保留最后5条用于避免页面越来越卡 */}
-            {/* {parts.slice(-5).map((part, i) => { */}
             {parts.map((part, i) => {
               switch (part.type) {
                 case "text":

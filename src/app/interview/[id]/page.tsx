@@ -1,6 +1,6 @@
 "use client";
 import { useParams } from "next/navigation";
-import { useCallback, useMemo, useRef, useState, useEffect } from "react";
+import { useCallback, useRef, useState, useEffect } from "react";
 import { ChatRequestOptions } from "ai";
 import {
   Message as MessageData,
@@ -46,7 +46,10 @@ export default function InterviewPage() {
     onFinish: (message, options) => {
       console.log("interviewer", message, options);
       if (options.finishReason === "stop") {
-        if (!stop) {
+        if (
+          !stop &&
+          !message.content.includes("本次访谈结束，谢谢您的参与！")
+        ) {
           appendRef.current?.({
             role: "user",
             content: message.content,
@@ -55,12 +58,6 @@ export default function InterviewPage() {
       }
     },
   });
-  const interviewerMessage = useMemo(() => {
-    const lastMessage = interviewer.messages[interviewer.messages.length - 1];
-    if (lastMessage?.role === "assistant") {
-      return lastMessage;
-    }
-  }, [interviewer.messages]);
 
   const {
     messages,
@@ -160,15 +157,18 @@ export default function InterviewPage() {
         )}
       </div>
       <div className="ml-10 w-[400px] h-full overflow-auto">
-        {interviewerMessage && (
-          <ChatMessage
-            key={interviewerMessage.id}
-            nickname={"品牌正在准备问题"}
-            role={interviewerMessage.role}
-            content={interviewerMessage.content}
-            parts={interviewerMessage.parts}
-          ></ChatMessage>
-        )}
+        {interviewer.messages
+          .filter((m) => m.role === "assistant")
+          .slice(-1)
+          .map((interviewerMessage) => (
+            <ChatMessage
+              key={interviewerMessage.id}
+              nickname={"品牌正在准备问题"}
+              role={interviewerMessage.role}
+              content={interviewerMessage.content}
+              parts={interviewerMessage.parts}
+            ></ChatMessage>
+          ))}
       </div>
     </div>
   );
