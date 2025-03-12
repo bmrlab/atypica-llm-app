@@ -11,9 +11,6 @@ interface XHSComment {
   like_count: number;
   liked: boolean;
   sub_comment_count: number;
-  show_type: string;
-  comment_type: number;
-  show_tags: string[];
 }
 
 export interface XHSNoteCommentsResult extends PlainTextToolResult {
@@ -39,9 +36,6 @@ function parseXHSNoteComments(data: {
       like_count: comment.like_count,
       liked: comment.liked,
       sub_comment_count: comment.sub_comment_count,
-      show_type: comment.show_type,
-      comment_type: comment.comment_type,
-      show_tags: comment.show_tags,
     };
   });
   const plainText = JSON.stringify(
@@ -65,7 +59,7 @@ export async function xhsNoteComments({ noteid }: { noteid: string }) {
     };
     const queryString = new URLSearchParams(params).toString();
     const response = await fetch(
-      `${process.env.XHS_API_BASE_URL}/get-note-comment/v1?${queryString}`,
+      `${process.env.XHS_API_BASE_URL}/get-note-comment/v2?${queryString}`,
     );
     const data = await response.json();
     console.log("Response text:", JSON.stringify(data).slice(0, 100));

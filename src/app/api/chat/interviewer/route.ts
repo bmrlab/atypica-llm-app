@@ -2,8 +2,8 @@ import { createOpenAI } from "@ai-sdk/openai";
 import { streamText } from "ai";
 import tools from "@/tools/tools";
 
-const role = "Crocs的产品经理";
-const subject = "「风火飞轮」和「恨天高」这两个名字哪个更适合。";
+const role = "卡地亚市场部专员";
+const subject = "希望在小红书看到怎样的内容？";
 const system = `你是一位资深的用户访谈专家。你将要使用给定的角色 “${role}” 对用户进行访谈，以评估新产品创新方案。
 
 方案主题是:

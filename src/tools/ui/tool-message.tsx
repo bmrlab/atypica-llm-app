@@ -22,6 +22,7 @@ export const XHSSearchResultMessage: FC<{ result: XHSSearchResult }> = ({
                 <Image
                   src={note.user.images}
                   alt="User Avatar"
+                  sizes="100%"
                   fill
                   className="object-cover rounded-full"
                 />
@@ -60,6 +61,7 @@ export const XHSUserNotesResultMessage: FC<{ result: XHSUserNotesResult }> = ({
                 <Image
                   src={note.user.images}
                   alt="User Avatar"
+                  sizes="100%"
                   fill
                   className="object-cover rounded-full"
                 />
@@ -91,7 +93,13 @@ export const XHSNoteCommentsResultMessage: FC<{
           className="flex items-start justify-start gap-3 mb-4"
         >
           <div className="relative mt-2 w-8 h-8 rounded-full overflow-hidden">
-            <Image src={comment.user.images} alt="User Avatar" fill />
+            <Image
+              src={comment.user.images}
+              alt="User Avatar"
+              className="object-cover"
+              sizes="100%"
+              fill
+            />
           </div>
           <div>
             <strong className="text-xs text-gray-600">

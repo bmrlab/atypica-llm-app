@@ -29,6 +29,7 @@ export const ImageCarousel: FC<{
         src={images[currentIndex].url || images[currentIndex].url_size_large}
         alt="Note image"
         fill
+        sizes="100%"
         className="object-cover"
       />
       {images.length > 1 && (
