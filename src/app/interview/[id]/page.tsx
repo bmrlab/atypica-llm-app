@@ -1,11 +1,6 @@
-import { fetchPersonaById } from "@/app/api/personas/[id]/route";
+import { fetchPersonaById } from "@/app/personas/data";
 import { Interview } from "./Interview";
 import { notFound } from "next/navigation";
-
-async function getPersona(id: string) {
-  const persona = await fetchPersonaById(id);
-  return persona;
-}
 
 export default async function InterviewPage({
   params,
@@ -13,7 +8,7 @@ export default async function InterviewPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const persona = await getPersona(id);
+  const persona = await fetchPersonaById(id);
   if (!persona) {
     notFound();
   }

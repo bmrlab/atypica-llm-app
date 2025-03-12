@@ -3,7 +3,7 @@ import { useCallback, useRef, useState } from "react";
 import { useChat } from "@ai-sdk/react";
 import { ChatMessage } from "@/components/Message";
 import { useScrollToBottom } from "@/components/use-scroll-to-bottom";
-import { Persona } from "@/app/api/personas/route";
+import { Persona } from "@/app/personas/data";
 
 export function Interview({ persona }: { persona: Persona }) {
   const [stop, setStop] = useState(false);
@@ -12,7 +12,7 @@ export function Interview({ persona }: { persona: Persona }) {
 
   const interviewer = useChat({
     maxSteps: 5,
-    api: "/api/chat/interviewer",
+    api: "/interview/api/chat/interviewer",
     onFinish: (message, options) => {
       console.log("interviewer", message, options);
       if (options.finishReason === "stop") {
@@ -31,7 +31,7 @@ export function Interview({ persona }: { persona: Persona }) {
 
   const personaAgent = useChat({
     maxSteps: 5,
-    api: "/api/chat/persona",
+    api: "/interview/api/chat/persona",
     body: {
       persona: persona?.prompt,
     },

@@ -1,7 +1,6 @@
 import fs from "fs";
 import path from "path";
 import yaml from "js-yaml";
-import { NextResponse } from "next/server";
 
 export interface Persona {
   id: string;
@@ -12,7 +11,7 @@ export interface Persona {
   prompt: string;
 }
 
-async function getPersonas() {
+export async function fetchAllPersonas() {
   const personasDirectory = path.join(process.cwd(), "public/personas");
   const files = fs.readdirSync(personasDirectory);
   const yamlFiles = files.filter((file) => file.endsWith(".yaml"));
@@ -29,7 +28,15 @@ async function getPersonas() {
   return personas;
 }
 
-export async function GET() {
-  const personas = await getPersonas();
-  return NextResponse.json(personas);
+export async function fetchPersonaById(id: string): Promise<Persona | null> {
+  const filename = `${id}.yaml`;
+  const filePath = path.join(process.cwd(), "public/personas", filename);
+
+  try {
+    const fileContent = fs.readFileSync(filePath, "utf8");
+    return yaml.load(fileContent) as Persona;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
 }
