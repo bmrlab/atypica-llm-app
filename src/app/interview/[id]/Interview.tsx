@@ -4,6 +4,7 @@ import { useChat } from "@ai-sdk/react";
 import { ChatMessage } from "@/components/Message";
 import { useScrollToBottom } from "@/components/use-scroll-to-bottom";
 import { Persona } from "@/app/personas/data";
+import imageUrl from "./image";
 
 export function Interview({ persona }: { persona: Persona }) {
   const [stop, setStop] = useState(false);
@@ -39,10 +40,24 @@ export function Interview({ persona }: { persona: Persona }) {
       if (options.finishReason === "stop") {
         // 所有 tool call 都结束，给了最后回答
         if (!stop) {
-          interviewer.append({
-            role: "user",
-            content: message.content,
-          });
+          interviewer.append(
+            {
+              role: "user",
+              content: message.content,
+            },
+            // 第一条消息带上创意方案
+            interviewer.messages.length === 0
+              ? {
+                  experimental_attachments: [
+                    {
+                      name: "AUX 空调宣传方案.jpg",
+                      contentType: "image/jpeg",
+                      url: imageUrl,
+                    },
+                  ],
+                }
+              : {},
+          );
         }
       }
     },
@@ -55,10 +70,21 @@ export function Interview({ persona }: { persona: Persona }) {
       return;
     }
     setStop(false);
-    personaAgent.append({
-      role: "user",
-      content: "你好，请介绍一下自己",
-    });
+    personaAgent.append(
+      {
+        role: "user",
+        content: "你好，请介绍一下自己，然后请看图",
+      },
+      {
+        experimental_attachments: [
+          {
+            name: "AUX 空调宣传方案.jpg",
+            contentType: "image/jpeg",
+            url: imageUrl,
+          },
+        ],
+      },
+    );
   }, [personaAgent, persona]);
 
   const stopConversation = useCallback(() => {

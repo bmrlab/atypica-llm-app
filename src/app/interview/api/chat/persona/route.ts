@@ -11,7 +11,7 @@ export async function POST(req: Request) {
   const { messages, persona } = await req.json();
 
   const result = streamText({
-    model: openai("claude-3-7-sonnet"),
+    model: openai("gpt-4o"),
     system: `${persona}
 
 背景:
