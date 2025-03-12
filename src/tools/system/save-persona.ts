@@ -6,11 +6,13 @@ export async function savePersona({
   title,
   source,
   tags,
+  userids,
   personaPrompt,
 }: {
   title: string;
   source: string;
   tags: string[];
+  userids: string[];
   personaPrompt: string;
 }) {
   try {
@@ -29,6 +31,9 @@ export async function savePersona({
       date,
       source,
       tags,
+      userids: userids.map(
+        (id) => `https://www.xiaohongshu.com/user/profile/${id}`,
+      ),
       prompt: personaPrompt,
     });
     await fs.writeFile(filePath, content);

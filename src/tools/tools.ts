@@ -70,13 +70,20 @@ const tools = {
       title: z.string().describe("Persona 的标题"),
       source: z.string().describe("数据来源"),
       tags: z.array(z.string()).describe("相关标签"),
+      userids: z.array(z.string()).describe("该人设典型的用户 ID 列表"),
       personaPrompt: z.string().describe("生成的 persona prompt 内容"),
     }),
     experimental_toToolResultContent: (result: PlainTextToolResult) => {
       return [{ type: "text", text: result.plainText }];
     },
-    execute: async ({ title, source, tags, personaPrompt }) => {
-      const result = await savePersona({ title, source, tags, personaPrompt });
+    execute: async ({ title, source, tags, userids, personaPrompt }) => {
+      const result = await savePersona({
+        title,
+        source,
+        tags,
+        userids,
+        personaPrompt,
+      });
       return result;
     },
   }),
