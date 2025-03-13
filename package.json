@@ -13,6 +13,7 @@
     "@ai-sdk/openai": "^1.2.1",
     "@ai-sdk/react": "^1.1.21",
     "@prisma/client": "6.5.0",
+    "@radix-ui/react-dialog": "^1.1.6",
     "@radix-ui/react-slot": "^1.1.2",
     "ai": "^4.1.54",
     "class-variance-authority": "^0.7.1",
