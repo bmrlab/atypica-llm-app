@@ -4,7 +4,7 @@ import { useChat } from "@ai-sdk/react";
 import { ChatMessage } from "@/components/Message";
 import { useScrollToBottom } from "@/components/use-scroll-to-bottom";
 import { Persona } from "@/app/personas/data";
-import imageUrl from "./image";
+// import imageUrl from "./image";
 
 export function Interview({ persona }: { persona: Persona }) {
   const [stop, setStop] = useState(false);
@@ -46,17 +46,17 @@ export function Interview({ persona }: { persona: Persona }) {
               content: message.content,
             },
             // 第一条消息带上创意方案
-            interviewer.messages.length === 0
-              ? {
-                  experimental_attachments: [
-                    {
-                      name: "AUX 空调宣传方案.jpg",
-                      contentType: "image/jpeg",
-                      url: imageUrl,
-                    },
-                  ],
-                }
-              : {},
+            // interviewer.messages.length === 0
+            //   ? {
+            //       experimental_attachments: [
+            //         {
+            //           name: "AUX 空调宣传方案.jpg",
+            //           contentType: "image/jpeg",
+            //           url: imageUrl,
+            //         },
+            //       ],
+            //     }
+            //   : {},
           );
         }
       }
@@ -73,17 +73,17 @@ export function Interview({ persona }: { persona: Persona }) {
     personaAgent.append(
       {
         role: "user",
-        content: "你好，请介绍一下自己，然后请看图",
+        content: "你好，请介绍一下自己",
       },
-      {
-        experimental_attachments: [
-          {
-            name: "AUX 空调宣传方案.jpg",
-            contentType: "image/jpeg",
-            url: imageUrl,
-          },
-        ],
-      },
+      // {
+      //   experimental_attachments: [
+      //     {
+      //       name: "AUX 空调宣传方案.jpg",
+      //       contentType: "image/jpeg",
+      //       url: imageUrl,
+      //     },
+      //   ],
+      // },
     );
   }, [personaAgent, persona]);
 
