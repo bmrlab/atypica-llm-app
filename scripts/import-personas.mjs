@@ -31,8 +31,8 @@ async function importPersonas() {
           data: {
             title: persona.title,
             source: persona.source,
-            tags: JSON.stringify(persona.tags || []),
-            userids: JSON.stringify(persona.userids || []),
+            tags: persona.tags || [],
+            userids: persona.userids || [],
             prompt: persona.prompt,
           },
         });

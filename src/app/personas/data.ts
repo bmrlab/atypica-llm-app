@@ -1,42 +1,51 @@
-import fs from "fs";
-import path from "path";
-import yaml from "js-yaml";
+import { prisma } from "@/lib/prisma";
 
 export interface Persona {
   id: string;
   title: string;
-  date: string;
   source: string;
   tags: string[];
   prompt: string;
 }
 
-export async function fetchAllPersonas() {
-  const personasDirectory = path.join(process.cwd(), "public/personas");
-  const files = fs.readdirSync(personasDirectory);
-  const yamlFiles = files.filter((file) => file.endsWith(".yaml"));
-
-  const personas = yamlFiles.map((filename) => {
-    const filePath = path.join(personasDirectory, filename);
-    const fileContent = fs.readFileSync(filePath, "utf8");
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const jsonData: any = yaml.load(fileContent);
-    jsonData.id = filename.replace(".yaml", "");
-    return jsonData as Persona;
-  });
-
-  return personas;
+export async function fetchAllPersonas(): Promise<Persona[]> {
+  try {
+    const personas = await prisma.persona.findMany();
+    return personas.map((persona) => {
+      return {
+        id: persona.id.toString(),
+        title: persona.title,
+        source: persona.source,
+        tags: persona.tags as string[],
+        prompt: persona.prompt,
+      };
+    });
+  } catch (error) {
+    console.error("Error fetching personas:", error);
+    throw error;
+  }
 }
 
+// fetchPersonaById 也可以用 Prisma 重写
 export async function fetchPersonaById(id: string): Promise<Persona | null> {
-  const filename = `${id}.yaml`;
-  const filePath = path.join(process.cwd(), "public/personas", filename);
-
   try {
-    const fileContent = fs.readFileSync(filePath, "utf8");
-    return yaml.load(fileContent) as Persona;
+    const persona = await prisma.persona.findUnique({
+      where: {
+        id: parseInt(id),
+      },
+    });
+    if (!persona) {
+      return null;
+    }
+    return {
+      id: persona.id.toString(),
+      title: persona.title,
+      source: persona.source,
+      tags: persona.tags as string[],
+      prompt: persona.prompt,
+    };
   } catch (error) {
-    console.error(error);
+    console.error("Error fetching persona:", error);
     return null;
   }
 }

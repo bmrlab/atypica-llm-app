@@ -1,6 +1,4 @@
-import path from "path";
-import fs from "fs/promises";
-import YAML from "js-yaml";
+import { prisma } from "@/lib/prisma";
 
 export async function savePersona({
   title,
@@ -16,32 +14,21 @@ export async function savePersona({
   personaPrompt: string;
 }) {
   try {
-    const timestamp = Date.now();
-    const date = new Date(timestamp).toISOString().split("T")[0];
-    const filename = `${timestamp}.yaml`;
-    const dirPath = path.join(process.cwd(), "public/personas");
-
-    // Ensure directory exists
-    await fs.mkdir(dirPath, { recursive: true });
-
-    // Save file
-    const filePath = path.join(dirPath, filename);
-    const content = YAML.dump({
-      title,
-      date,
-      source,
-      tags,
-      userids: userids.map(
-        (id) => `https://www.xiaohongshu.com/user/profile/${id}`,
-      ),
-      prompt: personaPrompt,
+    const persona = await prisma.persona.create({
+      data: {
+        title,
+        source,
+        tags, // 假设数据库支持数组类型
+        userids: userids.map(
+          (id) => `https://www.xiaohongshu.com/user/profile/${id}`,
+        ),
+        prompt: personaPrompt,
+      },
     });
-    await fs.writeFile(filePath, content);
 
     return {
-      filePath,
-      timestamp,
-      plainText: `Saved persona prompt to ${filePath}`,
+      id: persona.id,
+      plainText: `Saved persona prompt to DB with id ${persona.id}`,
     };
   } catch (error) {
     console.error("Error saving persona:", error);
