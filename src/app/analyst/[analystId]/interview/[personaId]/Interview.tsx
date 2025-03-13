@@ -6,6 +6,7 @@ import { useScrollToBottom } from "@/components/use-scroll-to-bottom";
 import { Analyst, Persona } from "@/data";
 import { Markdown } from "@/components/markdown";
 import { AnalystInterview } from "@/data";
+import { Button } from "@/components/ui/button";
 // import imageUrl from "./image";
 
 export function Interview({
@@ -164,27 +165,12 @@ export function Interview({
         <div className="flex justify-center items-center">
           {stop === "initial" ? (
             personaAgent.messages.length === 0 ? (
-              <button
-                onClick={startConversation}
-                className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-              >
-                开始会话
-              </button>
+              <Button onClick={startConversation}>开始会话</Button>
             ) : (
-              <button
-                onClick={restartConversation}
-                className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-              >
-                重新开始会话
-              </button>
+              <Button onClick={restartConversation}>重新开始会话</Button>
             )
           ) : stop === "talking" ? (
-            <button
-              onClick={stopConversation}
-              className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-            >
-              结束会话
-            </button>
+            <Button onClick={stopConversation}>结束会话</Button>
           ) : (
             <div>会话结束</div>
           )}
