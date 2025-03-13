@@ -3,14 +3,22 @@ import { prisma } from "@/lib/prisma";
 
 export async function POST(
   request: Request,
-  { params }: { params: { analystId: string; personaId: string } },
+  { params }: { params: Promise<{ analystId: string; personaId: string }> },
 ) {
-  const analystId = parseInt(params.analystId);
-  const personaId = parseInt(params.personaId);
+  const paramsResolved = await params;
+  const analystId = parseInt(paramsResolved.analystId);
+  const personaId = parseInt(paramsResolved.personaId);
 
   try {
-    const interview = await prisma.analystInterview.create({
-      data: {
+    const interview = await prisma.analystInterview.upsert({
+      where: {
+        analystId_personaId: {
+          analystId,
+          personaId,
+        },
+      },
+      update: {},
+      create: {
         analystId,
         personaId,
         personaPrompt: "",

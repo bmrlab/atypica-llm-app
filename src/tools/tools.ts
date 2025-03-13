@@ -19,7 +19,13 @@ const tools = {
     experimental_toToolResultContent: (result: PlainTextToolResult) => {
       return [{ type: "text", text: result.plainText }];
     },
-    execute: async ({ background, question }) => {
+    execute: async (
+      { background, question },
+      {
+        // 第二个参数有 messages 等数据
+        // messages
+      },
+    ) => {
       const result = await reasoningThinking({ background, question });
       return result;
     },

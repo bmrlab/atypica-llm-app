@@ -88,7 +88,7 @@ const ToolInvocationMessage = ({
 
 const PlainText = ({ children }: PropsWithChildren) => {
   return (
-    <div className="text-xs text-zinc-800 dark:text-zinc-300 flex flex-col gap-4">
+    <div className="text-sm text-zinc-800 dark:text-zinc-300 flex flex-col gap-4">
       <Markdown>{children as string}</Markdown>
     </div>
   );
