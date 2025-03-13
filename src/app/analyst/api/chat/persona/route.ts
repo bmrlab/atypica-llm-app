@@ -1,31 +1,13 @@
 import { createOpenAI } from "@ai-sdk/openai";
 import { Message, streamText } from "ai";
 import tools from "@/tools/tools";
-import { Persona, AnalystInterview } from "@/data";
+import { Persona } from "@/data";
 import { prisma } from "@/lib/prisma";
 
 const openai = createOpenAI({
   apiKey: process.env.OPENAI_API_KEY,
   baseURL: process.env.OPENAI_BASE_URL,
 });
-
-const updateAnalystInterview = async (
-  id: number,
-  personaPrompt: string,
-  messages: AnalystInterview["messages"],
-) => {
-  try {
-    await prisma.analystInterview.update({
-      where: { id },
-      data: {
-        personaPrompt,
-        messages,
-      },
-    });
-  } catch (error) {
-    console.error("Error saving messages:", error);
-  }
-};
 
 export async function POST(req: Request) {
   const { messages, persona, analystInterviewId } = (await req.json()) as {
@@ -53,8 +35,20 @@ export async function POST(req: Request) {
 - 适当表达情感,让回答更有温度
 `;
 
+  try {
+    await prisma.analystInterview.update({
+      where: { id: analystInterviewId },
+      data: {
+        personaPrompt: systemPrompt,
+      },
+    });
+  } catch (error) {
+    console.error("Error saving personaPrompt:", error);
+  }
+
   const result = streamText({
     model: openai("gpt-4o"),
+    // model: openai("claude-3-7-sonnet"),
     system: systemPrompt,
     messages, // useChat 和 api 通信的时候，自己维护的这个 messages 会在每次请求的时候去掉 id
     tools: {
@@ -64,20 +58,18 @@ export async function POST(req: Request) {
     onError: async (error) => {
       console.error("Error occurred:", error);
     },
-    onFinish: async (response) => {
-      if (response.finishReason === "stop") {
-        await updateAnalystInterview(analystInterviewId, systemPrompt, [
-          ...messages.map((message) => ({
-            role: message.role,
-            content: message.content,
-          })),
-          {
-            role: "assistant",
-            content: response.text,
-          },
-        ]);
-      }
-    },
+    // 这里保存有问题，有时候 tool 的 result 是 experimental_toToolResultContent 的结果，没有 tool 返回的结果
+    // onFinish: async (response) => {
+    //   const finalMessages = appendResponseMessages({
+    //     messages,
+    //     responseMessages: response.response.messages,
+    //   });
+    //   await updateAnalystInterview(
+    //     analystInterviewId,
+    //     systemPrompt,
+    //     finalMessages,
+    //   );
+    // },
   });
 
   return result.toDataStreamResponse();

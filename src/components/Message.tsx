@@ -19,7 +19,7 @@ const ToolArgs: FC<
 > = ({ title, args, className }) => {
   return (
     <pre
-      className={`text-xs whitespace-pre-wrap bg-gray-200 rounded-lg p-2 ${className}`}
+      className={`text-xs whitespace-pre-wrap bg-gray-50 border border-gray-100 rounded-lg p-2 ${className}`}
     >
       <div className="ml-2 mt-1 font-bold">{title}</div>
       <table className="text-left mt-2">
@@ -100,7 +100,7 @@ export const ChatMessage = (message: {
   content: string | ReactNode;
   parts: MessageType["parts"];
 }) => {
-  const { nickname, role, parts } = message;
+  const { nickname, role, content, parts } = message;
 
   return (
     <motion.div
@@ -112,13 +112,13 @@ export const ChatMessage = (message: {
         {role === "assistant" ? <BotIcon /> : <UserIcon />}
       </div>
 
-      <div className="flex flex-col gap-6 w-full">
+      <div className="flex flex-col gap-6 flex-1 overflow-hidden">
         {nickname && (
           <div className="leading-[24px] text-zinc-800 text-sm font-medium">
             {nickname}
           </div>
         )}
-        {parts && (
+        {parts ? (
           <div className="flex flex-col gap-4">
             {parts.map((part, i) => {
               switch (part.type) {
@@ -142,6 +142,8 @@ export const ChatMessage = (message: {
               }
             })}
           </div>
+        ) : (
+          <PlainText>{content}</PlainText>
         )}
       </div>
     </motion.div>

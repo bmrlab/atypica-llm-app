@@ -11,7 +11,7 @@ export const XHSSearchResultMessage: FC<{ result: XHSSearchResult }> = ({
   result: { notes },
 }) => {
   return (
-    <div className="flex flex-row gap-6 flex-wrap p-6 bg-gray-50 border border-gray-100 rounded-lg">
+    <div className="flex flex-row gap-6 w-full overflow-x-scroll p-6 bg-gray-50 border border-gray-100 rounded-lg">
       {/* 只挑选 10 条展示 */}
       {notes.slice(0, 10).map((note) => (
         <div key={note.id} className="flex flex-col items-center w-[180px]">

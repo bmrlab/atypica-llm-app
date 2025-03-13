@@ -2,6 +2,7 @@ import { createOpenAI } from "@ai-sdk/openai";
 import { streamText } from "ai";
 import tools from "@/tools/tools";
 import { Analyst } from "@/data";
+import { prisma } from "@/lib/prisma";
 
 const openai = createOpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -16,7 +17,7 @@ export async function POST(req: Request) {
     analystInterviewId: number;
   };
 
-  const systemPrompt = `你是“${analyst.role}”，你将对用户进行访谈，主题是:
+  const systemPrompt = `你是${analyst.role}，你将对用户进行访谈，主题是:
 <topic>
 ${analyst.topic}
 </topic>
@@ -60,19 +61,30 @@ ${analyst.topic}
 - 避免诱导性问题
 - 遇到关键信息及时确认理解
 - 适度引导但不打断用户表达
-- 不要超过1轮对话，每次提问不要超过100字
+- 不要超过5轮对话，每次提问不要超过100字
 </communication_principles>
 
 <closing_process>
 1. 首先输出以下结束语:
 "本次访谈结束，谢谢您的参与！"
 
-2. 然后进行评估总结并保存到数据库:
+2. 然后把总结保存到数据库:
 - 访谈结论
 - 用户画像总结
 - 精彩对话摘录
 </closing_process>
 `;
+
+  try {
+    await prisma.analystInterview.update({
+      where: { id: analystInterviewId },
+      data: {
+        interviewerPrompt: systemPrompt,
+      },
+    });
+  } catch (error) {
+    console.error("Error saving personaPrompt:", error);
+  }
 
   const result = streamText({
     // model: openai("o3-mini"),

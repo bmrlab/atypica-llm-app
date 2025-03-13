@@ -7,9 +7,12 @@ export interface AnalystInterview {
   personaPrompt: string;
   interviewerPrompt: string;
   messages: {
+    id: string;
     role: "data" | "system" | "user" | "assistant";
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     content: any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    parts?: any[];
   }[];
   conclusion: string;
 }

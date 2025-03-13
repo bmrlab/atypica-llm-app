@@ -6,7 +6,6 @@ import { useScrollToBottom } from "@/components/use-scroll-to-bottom";
 import { Analyst, Persona } from "@/data";
 import { Markdown } from "@/components/markdown";
 import { AnalystInterview } from "@/data";
-import { generateId } from "ai";
 // import imageUrl from "./image";
 
 export function Interview({
@@ -54,7 +53,7 @@ export function Interview({
       persona,
       analystInterviewId: analystInterview.id,
     },
-    onFinish: (message, options) => {
+    onFinish: async (message, options) => {
       if (options.finishReason === "stop") {
         interviewerRef.current?.append(
           {
@@ -64,14 +63,22 @@ export function Interview({
           // 第一条消息带上创意方案
           // interviewer.messages.length === 0 ? { experimental_attachments: [{ name: "AUX 空调宣传方案.jpg", contentType: "image/jpeg", url: imageUrl }] } : {},
         );
+        await fetch("/analyst/api/chat/save", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            messages: personaAgentRef.current?.messages,
+            analystInterviewId: analystInterview.id,
+          }),
+        });
       }
     },
     initialMessages: useMemo(
       () =>
         analystInterview.messages.map((message) => ({
-          id: generateId(),
-          role: message.role,
-          content: message.content,
+          ...message,
         })),
       [analystInterview.messages],
     ),
@@ -113,7 +120,7 @@ export function Interview({
       <div className="text-xs w-[400px] m-10 h-full overflow-y-scroll">
         <Markdown>{analystInterview.conclusion}</Markdown>
       </div>
-      <div className="flex flex-col justify-between gap-4 w-[1200px] h-full">
+      <div className="flex flex-col justify-between gap-4 w-[1000px] h-full">
         <div
           ref={messagesContainerRef}
           className="flex flex-col gap-6 h-full w-full items-center overflow-y-scroll"
