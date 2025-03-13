@@ -24,6 +24,22 @@ export interface Analyst {
   report: string;
 }
 
+export async function fetchAnalysts() {
+  const analysts = await prisma.analyst.findMany({
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+  return analysts.map((analyst) => {
+    return {
+      id: analyst.id,
+      role: analyst.role,
+      topic: analyst.topic,
+      report: analyst.report,
+    };
+  });
+}
+
 export async function fetchAnalystById(id: number): Promise<Analyst | null> {
   try {
     const analyst = await prisma.analyst.findUnique({

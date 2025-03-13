@@ -36,7 +36,7 @@ export default function Home() {
             </CardHeader>
           </Card>
         </Link>
-        <Link href="/personas">
+        <Link href="/analyst">
           <Card className="h-full hover:bg-accent/50 transition-colors">
             <CardHeader>
               <CardTitle>Topics</CardTitle>
