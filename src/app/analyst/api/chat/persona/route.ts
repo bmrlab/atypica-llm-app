@@ -1,6 +1,7 @@
 import { createOpenAI } from "@ai-sdk/openai";
 import { streamText } from "ai";
 import tools from "@/tools/tools";
+import { Persona } from "@/app/personas/data";
 
 const openai = createOpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -8,11 +9,15 @@ const openai = createOpenAI({
 });
 
 export async function POST(req: Request) {
-  const { messages, persona } = await req.json();
+  const { messages, persona } = (await req.json()) as {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    messages: any[];
+    persona: Persona;
+  };
 
   const result = streamText({
     model: openai("gpt-4o"),
-    system: `${persona}
+    system: `${persona.prompt}
 
 背景:
 你正在接受一个访谈,需要回答采访者的问题。

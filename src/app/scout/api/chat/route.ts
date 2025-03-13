@@ -65,7 +65,7 @@ export async function POST(req: Request) {
     system,
     messages,
     tools: {
-      // reasoningThinking: tools.reasoningThinking,
+      reasoningThinking: tools.reasoningThinking,
       xhsSearch: tools.xhsSearch,
       xhsUserNotes: tools.xhsUserNotes,
       xhsNoteComments: tools.xhsNoteComments,

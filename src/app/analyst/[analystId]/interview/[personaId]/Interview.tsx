@@ -4,16 +4,26 @@ import { useChat } from "@ai-sdk/react";
 import { ChatMessage } from "@/components/Message";
 import { useScrollToBottom } from "@/components/use-scroll-to-bottom";
 import { Persona } from "@/app/personas/data";
+import { Analyst } from "@/app/analyst/data";
 // import imageUrl from "./image";
 
-export function Interview({ persona }: { persona: Persona }) {
+export function Interview({
+  analyst,
+  persona,
+}: {
+  analyst: Analyst;
+  persona: Persona;
+}) {
   const [stop, setStop] = useState(false);
 
   const personaAgentRef = useRef<ReturnType<typeof useChat>>(null);
 
   const interviewer = useChat({
     maxSteps: 5,
-    api: "/interview/api/chat/interviewer",
+    api: "/analyst/api/chat/interviewer",
+    body: {
+      analyst,
+    },
     onFinish: (message, options) => {
       console.log("interviewer", message, options);
       if (options.finishReason === "stop") {
@@ -32,9 +42,9 @@ export function Interview({ persona }: { persona: Persona }) {
 
   const personaAgent = useChat({
     maxSteps: 5,
-    api: "/interview/api/chat/persona",
+    api: "/analyst/api/chat/persona",
     body: {
-      persona: persona?.prompt,
+      persona,
     },
     onFinish: (message, options) => {
       if (options.finishReason === "stop") {
@@ -66,14 +76,11 @@ export function Interview({ persona }: { persona: Persona }) {
   personaAgentRef.current = personaAgent;
 
   const startConversation = useCallback(() => {
-    if (!persona) {
-      return;
-    }
     setStop(false);
     personaAgent.append(
       {
         role: "user",
-        content: "你好，请介绍一下自己",
+        content: `你好，我是${analyst.role}，今天我想和您进行一次访谈，主题是：\n${analyst.topic}\n\n访谈开始之前，请您先自我介绍一下。`,
       },
       // {
       //   experimental_attachments: [
@@ -85,7 +92,7 @@ export function Interview({ persona }: { persona: Persona }) {
       //   ],
       // },
     );
-  }, [personaAgent, persona]);
+  }, [personaAgent, analyst]);
 
   const stopConversation = useCallback(() => {
     setStop(true);

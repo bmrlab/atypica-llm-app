@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 
 export interface Persona {
-  id: string;
+  id: number;
   name: string;
   source: string;
   tags: string[];
@@ -13,7 +13,7 @@ export async function fetchAllPersonas(): Promise<Persona[]> {
     const personas = await prisma.persona.findMany();
     return personas.map((persona) => {
       return {
-        id: persona.id.toString(),
+        id: persona.id,
         name: persona.name,
         source: persona.source,
         tags: persona.tags as string[],
@@ -26,19 +26,18 @@ export async function fetchAllPersonas(): Promise<Persona[]> {
   }
 }
 
-// fetchPersonaById 也可以用 Prisma 重写
-export async function fetchPersonaById(id: string): Promise<Persona | null> {
+export async function fetchPersonaById(id: number): Promise<Persona | null> {
   try {
     const persona = await prisma.persona.findUnique({
       where: {
-        id: parseInt(id),
+        id: id,
       },
     });
     if (!persona) {
       return null;
     }
     return {
-      id: persona.id.toString(),
+      id: persona.id,
       name: persona.name,
       source: persona.source,
       tags: persona.tags as string[],

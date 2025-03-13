@@ -92,7 +92,7 @@ export const ChatMessage = (message: {
 
   const PlainText = ({ children }: PropsWithChildren) => {
     return (
-      <div className="text-zinc-800 dark:text-zinc-300 flex flex-col gap-4 text-sm">
+      <div className="text-zinc-800 dark:text-zinc-300 flex flex-col gap-4">
         <Markdown>{children as string}</Markdown>
       </div>
     );

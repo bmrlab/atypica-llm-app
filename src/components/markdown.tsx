@@ -27,7 +27,7 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
     },
     ol: ({ node, children, ...props }: any) => {
       return (
-        <ol className="list-decimal list-inside ml-4" {...props}>
+        <ol className="text-sm list-decimal list-inside ml-4" {...props}>
           {children}
         </ol>
       );
@@ -41,7 +41,7 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
     },
     ul: ({ node, children, ...props }: any) => {
       return (
-        <ul className="list-disc list-inside ml-4" {...props}>
+        <ul className="text-sm list-disc list-inside ml-4" {...props}>
           {children}
         </ul>
       );
@@ -51,6 +51,13 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
         <span className="font-semibold" {...props}>
           {children}
         </span>
+      );
+    },
+    p: ({ node, children, ...props }: any) => {
+      return (
+        <p className="text-sm whitespace-pre-wrap" {...props}>
+          {children}
+        </p>
       );
     },
   };
