@@ -17,6 +17,45 @@ export interface AnalystInterview {
   conclusion: string;
 }
 
+export async function fetchAnalystInterviews(
+  analystId: number,
+): Promise<(AnalystInterview & { persona: Persona })[]> {
+  const interviews = await prisma.analystInterview.findMany({
+    where: { analystId },
+    include: {
+      persona: true,
+    },
+  });
+  return interviews.map((interview) => {
+    const {
+      id,
+      analystId,
+      personaId,
+      persona,
+      personaPrompt,
+      interviewerPrompt,
+      messages,
+      conclusion,
+    } = interview;
+    return {
+      id,
+      analystId,
+      personaId,
+      persona: {
+        id: persona.id,
+        name: persona.name,
+        source: persona.source,
+        tags: persona.tags as string[],
+        prompt: persona.prompt,
+      },
+      personaPrompt,
+      interviewerPrompt,
+      messages: messages as AnalystInterview["messages"],
+      conclusion,
+    };
+  });
+}
+
 export interface Analyst {
   id: number;
   role: string;
@@ -30,12 +69,12 @@ export async function fetchAnalysts() {
       createdAt: "desc",
     },
   });
-  return analysts.map((analyst) => {
+  return analysts.map(({ id, role, topic, report }) => {
     return {
-      id: analyst.id,
-      role: analyst.role,
-      topic: analyst.topic,
-      report: analyst.report,
+      id,
+      role,
+      topic,
+      report,
     };
   });
 }
@@ -73,13 +112,13 @@ export interface Persona {
 export async function fetchAllPersonas(): Promise<Persona[]> {
   try {
     const personas = await prisma.persona.findMany();
-    return personas.map((persona) => {
+    return personas.map(({ id, name, source, tags, prompt }) => {
       return {
-        id: persona.id,
-        name: persona.name,
-        source: persona.source,
-        tags: persona.tags as string[],
-        prompt: persona.prompt,
+        id,
+        name,
+        source,
+        tags: tags as string[],
+        prompt,
       };
     });
   } catch (error) {

@@ -59,7 +59,17 @@ export function AnalystsList({
           {analysts.map((analyst) => (
             <Card key={analyst.id} className="w-full">
               <CardHeader>
-                <CardTitle className="text-xl">{analyst.role}</CardTitle>
+                <CardTitle className="text-xl flex flex-row items-center justify-between">
+                  <div>{analyst.role}</div>
+                  <Button
+                    size="sm"
+                    onClick={() => router.push(`/analyst/${analyst.id}`)}
+                    variant="outline"
+                    className="ml-auto"
+                  >
+                    查看详情
+                  </Button>
+                </CardTitle>
                 <CardDescription className="mt-2 whitespace-pre-wrap">
                   {analyst.topic}
                 </CardDescription>
