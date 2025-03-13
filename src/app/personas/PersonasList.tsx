@@ -1,6 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { Persona } from "./data";
+import { Persona } from "@/data";
 
 export default function PersonasList({ personas }: { personas: Persona[] }) {
   const router = useRouter();

@@ -1,7 +1,7 @@
 import { createOpenAI } from "@ai-sdk/openai";
 import { streamText } from "ai";
 import tools from "@/tools/tools";
-import { Analyst } from "@/app/analyst/data";
+import { Analyst } from "@/data";
 
 const openai = createOpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -80,7 +80,7 @@ ${analyst.topic}
     system: systemPrompt,
     messages,
     tools: {
-      // reasoningThinking: tools.reasoningThinking,
+      reasoningThinking: tools.reasoningThinking,
       saveInterviewConclusion:
         tools.saveInterviewConclusion(analystInterviewId),
     },

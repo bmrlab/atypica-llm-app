@@ -1,8 +1,9 @@
-import { fetchPersonaById } from "@/app/personas/data";
+import { fetchPersonaById } from "@/data";
 import { Interview } from "./Interview";
 import { notFound } from "next/navigation";
-import { fetchAnalystById } from "@/app/analyst/data";
+import { fetchAnalystById } from "@/data";
 import { prisma } from "@/lib/prisma";
+import { AnalystInterview } from "@/data";
 
 export default async function InterviewPage({
   params,
@@ -42,7 +43,15 @@ export default async function InterviewPage({
 
   return (
     <Interview
-      analystInterviewId={analystInterview.id}
+      analystInterview={{
+        id: analystInterview.id,
+        analystId: analystInterview.analystId,
+        personaId: analystInterview.personaId,
+        personaPrompt: analystInterview.personaPrompt,
+        interviewerPrompt: analystInterview.interviewerPrompt,
+        messages: analystInterview.messages as AnalystInterview["messages"],
+        conclusion: analystInterview.conclusion,
+      }}
       analyst={analyst}
       persona={persona}
     />

@@ -12,14 +12,14 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
       return !inline && match ? (
         <pre
           {...props}
-          className={`${className} text-sm w-[80dvw] md:max-w-[500px] overflow-x-scroll bg-zinc-100 p-2 rounded mt-2 dark:bg-zinc-800`}
+          className={`${className} w-[80dvw] md:max-w-[500px] overflow-x-scroll bg-zinc-100 p-2 rounded mt-2 dark:bg-zinc-800`}
         >
           <code className={match[1]}>{children}</code>
         </pre>
       ) : (
         <pre
           {...props}
-          className={`${className} text-sm bg-zinc-100 dark:bg-zinc-800 py-2.5 px-3 rounded whitespace-pre-wrap`}
+          className={`${className} bg-zinc-100 dark:bg-zinc-800 py-2.5 px-3 rounded whitespace-pre-wrap`}
         >
           <code>{children}</code>
         </pre>
@@ -27,7 +27,7 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
     },
     ol: ({ node, children, ...props }: any) => {
       return (
-        <ol className="text-sm list-decimal list-inside ml-4" {...props}>
+        <ol className="list-decimal ml-4" {...props}>
           {children}
         </ol>
       );
@@ -41,7 +41,7 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
     },
     ul: ({ node, children, ...props }: any) => {
       return (
-        <ul className="text-sm list-disc list-inside ml-4" {...props}>
+        <ul className="list-disc ml-4" {...props}>
           {children}
         </ul>
       );
@@ -55,9 +55,30 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
     },
     p: ({ node, children, ...props }: any) => {
       return (
-        <p className="text-sm whitespace-pre-wrap" {...props}>
+        <p className="whitespace-pre-wrap" {...props}>
           {children}
         </p>
+      );
+    },
+    h1: ({ node, children, ...props }: any) => {
+      return (
+        <h1 className="text-[1.25em] mt-2 mb-1 font-bold" {...props}>
+          {children}
+        </h1>
+      );
+    },
+    h2: ({ node, children, ...props }: any) => {
+      return (
+        <h2 className="text-[1.2em] mt-2 mb-1 font-bold" {...props}>
+          {children}
+        </h2>
+      );
+    },
+    h3: ({ node, children, ...props }: any) => {
+      return (
+        <h3 className="text-[1.1em] mt-2 mb-1 font-bold" {...props}>
+          {children}
+        </h3>
       );
     },
   };

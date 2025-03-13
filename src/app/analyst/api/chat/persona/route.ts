@@ -1,8 +1,7 @@
 import { createOpenAI } from "@ai-sdk/openai";
-import { CoreMessage, Message, streamText } from "ai";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { Message, streamText } from "ai";
 import tools from "@/tools/tools";
-import { Persona } from "@/app/personas/data";
+import { Persona, AnalystInterview } from "@/data";
 import { prisma } from "@/lib/prisma";
 
 const openai = createOpenAI({
@@ -13,11 +12,7 @@ const openai = createOpenAI({
 const updateAnalystInterview = async (
   id: number,
   personaPrompt: string,
-  messages: {
-    role: string;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    content: any;
-  }[],
+  messages: AnalystInterview["messages"],
 ) => {
   try {
     await prisma.analystInterview.update({
@@ -34,7 +29,7 @@ const updateAnalystInterview = async (
 
 export async function POST(req: Request) {
   const { messages, persona, analystInterviewId } = (await req.json()) as {
-    messages: CoreMessage[] | Omit<Message, "id">[];
+    messages: Message[];
     persona: Persona;
     analystInterviewId: number;
   };
@@ -61,9 +56,9 @@ export async function POST(req: Request) {
   const result = streamText({
     model: openai("gpt-4o"),
     system: systemPrompt,
-    messages,
+    messages, // useChat 和 api 通信的时候，自己维护的这个 messages 会在每次请求的时候去掉 id
     tools: {
-      // xhsSearch: tools.xhsSearch,
+      xhsSearch: tools.xhsSearch,
     },
     maxSteps: 2,
     onError: async (error) => {

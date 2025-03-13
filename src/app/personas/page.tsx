@@ -1,4 +1,4 @@
-import { fetchAllPersonas } from "./data";
+import { fetchAllPersonas } from "@/data";
 import PersonasList from "./PersonasList";
 
 export default async function PersonasPage() {
