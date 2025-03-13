@@ -29,10 +29,10 @@ async function importPersonas() {
         // 创建数据库记录
         const result = await prisma.persona.create({
           data: {
-            title: persona.title,
+            name: persona.title,
             source: persona.source,
             tags: persona.tags || [],
-            userids: persona.userids || [],
+            samples: persona.userids || [],
             prompt: persona.prompt,
           },
         });

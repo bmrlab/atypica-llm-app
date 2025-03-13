@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 
 export interface Persona {
   id: string;
-  title: string;
+  name: string;
   source: string;
   tags: string[];
   prompt: string;
@@ -14,7 +14,7 @@ export async function fetchAllPersonas(): Promise<Persona[]> {
     return personas.map((persona) => {
       return {
         id: persona.id.toString(),
-        title: persona.title,
+        name: persona.name,
         source: persona.source,
         tags: persona.tags as string[],
         prompt: persona.prompt,
@@ -39,7 +39,7 @@ export async function fetchPersonaById(id: string): Promise<Persona | null> {
     }
     return {
       id: persona.id.toString(),
-      title: persona.title,
+      name: persona.name,
       source: persona.source,
       tags: persona.tags as string[],
       prompt: persona.prompt,

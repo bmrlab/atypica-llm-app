@@ -14,12 +14,42 @@ datasource db {
 }
 
 model Persona {
-  id        Int      @id @default(autoincrement())
-  title     String   @db.VarChar(255)
-  source    String   @db.VarChar(255)
-  tags      Json // 存储标签数组
-  userids   Json // 存储用户ID数组
-  prompt    String   @db.Text
+  id      Int    @id @default(autoincrement())
+  name    String @db.VarChar(255)
+  source  String @db.VarChar(255)
+  tags    Json // 存储标签数组
+  samples Json // 存储小红书用户主页链接作为参考样本
+  prompt  String @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  interviews AnalystInterview[]
+}
+
+model Analyst {
+  id     Int    @id @default(autoincrement())
+  role   String @db.VarChar(255)
+  topic  String @db.Text
+  report String @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  interviews AnalystInterview[]
+}
+
+model AnalystInterview {
+  id                Int     @id @default(autoincrement())
+  analystId         Int     @db.Int
+  analyst           Analyst @relation(fields: [analystId], references: [id])
+  personaId         Int     @db.Int
+  persona           Persona @relation(fields: [personaId], references: [id])
+  personaPrompt     String  @db.Text
+  interviewerPrompt String  @db.Text
+  messages          Json
+  conclusion        String  @db.Text
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

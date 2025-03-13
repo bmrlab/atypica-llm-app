@@ -17,7 +17,7 @@ export default function PersonasList({ personas }: { personas: Persona[] }) {
           >
             <div className="p-6">
               <div>
-                <h2 className="text-lg font-medium mb-2">{persona.title}</h2>
+                <h2 className="text-lg font-medium mb-2">{persona.name}</h2>
                 <div className="flex flex-wrap gap-2 mb-4">
                   {persona.tags.map((tag, tagIndex) => (
                     <span
