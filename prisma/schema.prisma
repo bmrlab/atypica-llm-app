@@ -52,4 +52,6 @@ model AnalystInterview {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@unique([analystId, personaId])
 }

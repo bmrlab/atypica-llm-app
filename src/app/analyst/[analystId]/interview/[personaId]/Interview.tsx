@@ -8,9 +8,11 @@ import { Analyst } from "@/app/analyst/data";
 // import imageUrl from "./image";
 
 export function Interview({
+  analystInterviewId,
   analyst,
   persona,
 }: {
+  analystInterviewId: number;
   analyst: Analyst;
   persona: Persona;
 }) {
@@ -23,6 +25,7 @@ export function Interview({
     api: "/analyst/api/chat/interviewer",
     body: {
       analyst,
+      analystInterviewId,
     },
     onFinish: (message, options) => {
       console.log("interviewer", message, options);
@@ -45,6 +48,7 @@ export function Interview({
     api: "/analyst/api/chat/persona",
     body: {
       persona,
+      analystInterviewId,
     },
     onFinish: (message, options) => {
       if (options.finishReason === "stop") {

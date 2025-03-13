@@ -6,6 +6,7 @@ import { z } from "zod";
 import { PlainTextToolResult } from "@/tools/utils";
 import { xhsNoteComments } from "./xiaohongshu/note-comments";
 import { savePersona } from "./system/save-persona";
+import { saveInterviewConclusion } from "./system/save-interview-conclusion";
 
 const tools = {
   reasoningThinking: tool({
@@ -65,9 +66,9 @@ const tools = {
     },
   }),
   savePersona: tool({
-    description: "将生成的 persona prompt 保存到本地文件",
+    description: "将生成的 persona prompt 保存到数据库",
     parameters: z.object({
-      title: z.string().describe("Persona 的标题"),
+      name: z.string().describe("Persona 的名字"),
       source: z.string().describe("数据来源"),
       tags: z.array(z.string()).describe("相关标签"),
       userids: z.array(z.string()).describe("该人设典型的用户 ID 列表"),
@@ -76,9 +77,9 @@ const tools = {
     experimental_toToolResultContent: (result: PlainTextToolResult) => {
       return [{ type: "text", text: result.plainText }];
     },
-    execute: async ({ title, source, tags, userids, personaPrompt }) => {
+    execute: async ({ name, source, tags, userids, personaPrompt }) => {
       const result = await savePersona({
-        title,
+        name,
         source,
         tags,
         userids,
@@ -87,6 +88,23 @@ const tools = {
       return result;
     },
   }),
+  saveInterviewConclusion: (interviewId: number) =>
+    tool({
+      description: "将生成的结论保存到数据库",
+      parameters: z.object({
+        conclusion: z.string().describe("生成的结论"),
+      }),
+      experimental_toToolResultContent: (result: PlainTextToolResult) => {
+        return [{ type: "text", text: result.plainText }];
+      },
+      execute: async ({ conclusion }) => {
+        const result = await saveInterviewConclusion({
+          interviewId,
+          conclusion,
+        });
+        return result;
+      },
+    }),
 };
 
 export default tools;
