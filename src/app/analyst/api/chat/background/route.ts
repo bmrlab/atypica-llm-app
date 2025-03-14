@@ -1,3 +1,4 @@
+import { waitUntil } from "@vercel/functions";
 import { Persona, Analyst, AnalystInterview } from "@/data";
 import {
   generateId,
@@ -86,8 +87,8 @@ async function chatWithPersona({
   persona,
 }: Omit<ChatProps, "interviewToken">) {
   const result = await generateText({
-    // model: openai("gpt-4o"),
-    model: openai("claude-3-7-sonnet"),
+    model: openai("gpt-4o"),
+    // model: openai("claude-3-7-sonnet"),
     system: personaAgentSystem(persona),
     messages, // useChat 和 api 通信的时候，自己维护的这个 messages 会在每次请求的时候去掉 id
     tools: {
@@ -104,48 +105,59 @@ async function backgroundRun({
   analystInterviewId,
   interviewToken,
 }: Omit<ChatProps, "messages">) {
-  const personaAgent: { messages: Message[] } = {
+  const personaAgent: {
+    messages: Message[];
+    response?: Awaited<ReturnType<typeof chatWithPersona>>;
+  } = {
     messages: [
       { id: generateId(), role: "user", content: interviewerPrologue(analyst) },
     ],
   };
-  const interviewer: { messages: Message[] } = {
+  const interviewer: {
+    messages: Message[];
+    response?: Awaited<ReturnType<typeof chatWithInterviewer>>;
+    terminated: boolean;
+  } = {
     messages: [],
+    terminated: false,
   };
   while (true) {
-    const resultPersona = await chatWithPersona({
-      messages: personaAgent.messages,
-      persona,
-      analyst,
-      analystInterviewId,
-    });
-    const newPersonaMessage = generateTextToUIMessage(resultPersona);
-    console.log("Persona:", newPersonaMessage.content, "\n");
-    personaAgent.messages.push({
-      ...newPersonaMessage,
-      role: "assistant",
-    });
-    interviewer.messages.push({
-      ...newPersonaMessage,
-      role: "user",
-    });
+    try {
+      personaAgent.response = await chatWithPersona({
+        messages: personaAgent.messages,
+        persona,
+        analyst,
+        analystInterviewId,
+      });
+      const message = generateTextToUIMessage(personaAgent.response);
+      console.log(`\n[${analystInterviewId}] Persona:\n${message.content}\n`);
+      personaAgent.messages.push({ ...message, role: "assistant" });
+      interviewer.messages.push({ ...message, role: "user" });
+    } catch (error) {
+      console.error(`Error in Persona Agent: ${error}`);
+      break;
+    }
 
-    const resultInterviewer = await chatWithInterviewer({
-      messages: interviewer.messages,
-      persona,
-      analyst,
-      analystInterviewId,
-    });
-    const newInterviewerMessage = generateTextToUIMessage(resultInterviewer);
-    console.log("Interviewer:", newInterviewerMessage.content, "\n");
-    interviewer.messages.push({
-      ...newInterviewerMessage,
-      role: "assistant",
-    });
-    personaAgent.messages.push({
-      ...newInterviewerMessage,
-      role: "user",
-    });
+    try {
+      interviewer.response = await chatWithInterviewer({
+        messages: interviewer.messages,
+        persona,
+        analyst,
+        analystInterviewId,
+      });
+      const message = generateTextToUIMessage(interviewer.response);
+      console.log(
+        `\n[${analystInterviewId}] Interviewer:\n${message.content}\n`,
+      );
+      interviewer.messages.push({ ...message, role: "assistant" });
+      personaAgent.messages.push({ ...message, role: "user" });
+      if (message.content.includes("本次访谈结束，谢谢您的参与！")) {
+        interviewer.terminated = true;
+      }
+    } catch (error) {
+      console.error(`Error in Interviewer Agent: ${error}`);
+      break;
+    }
 
     try {
       const messages = personaAgent.messages as AnalystInterview["messages"];
@@ -163,9 +175,7 @@ async function backgroundRun({
       );
     }
 
-    if (
-      newInterviewerMessage.content.includes("本次访谈结束，谢谢您的参与！")
-    ) {
+    if (interviewer.terminated) {
       break;
     }
   }
@@ -193,12 +203,39 @@ export async function POST(req: Request) {
     console.error("Error saving prompts:", error);
   }
 
-  backgroundRun({
-    analyst,
-    persona,
-    analystInterviewId,
-    interviewToken,
-  });
+  waitUntil(
+    new Promise(async (resolve) => {
+      let stop = false;
+      const start = Date.now();
+      const tick = () => {
+        const now = Date.now();
+        const elapsedSeconds = Math.floor((now - start) / 1000);
+        if (elapsedSeconds > 600) {
+          console.log(`\n[${analystInterviewId}] Interview timeout\n`);
+          stop = true;
+          resolve(null);
+        }
+        if (stop) {
+          console.log(`\n[${analystInterviewId}] Interview stopped\n`);
+        } else {
+          console.log(
+            `\n[${analystInterviewId}] Interview is ongoing, ${elapsedSeconds} seconds`,
+          );
+          setTimeout(() => tick(), 5000);
+        }
+      };
+      tick();
+
+      await backgroundRun({
+        analyst,
+        persona,
+        analystInterviewId,
+        interviewToken,
+      });
+      stop = true;
+      resolve(null);
+    }),
+  );
 
   return NextResponse.json({ message: "POST request received" });
 }

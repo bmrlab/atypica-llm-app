@@ -17,7 +17,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { CheckIcon } from "lucide-react";
+import { CheckIcon, CircleCheckBig, LoaderCircle } from "lucide-react";
 
 interface SelectPersonaDialogProps {
   open: boolean;
@@ -177,10 +177,14 @@ export function AnalystDetail({
                 </CardHeader>
                 <CardFooter className="justify-between">
                   {interview.interviewToken ? (
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-muted-foreground" />
+                    <div className="flex items-center justify-start gap-2 text-sm">
+                      <LoaderCircle className="animate-spin text-orange-300 size-4" />
+                      正在访谈
+                    </div>
                   ) : interview.conclusion ? (
-                    <div>
-                      已总结 <CheckIcon />
+                    <div className="flex items-center justify-start gap-2 text-sm">
+                      <CircleCheckBig className="text-green-600 size-4" />
+                      已总结
                     </div>
                   ) : (
                     <div></div>

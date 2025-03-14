@@ -18,7 +18,11 @@ export function InterviewBackground({
   persona: Persona;
 }) {
   const [stop, setStop] = useState<"initial" | "talking" | "terminated">(
-    analystInterview.interviewToken ? "talking" : "initial",
+    analystInterview.interviewToken
+      ? "talking"
+      : analystInterview.conclusion
+        ? "terminated"
+        : "initial",
   );
   const [messages, setMessages] = useState<Message[]>(
     analystInterview.messages,
@@ -96,14 +100,16 @@ export function InterviewBackground({
             <Button size="sm" onClick={() => startBackgroundChat()}>
               开始会话
             </Button>
-          ) : (
-            <div>
-              Interview is ongoing
+          ) : stop === "talking" ? (
+            <div className="flex flex-col gap-2">
+              <div className="text-sm">Interview is ongoing</div>
               <Button size="sm" onClick={() => startBackgroundChat()}>
                 重新开始
               </Button>
             </div>
-          )}
+          ) : stop === "terminated" ? (
+            <div className="text-sm">已结束</div>
+          ) : null}
         </div>
       </div>
     </div>
