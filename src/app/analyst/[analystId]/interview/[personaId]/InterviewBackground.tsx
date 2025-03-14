@@ -33,13 +33,15 @@ export function InterviewBackground({
       const response = await fetch(
         `/analyst/${analyst.id}/interview/${persona.id}/api`,
       );
-      const updated = await response.json();
-      setMessages(updated.messages);
-      if (updated.interviewToken) {
-        setStop("talking");
-      } else {
-        setStop("initial");
-      }
+      const analystInterview = await response.json();
+      setMessages(analystInterview.messages);
+      setStop(
+        analystInterview.interviewToken
+          ? "talking"
+          : analystInterview.conclusion
+            ? "terminated"
+            : "initial",
+      );
     } catch (error) {
       console.error("Error fetching analystInterview:", error);
     }
@@ -101,14 +103,19 @@ export function InterviewBackground({
               开始会话
             </Button>
           ) : stop === "talking" ? (
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col items-center gap-2">
               <div className="text-sm">Interview is ongoing</div>
               <Button size="sm" onClick={() => startBackgroundChat()}>
                 重新开始
               </Button>
             </div>
           ) : stop === "terminated" ? (
-            <div className="text-sm">已结束</div>
+            <div className="flex flex-col items-center gap-2">
+              <div className="text-sm">已结束</div>
+              <Button size="sm" onClick={() => startBackgroundChat()}>
+                重新开始
+              </Button>
+            </div>
           ) : null}
         </div>
       </div>

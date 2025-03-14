@@ -17,7 +17,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { CheckIcon, CircleCheckBig, LoaderCircle } from "lucide-react";
+import { CircleCheckBig, LoaderCircle } from "lucide-react";
 
 interface SelectPersonaDialogProps {
   open: boolean;

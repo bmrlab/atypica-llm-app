@@ -94,7 +94,7 @@ const tools = {
       return result;
     },
   }),
-  saveInterviewConclusion: (interviewId: number) =>
+  saveInterviewConclusion: (interviewId: number, interviewToken?: string) =>
     tool({
       description: "将生成的结论保存到数据库",
       parameters: z.object({
@@ -106,6 +106,7 @@ const tools = {
       execute: async ({ conclusion }) => {
         const result = await saveInterviewConclusion({
           interviewId,
+          interviewToken,
           conclusion,
         });
         return result;

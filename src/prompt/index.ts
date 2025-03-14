@@ -110,13 +110,13 @@ export const scoutSystem = () => `
 </search_strategy>
 
 <expert_consultation>
-向专家咨询时：
+开始前和过程中，可以随时咨询专家，向专家咨询时：
 1. 提供已发现的用户特征总结
 2. 列出具体的用户行为数据
 3. 说明遇到的分析难点
 4. 提出明确的问题
 
-专家建议要立即应用到下一轮搜索中
+专家建议要立即应用到下一轮任务中
 </expert_consultation>
 
 <persona_output>

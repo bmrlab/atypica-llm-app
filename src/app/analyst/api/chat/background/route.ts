@@ -1,12 +1,6 @@
 import { waitUntil } from "@vercel/functions";
 import { Persona, Analyst, AnalystInterview } from "@/data";
-import {
-  generateId,
-  generateText,
-  GenerateTextResult,
-  Message,
-  ToolSet,
-} from "ai";
+import { generateId, Message, StepResult, streamText, ToolSet } from "ai";
 import tools from "@/tools/tools";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
@@ -18,20 +12,19 @@ import {
 import openai from "@/lib/openai";
 
 type ChatProps = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  messages: any[];
+  messages: Message[];
   persona: Persona;
   analyst: Analyst;
   analystInterviewId: number;
   interviewToken: string;
 };
 
-function generateTextToUIMessage<T extends ToolSet, O>(
-  result: GenerateTextResult<T, O>,
+function generateTextToUIMessage<T extends ToolSet>(
+  steps: StepResult<T>[],
 ): Omit<Message, "role"> {
   const parts: Message["parts"] = [];
   const contents = [];
-  for (const step of result.steps) {
+  for (const step of steps) {
     if (step.stepType === "initial") {
       contents.push(step.text);
       parts.push({ type: "text", text: step.text });
@@ -66,36 +59,76 @@ async function chatWithInterviewer({
   messages,
   analyst,
   analystInterviewId,
-}: Omit<ChatProps, "interviewToken">) {
-  const result = await generateText({
-    // model: openai("o3-mini"),
-    model: openai("claude-3-7-sonnet"),
-    system: interviewerSystem(analyst),
-    messages,
-    tools: {
-      // reasoningThinking: tools.reasoningThinking,
-      saveInterviewConclusion:
-        tools.saveInterviewConclusion(analystInterviewId),
+  interviewToken,
+}: ChatProps) {
+  const result = await new Promise<Omit<Message, "role">>(
+    async (resolve, reject) => {
+      const response = streamText({
+        model: openai("claude-3-7-sonnet"),
+        system: interviewerSystem(analyst),
+        messages,
+        tools: {
+          // reasoningThinking: tools.reasoningThinking,
+          saveInterviewConclusion: tools.saveInterviewConclusion(
+            analystInterviewId,
+            interviewToken,
+          ),
+        },
+        maxSteps: 2,
+        onChunk: (chunk) =>
+          console.log(
+            `[${analystInterviewId}] Interviewer:`,
+            JSON.stringify(chunk),
+          ),
+        onFinish: ({ steps }) => {
+          const message = generateTextToUIMessage(steps);
+          resolve(message);
+        },
+        onError: (error) => {
+          console.error(error);
+          reject(error);
+        },
+      });
+      await response.consumeStream();
+      // 必须写这个 await，把 stream 消费完，也可以使用 consumeStream 方法
+      // for await (const textPart of response.textStream) { console.log(textPart); }
     },
-    maxSteps: 2,
-  });
+  );
   return result;
 }
 
 async function chatWithPersona({
   messages,
   persona,
+  analystInterviewId,
 }: Omit<ChatProps, "interviewToken">) {
-  const result = await generateText({
-    model: openai("gpt-4o"),
-    // model: openai("claude-3-7-sonnet"),
-    system: personaAgentSystem(persona),
-    messages, // useChat 和 api 通信的时候，自己维护的这个 messages 会在每次请求的时候去掉 id
-    tools: {
-      xhsSearch: tools.xhsSearch,
+  const result = await new Promise<Omit<Message, "role">>(
+    async (resolve, reject) => {
+      const response = streamText({
+        model: openai("gpt-4o"),
+        system: personaAgentSystem(persona),
+        messages,
+        tools: {
+          xhsSearch: tools.xhsSearch,
+        },
+        maxSteps: 2,
+        onChunk: (chunk) =>
+          console.log(
+            `[${analystInterviewId}] Persona:`,
+            JSON.stringify(chunk),
+          ),
+        onFinish: ({ steps }) => {
+          const message = generateTextToUIMessage(steps);
+          resolve(message);
+        },
+        onError: (error) => {
+          console.error(error);
+          reject(error);
+        },
+      });
+      await response.consumeStream();
     },
-    maxSteps: 2,
-  });
+  );
   return result;
 }
 
@@ -107,29 +140,28 @@ async function backgroundRun({
 }: Omit<ChatProps, "messages">) {
   const personaAgent: {
     messages: Message[];
-    response?: Awaited<ReturnType<typeof chatWithPersona>>;
   } = {
     messages: [
       { id: generateId(), role: "user", content: interviewerPrologue(analyst) },
     ],
   };
+
   const interviewer: {
     messages: Message[];
-    response?: Awaited<ReturnType<typeof chatWithInterviewer>>;
     terminated: boolean;
   } = {
     messages: [],
     terminated: false,
   };
+
   while (true) {
     try {
-      personaAgent.response = await chatWithPersona({
+      const message = await chatWithPersona({
         messages: personaAgent.messages,
         persona,
         analyst,
         analystInterviewId,
       });
-      const message = generateTextToUIMessage(personaAgent.response);
       console.log(`\n[${analystInterviewId}] Persona:\n${message.content}\n`);
       personaAgent.messages.push({ ...message, role: "assistant" });
       interviewer.messages.push({ ...message, role: "user" });
@@ -139,13 +171,13 @@ async function backgroundRun({
     }
 
     try {
-      interviewer.response = await chatWithInterviewer({
+      const message = await chatWithInterviewer({
         messages: interviewer.messages,
         persona,
         analyst,
         analystInterviewId,
+        interviewToken,
       });
-      const message = generateTextToUIMessage(interviewer.response);
       console.log(
         `\n[${analystInterviewId}] Interviewer:\n${message.content}\n`,
       );
@@ -176,6 +208,17 @@ async function backgroundRun({
     }
 
     if (interviewer.terminated) {
+      try {
+        await prisma.analystInterview.update({
+          where: { id: analystInterviewId, interviewToken },
+          data: { interviewToken: null },
+        });
+      } catch (error) {
+        console.error(
+          `Error clearing interview token with interview id ${analystInterviewId} and token ${interviewToken}`,
+          error,
+        );
+      }
       break;
     }
   }

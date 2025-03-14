@@ -2,26 +2,35 @@ import { prisma } from "@/lib/prisma";
 
 export async function saveInterviewConclusion({
   interviewId,
+  interviewToken,
   conclusion,
 }: {
   interviewId: number;
+  interviewToken?: string;
   conclusion: string;
 }) {
   try {
-    const analystInterview = await prisma.analystInterview.update({
-      where: { id: interviewId },
-      data: {
-        conclusion,
-        interviewToken: null,
-      },
+    await prisma.analystInterview.update({
+      where: interviewToken
+        ? { id: interviewId, interviewToken }
+        : { id: interviewId },
+      data: { conclusion },
     });
-
+    console.log(
+      `Saved interview conclusion to DB with id ${interviewId} token ${interviewToken}`,
+    );
     return {
-      id: analystInterview.id,
-      plainText: `Saved analyst report to DB with id ${analystInterview.id}`,
+      id: interviewId,
+      plainText: `Saved interview conclusion to DB with id ${interviewId}`,
     };
   } catch (error) {
-    console.error("Error saving analyst:", error);
-    throw error;
+    console.error(
+      `Error saving interview conclusion to DB with id ${interviewId} token ${interviewToken}`,
+      error,
+    );
+    return {
+      id: null,
+      plainText: `Error saving interview conclusion to DB`,
+    };
   }
 }
