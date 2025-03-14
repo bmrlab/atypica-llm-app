@@ -17,12 +17,11 @@ export function InterviewBackground({
   analyst: Analyst;
   persona: Persona;
 }) {
+  const [stop, setStop] = useState<"initial" | "talking" | "terminated">(
+    analystInterview.interviewToken ? "talking" : "initial",
+  );
   const [messages, setMessages] = useState<Message[]>(
     analystInterview.messages,
-  );
-
-  const [stop, setStop] = useState<"initial" | "talking" | "terminated">(
-    "initial",
   );
 
   const fetchUpdate = useCallback(async () => {
@@ -32,9 +31,11 @@ export function InterviewBackground({
       );
       const updated = await response.json();
       setMessages(updated.messages);
-      // if (updated.status === "terminated") {
-      //   setStop("terminated");
-      // }
+      if (updated.interviewToken) {
+        setStop("talking");
+      } else {
+        setStop("initial");
+      }
     } catch (error) {
       console.error("Error fetching analystInterview:", error);
     }
@@ -42,18 +43,16 @@ export function InterviewBackground({
 
   // 添加定时器效果
   useEffect(() => {
-    let intervalId: NodeJS.Timeout;
-    if (stop === "talking") {
-      intervalId = setInterval(fetchUpdate, 5000);
-    }
+    const intervalId: NodeJS.Timeout = setInterval(fetchUpdate, 5000);
     return () => {
       if (intervalId) {
         clearInterval(intervalId);
       }
     };
-  }, [stop, fetchUpdate]);
+  }, [fetchUpdate]);
 
   const startBackgroundChat = useCallback(async () => {
+    setStop("talking");
     await fetch("/analyst/api/chat/background", {
       method: "POST",
       headers: {
@@ -66,11 +65,6 @@ export function InterviewBackground({
       }),
     });
   }, [analyst, persona, analystInterview.id]);
-
-  const startConversation = useCallback(() => {
-    setStop("talking");
-    startBackgroundChat();
-  }, [startBackgroundChat]);
 
   const [messagesContainerRef, messagesEndRef] =
     useScrollToBottom<HTMLDivElement>();
@@ -99,11 +93,16 @@ export function InterviewBackground({
 
         <div className="flex justify-center items-center">
           {stop === "initial" ? (
-            <Button onClick={startConversation}>开始会话</Button>
-          ) : stop === "talking" ? (
-            <div>Interview is ongoing</div>
+            <Button size="sm" onClick={() => startBackgroundChat()}>
+              开始会话
+            </Button>
           ) : (
-            <div>会话结束</div>
+            <div>
+              Interview is ongoing
+              <Button size="sm" onClick={() => startBackgroundChat()}>
+                重新开始
+              </Button>
+            </div>
           )}
         </div>
       </div>

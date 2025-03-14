@@ -10,7 +10,10 @@ export async function saveInterviewConclusion({
   try {
     const analystInterview = await prisma.analystInterview.update({
       where: { id: interviewId },
-      data: { conclusion },
+      data: {
+        conclusion,
+        interviewToken: null,
+      },
     });
 
     return {

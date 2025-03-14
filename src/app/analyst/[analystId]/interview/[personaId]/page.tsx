@@ -51,6 +51,7 @@ export default async function InterviewPage({
         interviewerPrompt: analystInterview.interviewerPrompt,
         messages: analystInterview.messages as AnalystInterview["messages"],
         conclusion: analystInterview.conclusion,
+        interviewToken: analystInterview.interviewToken,
       }}
       analyst={analyst}
       persona={persona}

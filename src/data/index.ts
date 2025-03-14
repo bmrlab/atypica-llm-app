@@ -15,6 +15,7 @@ export interface AnalystInterview {
     parts?: any[];
   }[];
   conclusion: string;
+  interviewToken: string | null;
 }
 
 export async function fetchAnalystInterviews(
@@ -36,6 +37,7 @@ export async function fetchAnalystInterviews(
       interviewerPrompt,
       messages,
       conclusion,
+      interviewToken,
     } = interview;
     return {
       id,
@@ -52,6 +54,7 @@ export async function fetchAnalystInterviews(
       interviewerPrompt,
       messages: messages as AnalystInterview["messages"],
       conclusion,
+      interviewToken,
     };
   });
 }

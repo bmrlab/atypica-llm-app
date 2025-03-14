@@ -22,6 +22,7 @@ type ChatProps = {
   persona: Persona;
   analyst: Analyst;
   analystInterviewId: number;
+  interviewToken: string;
 };
 
 function generateTextToUIMessage<T extends ToolSet, O>(
@@ -64,24 +65,11 @@ async function chatWithInterviewer({
   messages,
   analyst,
   analystInterviewId,
-}: ChatProps) {
-  const systemPrompt = interviewerSystem(analyst);
-
-  try {
-    await prisma.analystInterview.update({
-      where: { id: analystInterviewId },
-      data: {
-        interviewerPrompt: systemPrompt,
-      },
-    });
-  } catch (error) {
-    console.error("Error saving personaPrompt:", error);
-  }
-
+}: Omit<ChatProps, "interviewToken">) {
   const result = await generateText({
     // model: openai("o3-mini"),
     model: openai("claude-3-7-sonnet"),
-    system: systemPrompt,
+    system: interviewerSystem(analyst),
     messages,
     tools: {
       // reasoningThinking: tools.reasoningThinking,
@@ -90,39 +78,23 @@ async function chatWithInterviewer({
     },
     maxSteps: 2,
   });
-
   return result;
 }
 
 async function chatWithPersona({
   messages,
   persona,
-  analystInterviewId,
-}: ChatProps) {
-  const systemPrompt = personaAgentSystem(persona);
-
-  try {
-    await prisma.analystInterview.update({
-      where: { id: analystInterviewId },
-      data: {
-        personaPrompt: systemPrompt,
-      },
-    });
-  } catch (error) {
-    console.error("Error saving personaPrompt:", error);
-  }
-
+}: Omit<ChatProps, "interviewToken">) {
   const result = await generateText({
     // model: openai("gpt-4o"),
     model: openai("claude-3-7-sonnet"),
-    system: systemPrompt,
+    system: personaAgentSystem(persona),
     messages, // useChat 和 api 通信的时候，自己维护的这个 messages 会在每次请求的时候去掉 id
     tools: {
       xhsSearch: tools.xhsSearch,
     },
     maxSteps: 2,
   });
-
   return result;
 }
 
@@ -130,6 +102,7 @@ async function backgroundRun({
   analyst,
   persona,
   analystInterviewId,
+  interviewToken,
 }: Omit<ChatProps, "messages">) {
   const personaAgent: { messages: Message[] } = {
     messages: [
@@ -177,11 +150,17 @@ async function backgroundRun({
     try {
       const messages = personaAgent.messages as AnalystInterview["messages"];
       await prisma.analystInterview.update({
-        where: { id: analystInterviewId },
+        where: {
+          id: analystInterviewId,
+          interviewToken,
+        },
         data: { messages },
       });
     } catch (error) {
-      console.error("Error saving messages:", error);
+      console.error(
+        `Error saving messages with interview id ${analystInterviewId} and token ${interviewToken}`,
+        error,
+      );
     }
 
     if (
@@ -199,10 +178,26 @@ export async function POST(req: Request) {
     analystInterviewId: number;
   };
 
-  await backgroundRun({
+  const interviewToken = new Date().valueOf().toString();
+  try {
+    await prisma.analystInterview.update({
+      where: { id: analystInterviewId },
+      data: {
+        personaPrompt: personaAgentSystem(persona),
+        interviewerPrompt: interviewerSystem(analyst),
+        messages: [],
+        interviewToken,
+      },
+    });
+  } catch (error) {
+    console.error("Error saving prompts:", error);
+  }
+
+  backgroundRun({
     analyst,
     persona,
     analystInterviewId,
+    interviewToken,
   });
 
   return NextResponse.json({ message: "POST request received" });

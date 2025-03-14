@@ -49,6 +49,7 @@ model AnalystInterview {
   interviewerPrompt String  @db.Text
   messages          Json
   conclusion        String  @db.Text
+  interviewToken    String? @db.VarChar(64)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
