@@ -40,17 +40,6 @@ export default function PersonasList({ personas }: { personas: Persona[] }) {
                   {persona.prompt}
                 </pre>
               </div>
-
-              {/* Chat button */}
-              <button
-                className="absolute top-2 right-2 z-10 px-3 py-1 text-xs bg-gray-900 text-white rounded-full hover:bg-gray-700 transition-colors"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  router.push(`/interview/${persona.id}`);
-                }}
-              >
-                对话
-              </button>
             </div>
           </div>
         ))}

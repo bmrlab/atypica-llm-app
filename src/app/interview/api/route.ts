@@ -1,14 +1,11 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-export async function POST(
-  request: Request,
-  { params }: { params: Promise<{ analystId: string; personaId: string }> },
-) {
-  const paramsResolved = await params;
-  const analystId = parseInt(paramsResolved.analystId);
-  const personaId = parseInt(paramsResolved.personaId);
-
+export async function POST(req: Request) {
+  const { analystId, personaId } = (await req.json()) as {
+    analystId: number;
+    personaId: number;
+  };
   try {
     const interview = await prisma.analystInterview.upsert({
       where: {
@@ -38,14 +35,10 @@ export async function POST(
   }
 }
 
-// 新增的 GET 方法
-export async function GET(
-  request: Request,
-  { params }: { params: Promise<{ analystId: string; personaId: string }> },
-) {
-  const paramsResolved = await params;
-  const analystId = parseInt(paramsResolved.analystId);
-  const personaId = parseInt(paramsResolved.personaId);
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const analystId = parseInt(searchParams.get("analystId") || "");
+  const personaId = parseInt(searchParams.get("personaId") || "");
 
   try {
     const interview = await prisma.analystInterview.findUnique({

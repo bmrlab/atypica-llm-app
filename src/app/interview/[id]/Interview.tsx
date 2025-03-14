@@ -28,7 +28,7 @@ export function Interview({
 
   const interviewer = useChat({
     maxSteps: 5,
-    api: "/analyst/api/chat/interviewer",
+    api: "/interview/api/chat/interviewer",
     body: {
       analyst,
       analystInterviewId: analystInterview.id,
@@ -50,7 +50,7 @@ export function Interview({
 
   const personaAgent = useChat({
     maxSteps: 5,
-    api: "/analyst/api/chat/persona",
+    api: "/interview/api/chat/persona",
     body: {
       persona,
       analystInterviewId: analystInterview.id,
@@ -65,7 +65,7 @@ export function Interview({
           // 第一条消息带上创意方案
           // interviewer.messages.length === 0 ? { experimental_attachments: [{ name: "AUX 空调宣传方案.jpg", contentType: "image/jpeg", url: imageUrl }] } : {},
         );
-        await fetch("/analyst/api/chat/save", {
+        await fetch("/interview/api/chat/save", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

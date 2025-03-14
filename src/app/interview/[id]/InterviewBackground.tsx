@@ -30,9 +30,11 @@ export function InterviewBackground({
 
   const fetchUpdate = useCallback(async () => {
     try {
-      const response = await fetch(
-        `/analyst/${analyst.id}/interview/${persona.id}/api`,
-      );
+      const searchParams = new URLSearchParams({
+        analystId: analyst.id.toString(),
+        personaId: persona.id.toString(),
+      });
+      const response = await fetch(`/interview/api?${searchParams.toString()}`);
       const analystInterview = await response.json();
       setMessages(analystInterview.messages);
       setStop(
@@ -49,7 +51,7 @@ export function InterviewBackground({
 
   // 添加定时器效果
   useEffect(() => {
-    const intervalId: NodeJS.Timeout = setInterval(fetchUpdate, 5000);
+    const intervalId: NodeJS.Timeout = setInterval(fetchUpdate, 10000);
     return () => {
       if (intervalId) {
         clearInterval(intervalId);
@@ -59,7 +61,7 @@ export function InterviewBackground({
 
   const startBackgroundChat = useCallback(async () => {
     setStop("talking");
-    await fetch("/analyst/api/chat/background", {
+    await fetch("/interview/api/chat/background", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

@@ -51,8 +51,12 @@ function SelectPersonaDialog({
 
   const handleSubmit = async () => {
     for (const personaId of selectedIds) {
-      await fetch(`/analyst/${analystId}/interview/${personaId}/api`, {
+      await fetch(`/interview/api`, {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ analystId, personaId }),
       });
     }
     onOpenChange(false);
@@ -190,7 +194,7 @@ export function AnalystDetail({
                     <div></div>
                   )}
                   <Link
-                    href={`/analyst/${analyst.id}/interview/${interview.personaId}`}
+                    href={`/interview/${interview.id}`}
                     className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                   >
                     访谈 →

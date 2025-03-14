@@ -8,38 +8,26 @@ import { AnalystInterview } from "@/data";
 export default async function InterviewPage({
   params,
 }: {
-  params: Promise<{ analystId: string; personaId: string }>;
+  params: Promise<{ id: string }>;
 }) {
-  const paramsResolved = await params;
-  const analystId = parseInt(paramsResolved.analystId);
-  const personaId = parseInt(paramsResolved.personaId);
+  const id = parseInt((await params).id);
 
-  const persona = await fetchPersonaById(personaId);
+  const analystInterview = await prisma.analystInterview.findUnique({
+    where: { id },
+  });
+  if (!analystInterview) {
+    notFound();
+  }
+
+  const persona = await fetchPersonaById(analystInterview.personaId);
   if (!persona) {
     notFound();
   }
-  const analyst = await fetchAnalystById(analystId);
+
+  const analyst = await fetchAnalystById(analystInterview.analystId);
   if (!analyst) {
     notFound();
   }
-
-  const analystInterview = await prisma.analystInterview.upsert({
-    where: {
-      analystId_personaId: {
-        analystId,
-        personaId,
-      },
-    },
-    create: {
-      analystId,
-      personaId,
-      personaPrompt: "",
-      interviewerPrompt: "",
-      messages: [],
-      conclusion: "",
-    },
-    update: {},
-  });
 
   return (
     <InterviewBackground

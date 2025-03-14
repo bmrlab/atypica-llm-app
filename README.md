@@ -87,10 +87,12 @@ pnpm dev
 ```
 src/
   ├── app/                   # Next.js 页面和API路由
-  │   ├── analyst/           # 分析师相关功能
+  │   ├── analyst/           # 分析师话题页面
   │   ├── personas/          # 用户画像管理
-  │   └── scout/             # 用户发掘功能
+  │   ├── interview/         # 用户访谈对话页面
+  │   └── scout/             # 用户发掘
   ├── components/            # UI组件
+  ├── data/                  # 数据对象类型
   ├── lib/                   # 工具函数和配置
   ├── tools/                 # AI工具函数
   └── prompt/                # 提示词模板
