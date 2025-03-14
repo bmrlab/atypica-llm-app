@@ -1,5 +1,5 @@
 import { fetchPersonaById } from "@/data";
-import { Interview } from "./Interview";
+import { InterviewBackground } from "./InterviewBackground";
 import { notFound } from "next/navigation";
 import { fetchAnalystById } from "@/data";
 import { prisma } from "@/lib/prisma";
@@ -42,7 +42,7 @@ export default async function InterviewPage({
   });
 
   return (
-    <Interview
+    <InterviewBackground
       analystInterview={{
         id: analystInterview.id,
         analystId: analystInterview.analystId,

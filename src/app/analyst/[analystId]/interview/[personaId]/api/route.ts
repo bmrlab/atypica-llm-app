@@ -37,3 +37,39 @@ export async function POST(
     return NextResponse.error();
   }
 }
+
+// 新增的 GET 方法
+export async function GET(
+  request: Request,
+  { params }: { params: Promise<{ analystId: string; personaId: string }> },
+) {
+  const paramsResolved = await params;
+  const analystId = parseInt(paramsResolved.analystId);
+  const personaId = parseInt(paramsResolved.personaId);
+
+  try {
+    const interview = await prisma.analystInterview.findUnique({
+      where: {
+        analystId_personaId: {
+          analystId,
+          personaId,
+        },
+      },
+    });
+
+    if (!interview) {
+      return NextResponse.json(
+        { message: "Interview not found" },
+        { status: 404 },
+      );
+    }
+
+    return NextResponse.json(interview);
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json(
+      { message: "Error retrieving interview" },
+      { status: 500 },
+    );
+  }
+}

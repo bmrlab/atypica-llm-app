@@ -39,7 +39,6 @@ function generateTextToUIMessage<T extends ToolSet, O>(
     } else if (step.stepType === "tool-result") {
       contents.push(step.text);
       for (const toolResult of step.toolResults) {
-        console.log("toolResult", toolResult);
         parts.push({
           type: "tool-invocation",
           toolInvocation: {

@@ -7,6 +7,7 @@ import { Analyst, Persona } from "@/data";
 import { Markdown } from "@/components/markdown";
 import { AnalystInterview } from "@/data";
 import { Button } from "@/components/ui/button";
+import { interviewerPrologue } from "@/prompt";
 // import imageUrl from "./image";
 
 export function Interview({
@@ -18,20 +19,6 @@ export function Interview({
   analyst: Analyst;
   persona: Persona;
 }) {
-  const startBackgroundChat = useCallback(async () => {
-    await fetch("/analyst/api/chat/background", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        analyst,
-        persona,
-        analystInterviewId: analystInterview.id,
-      }),
-    });
-  }, [analyst, persona, analystInterview.id]);
-
   const [stop, setStop] = useState<"initial" | "talking" | "terminated">(
     "initial",
   );
@@ -103,29 +90,25 @@ export function Interview({
 
   const startConversation = useCallback(() => {
     setStop("talking");
-    startBackgroundChat();
-    return;
-
-    personaAgent.append(
-      {
-        role: "user",
-        content: `你好，我是${analyst.role}，今天我想和您进行一次访谈，主题是：\n${analyst.topic}\n\n访谈开始之前，请您先自我介绍一下。`,
-      },
-      // { experimental_attachments: [{ name: "AUX 空调宣传方案.jpg", contentType: "image/jpeg", url: imageUrl }] },
-    );
-  }, [personaAgent, analyst, startBackgroundChat]);
+    // startBackgroundChat();
+    // return;
+    personaAgent.append({
+      role: "user",
+      content: interviewerPrologue(analyst),
+    });
+    // { experimental_attachments: [{ name: "AUX 空调宣传方案.jpg", contentType: "image/jpeg", url: imageUrl }] },
+  }, [personaAgent, analyst]);
 
   const restartConversation = useCallback(() => {
     setStop("talking");
-    startBackgroundChat();
-    return;
-
+    // startBackgroundChat();
+    // return;
     personaAgent.setMessages([]);
     personaAgent.append({
       role: "user",
-      content: `你好，我是${analyst.role}，今天我想和您进行一次访谈，主题是：\n${analyst.topic}\n\n访谈开始之前，请您先自我介绍一下。`,
+      content: interviewerPrologue(analyst),
     });
-  }, [personaAgent, analyst, startBackgroundChat]);
+  }, [personaAgent, analyst]);
 
   const stopConversation = useCallback(() => {
     setStop("terminated");
