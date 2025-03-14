@@ -1,13 +1,9 @@
-import { createOpenAI } from "@ai-sdk/openai";
 import { Message, streamText } from "ai";
 import tools from "@/tools/tools";
 import { Persona } from "@/data";
 import { prisma } from "@/lib/prisma";
-
-const openai = createOpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-  baseURL: process.env.OPENAI_BASE_URL,
-});
+import { personaAgentSystem } from "@/prompt";
+import openai from "@/lib/openai";
 
 export async function POST(req: Request) {
   const { messages, persona, analystInterviewId } = (await req.json()) as {
@@ -16,24 +12,7 @@ export async function POST(req: Request) {
     analystInterviewId: number;
   };
 
-  const systemPrompt = `${persona.prompt}
-
-背景:
-你正在接受一个访谈,需要回答采访者的问题。
-
-沟通要求:
-- 以受访者的身份回答问题
-- 保持专业性的同时也要体现个性化的观点
-- 适当分享一些个人经历和感受
-- 可以引用具体案例来支撑观点
-- 回答要言简意赅,每次不超过100字
-- 回答问题前可以先用小红书搜索相关信息作为参考
-
-沟通原则:
-- 少一些客套话,直接切入主题
-- 表达要清晰自然,避免过于官方
-- 适当表达情感,让回答更有温度
-`;
+  const systemPrompt = personaAgentSystem(persona);
 
   try {
     await prisma.analystInterview.update({
@@ -59,6 +38,7 @@ export async function POST(req: Request) {
       console.error("Error occurred:", error);
     },
     // 这里保存有问题，有时候 tool 的 result 是 experimental_toToolResultContent 的结果，没有 tool 返回的结果
+    // 研究了一下是这样，message.content 是有 type 的，一种 type 是 tool 结果的文本序列化给模型看的，但是不体现在 assistant 回复的 content 中，这类文本需要忽略
     // onFinish: async (response) => {
     //   const finalMessages = appendResponseMessages({
     //     messages,
