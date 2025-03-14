@@ -15,43 +15,48 @@ export default function Home() {
           Discover and understand unique personas through AI-powered analysis
         </p>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full max-w-2xl">
-        <Link href="/scout">
-          <Card className="h-full hover:bg-accent/50 transition-colors">
-            <CardHeader>
-              <CardTitle>Scout</CardTitle>
-              <CardDescription>
-                Find and analyze unique personalities from Xiaohongshu
-              </CardDescription>
-            </CardHeader>
-          </Card>
-        </Link>
-        <Link href="/personas">
-          <Card className="h-full hover:bg-accent/50 transition-colors">
-            <CardHeader>
-              <CardTitle>Personas</CardTitle>
-              <CardDescription>
-                Deep dive into constructed personas through AI interviews
-              </CardDescription>
-            </CardHeader>
-          </Card>
-        </Link>
+      <div className="flex flex-col gap-4 w-full max-w-2xl">
         <Link href="/analyst">
-          <Card className="h-full hover:bg-accent/50 transition-colors">
+          <Card className="hover:bg-accent/50 transition-colors">
             <CardHeader>
-              <CardTitle>Topics</CardTitle>
-              <CardDescription>
-                Explore diverse topics within constructed personas
+              <CardTitle className="flex items-center gap-3">
+                <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-primary-foreground">
+                  1
+                </span>
+                <span className="text-lg">选择主题开始访谈</span>
+              </CardTitle>
+              <CardDescription className="text-base pl-11">
+                选择一个主题，让AI帮你发现和分析独特的用户群体
               </CardDescription>
             </CardHeader>
           </Card>
         </Link>
         <Link href="/personas">
-          <Card className="h-full hover:bg-accent/50 transition-colors">
+          <Card className="hover:bg-accent/50 transition-colors">
             <CardHeader>
-              <CardTitle>Topics</CardTitle>
-              <CardDescription>
-                Explore diverse topics within constructed personas
+              <CardTitle className="flex items-center gap-3">
+                <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-primary-foreground">
+                  2
+                </span>
+                <span className="text-lg">查看用户分析</span>
+              </CardTitle>
+              <CardDescription className="text-base pl-11">
+                查看AI构建的用户画像和分析报告
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        </Link>
+        <Link href="/scout">
+          <Card className="hover:bg-accent/50 transition-colors">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-3">
+                <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-primary-foreground">
+                  3
+                </span>
+                <span className="text-lg">探索新话题</span>
+              </CardTitle>
+              <CardDescription className="text-base pl-11">
+                使用不同话题寻找新的用户群体
               </CardDescription>
             </CardHeader>
           </Card>
