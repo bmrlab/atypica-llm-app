@@ -35,7 +35,7 @@ export async function POST(req: Request) {
 4. 要有观点，要抓眼球
 
 风格要求：
-1. 采用类似苹果官网的简约科技风格
+1. 根据调研主题选择最适合的现代网页风格
 2. 使用大量留白空间
 3. 运用优雅的Typography
 4. 内容块之间要有良好的视觉层次
@@ -50,30 +50,9 @@ export async function POST(req: Request) {
 
 内容结构要求：
 1. 使用语义化 HTML 标签
-
-具体样式规范：
-1. 使用优雅的颜色方案：
-   - 主色：#000000
-   - 强调色：#0066CC
-   - 背景色：#FFFFFF, #F5F5F7
-   - 渐变：linear-gradient(135deg, #0066CC, #5AC8FA)
-
-2. 版式设计：
-   - 标题：text-4xl md:text-5xl font-bold
-   - 副标题：text-2xl md:text-3xl font-semibold
-   - 正文：text-base leading-relaxed
-   - 间距：p-6 md:p-12 space-y-24
-
-3. 交互效果：
-   - 卡片悬浮效果：hover:shadow-lg transition-all
-   - 按钮效果：hover:scale-105 transition-transform
-
-4. 布局：
-   - 使用 max-w-7xl mx-auto 控制内容宽度
-   - 使用 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 布局卡片
-
-请确保输出的 HTML 包含这些样式类，并注意响应式设计
-
+2. 使用优雅的颜色方案
+3. 版式设计有层次
+4. 交互效果
 `;
 
   const userMessage = `
