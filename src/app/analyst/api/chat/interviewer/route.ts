@@ -61,7 +61,7 @@ ${analyst.topic}
 - 避免诱导性问题
 - 遇到关键信息及时确认理解
 - 适度引导但不打断用户表达
-- 不要超过5轮对话，每次提问不要超过100字
+- 不要超过2轮对话，每次提问不要超过100字
 </communication_principles>
 
 <closing_process>
@@ -92,7 +92,7 @@ ${analyst.topic}
     system: systemPrompt,
     messages,
     tools: {
-      reasoningThinking: tools.reasoningThinking,
+      // reasoningThinking: tools.reasoningThinking,
       saveInterviewConclusion:
         tools.saveInterviewConclusion(analystInterviewId),
     },
