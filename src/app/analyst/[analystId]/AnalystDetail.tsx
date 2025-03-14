@@ -8,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
   CardDescription,
+  CardFooter,
 } from "@/components/ui/card";
 import {
   Dialog,
@@ -16,6 +17,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { CheckIcon } from "lucide-react";
 
 interface SelectPersonaDialogProps {
   open: boolean;
@@ -161,18 +163,35 @@ export function AnalystDetail({
               <Card key={interview.id} className="w-full">
                 <CardHeader>
                   <div className="flex justify-between items-center">
-                    <CardTitle>{interview.persona.name}</CardTitle>
-                    <Link
-                      href={`/analyst/${analyst.id}/interview/${interview.personaId}`}
-                      className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                    >
-                      访谈 →
-                    </Link>
+                    <CardTitle>
+                      <div className="line-clamp-1">
+                        {interview.persona.name}
+                      </div>
+                    </CardTitle>
                   </div>
                   <CardDescription className="mt-2">
-                    {interview.persona.tags.join(", ")}
+                    <div className="line-clamp-2">
+                      {interview.persona.tags.join(", ")}
+                    </div>
                   </CardDescription>
                 </CardHeader>
+                <CardFooter className="justify-between">
+                  {interview.interviewToken ? (
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-muted-foreground" />
+                  ) : interview.conclusion ? (
+                    <div>
+                      已总结 <CheckIcon />
+                    </div>
+                  ) : (
+                    <div></div>
+                  )}
+                  <Link
+                    href={`/analyst/${analyst.id}/interview/${interview.personaId}`}
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    访谈 →
+                  </Link>
+                </CardFooter>
               </Card>
             ))}
           </div>
