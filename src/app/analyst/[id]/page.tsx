@@ -5,22 +5,16 @@ import { notFound } from "next/navigation";
 export default async function AnalystPage({
   params,
 }: {
-  params: Promise<{ analystId: string }>;
+  params: Promise<{ id: string }>;
 }) {
-  const paramsResolved = await params;
-  const analystId = parseInt(paramsResolved.analystId);
+  const analystId = parseInt((await params).id);
   const analyst = await fetchAnalystById(analystId);
-  
+
   if (!analyst) {
     notFound();
   }
 
   const interviews = await fetchAnalystInterviews(analystId);
 
-  return (
-    <AnalystDetail 
-      analyst={analyst}
-      interviews={interviews}
-    />
-  );
+  return <AnalystDetail analyst={analyst} interviews={interviews} />;
 }
