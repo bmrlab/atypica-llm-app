@@ -247,6 +247,19 @@ export function AnalystDetail({
     setIsOpen(true);
   };
 
+  const clearReport = async () => {
+    await fetch(`/analyst/api?id=${analyst.id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        ...analyst,
+        report: "",
+      }),
+    });
+    setAnalyst({ ...analyst, report: "" });
+  };
   const pointsDialog = useMemo(() => {
     const pendingCount = interviews.filter(
       (i) => !i.conclusion && !i.interviewToken,
@@ -275,7 +288,7 @@ export function AnalystDetail({
         }}
       >
         <Button variant="default" disabled={pendingCount === 0}>
-          开始对话 ({pendingCount})
+          开启所有人访谈 ({pendingCount})
         </Button>
       </PointAlertDialog>
     );
@@ -303,34 +316,67 @@ export function AnalystDetail({
                 <p className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed">
                   {analyst.topic}
                 </p>
+                <div className="mt-4 flex justify-end gap-2">
+                  {analyst.report ? (
+                    <>
+                      <Button
+                        variant="default"
+                        size="sm"
+                        onClick={() =>
+                          window.open(`/analyst/${analyst.id}/html`, "_blank")
+                        }
+                      >
+                        查看报告
+                      </Button>
+                      <PointAlertDialog
+                        points={50}
+                        onConfirm={async () => {
+                          await clearReport();
+                          setIsReportOpen(true);
+                        }}
+                      >
+                        <Button variant="outline" size="sm">
+                          重新生成报告
+                        </Button>
+                      </PointAlertDialog>
+                    </>
+                  ) : (
+                    <PointAlertDialog
+                      points={100}
+                      onConfirm={async () => {
+                        await clearReport();
+                        setIsReportOpen(true);
+                      }}
+                    >
+                      <Button variant="default" size="sm">
+                        生成报告
+                      </Button>
+                    </PointAlertDialog>
+                  )}
+                </div>
               </div>
             </div>
           </div>
         </div>
 
         <div className="w-full">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-semibold">访谈列表</h2>
-            <div className="flex gap-2">
-              {analyst.report ? (
-                <Button
-                  variant="default"
-                  onClick={() =>
-                    window.open(`/analyst/${analyst.id}/html`, "_blank")
-                  }
-                >
-                  查看报告
-                </Button>
-              ) : (
-                <PointAlertDialog
-                  points={100}
-                  onConfirm={() => {
-                    setIsReportOpen(true);
-                  }}
-                >
-                  <Button variant="default">生成报告</Button>
-                </PointAlertDialog>
-              )}
+          <div className="space-y-4 mb-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-xl font-semibold">访谈列表</h2>
+            </div>
+            <div className="bg-muted/50 rounded-lg p-4 text-sm text-muted-foreground">
+              <p>你可以：</p>
+              <ul className="list-disc ml-4 mt-1 space-y-1">
+                <li>添加更多访谈对象来获取更全面的见解</li>
+                <li>
+                  选择单个访谈逐一进行，或使用&quot;开启所有人访谈&quot;批量开始
+                </li>
+                <li>
+                  在访谈过程中随时生成报告，也可以在所有访谈结束后生成最终报告
+                </li>
+              </ul>
+            </div>
+            <div className="flex items-center justify-end gap-2">
               {pointsDialog}
               <Button variant="outline" onClick={addPersona}>
                 添加访谈对象
@@ -348,17 +394,11 @@ export function AnalystDetail({
             {interviews.map((interview) => (
               <Card key={interview.id} className="w-full">
                 <CardHeader>
-                  <div className="flex justify-between items-center">
-                    <CardTitle>
-                      <div className="line-clamp-1">
-                        {interview.persona.name}
-                      </div>
-                    </CardTitle>
-                  </div>
-                  <CardDescription className="mt-2">
-                    <div className="line-clamp-2">
-                      {interview.persona.tags.join(", ")}
-                    </div>
+                  <CardTitle className="line-clamp-1">
+                    {interview.persona.name}
+                  </CardTitle>
+                  <CardDescription className="mt-2 line-clamp-1">
+                    {interview.persona.tags.join(", ")}
                   </CardDescription>
                 </CardHeader>
                 <CardFooter className="justify-between">
@@ -379,7 +419,7 @@ export function AnalystDetail({
                     href={`/interview/${interview.id}`}
                     className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                   >
-                    访谈 →
+                    {interview.conclusion ? "查看总结" : "去访谈"} →
                   </Link>
                 </CardFooter>
               </Card>

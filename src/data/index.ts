@@ -26,6 +26,9 @@ export async function fetchAnalystInterviews(
     include: {
       persona: true,
     },
+    orderBy: {
+      createdAt: "desc",
+    },
   });
   return interviews.map((interview) => {
     const {
