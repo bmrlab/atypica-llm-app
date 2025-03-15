@@ -235,12 +235,13 @@ export function AnalystDetail({
 
   // Poll for report status when generating
   useEffect(() => {
-    const timeoutId = setTimeout(async () => {
+    const checkReport = async () => {
       const response = await fetch(`/analyst/api?id=${analyst.id}`);
       const updatedAnalyst = await response.json();
       setAnalyst(updatedAnalyst);
-    }, 5000);
-    return () => clearTimeout(timeoutId);
+    };
+    const intervalId = setInterval(checkReport, 5000);
+    return () => clearInterval(intervalId);
   }, [analyst.id]);
 
   const addPersona = () => {
@@ -260,6 +261,7 @@ export function AnalystDetail({
     });
     setAnalyst({ ...analyst, report: "" });
   };
+
   const pointsDialog = useMemo(() => {
     const pendingCount = interviews.filter(
       (i) => !i.conclusion && !i.interviewToken,
@@ -329,7 +331,7 @@ export function AnalystDetail({
                         查看报告
                       </Button>
                       <PointAlertDialog
-                        points={50}
+                        points={100}
                         onConfirm={async () => {
                           await clearReport();
                           setIsReportOpen(true);

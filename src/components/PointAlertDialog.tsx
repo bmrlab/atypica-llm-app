@@ -26,9 +26,7 @@ export function PointAlertDialog({
 }: PointAlertDialogProps) {
   return (
     <AlertDialog>
-      <AlertDialogTrigger asChild>
-        {children}
-      </AlertDialogTrigger>
+      <AlertDialogTrigger asChild>{children}</AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>确认操作</AlertDialogTitle>
