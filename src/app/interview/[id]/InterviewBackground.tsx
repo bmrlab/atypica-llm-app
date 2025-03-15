@@ -5,11 +5,12 @@ import { useScrollToBottom } from "@/components/use-scroll-to-bottom";
 import { Analyst, Persona } from "@/data";
 import { AnalystInterview } from "@/data";
 import { Button } from "@/components/ui/button";
+import { PointAlertDialog } from "@/components/PointAlertDialog";
 import { useRouter } from "next/navigation";
 import { Message } from "ai";
 
 export function InterviewBackground({
-  analystInterview,
+  analystInterview: _analystInterview,
   analyst,
   persona,
 }: {
@@ -17,8 +18,10 @@ export function InterviewBackground({
   analyst: Analyst;
   persona: Persona;
 }) {
+  const [interview, setInterview] =
+    useState<AnalystInterview>(_analystInterview);
   const [messages, setMessages] = useState<Message[]>(
-    analystInterview.messages,
+    _analystInterview.messages,
   );
 
   const fetchUpdate = useCallback(async () => {
@@ -30,6 +33,7 @@ export function InterviewBackground({
       const response = await fetch(`/interview/api?${searchParams.toString()}`);
       const analystInterview = await response.json();
       setMessages(analystInterview.messages);
+      setInterview(analystInterview);
     } catch (error) {
       console.error("Error fetching analystInterview:", error);
     }
@@ -37,7 +41,7 @@ export function InterviewBackground({
 
   // 添加定时器效果
   useEffect(() => {
-    const intervalId: NodeJS.Timeout = setInterval(fetchUpdate, 10000);
+    const intervalId: NodeJS.Timeout = setInterval(fetchUpdate, 5000);
     return () => {
       if (intervalId) {
         clearInterval(intervalId);
@@ -54,11 +58,11 @@ export function InterviewBackground({
       body: JSON.stringify({
         analyst,
         persona,
-        analystInterviewId: analystInterview.id,
+        analystInterviewId: interview.id,
       }),
     });
     await fetchUpdate();
-  }, [fetchUpdate, analyst, persona, analystInterview.id]);
+  }, [fetchUpdate, analyst, persona, interview.id]);
 
   const [messagesContainerRef, messagesEndRef] =
     useScrollToBottom<HTMLDivElement>();
@@ -69,12 +73,7 @@ export function InterviewBackground({
     <div className="flex flex-col items-center justify-start p-10 h-dvh w-dvw max-w-7xl mx-auto">
       <div className="relative w-full">
         <div className="absolute left-0">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => router.back()}
-            className="mb-4"
-          >
+          <Button variant="ghost" size="sm" onClick={() => router.back()}>
             ← 返回
           </Button>
         </div>
@@ -98,27 +97,33 @@ export function InterviewBackground({
               parts={message.parts}
             ></ChatMessage>
           ))}
-          {!analystInterview.interviewToken && analystInterview.conclusion ? (
+          {interview.interviewToken && messages.length === 0 ? (
+            <ChatMessage
+              key="message-start"
+              nickname="系统"
+              role="system"
+              content="访谈启动中 .."
+            ></ChatMessage>
+          ) : null}
+          {!interview.interviewToken && interview.conclusion ? (
             <ChatMessage
               key="message-conclusion"
               nickname="调研结论"
               role="system"
-              content={analystInterview.conclusion}
+              content={interview.conclusion}
             ></ChatMessage>
           ) : null}
           <div ref={messagesEndRef} />
         </div>
 
         <div className="flex justify-center items-center">
-          {!analystInterview.interviewToken && !analystInterview.conclusion ? (
-            <Button
-              size="sm"
-              className="px-10"
-              onClick={() => startBackgroundChat()}
-            >
-              开始访谈
-            </Button>
-          ) : analystInterview.interviewToken ? (
+          {!interview.interviewToken && !interview.conclusion ? (
+            <PointAlertDialog points={5} onConfirm={startBackgroundChat}>
+              <Button size="sm" className="px-10">
+                开始访谈
+              </Button>
+            </PointAlertDialog>
+          ) : interview.interviewToken ? (
             <div className="flex flex-col items-center gap-2">
               <div className="text-sm text-gray-500">访谈进行中</div>
             </div>

@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Analyst, AnalystInterview, Persona } from "@/data";
@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { CircleCheckBig, LoaderCircle } from "lucide-react";
+import { PointAlertDialog } from "@/components/PointAlertDialog";
 
 interface SelectPersonaDialogProps {
   open: boolean;
@@ -150,9 +151,43 @@ export function AnalystDetail({
     setIsOpen(true);
   };
 
+  const pointsDialog = useMemo(() => {
+    const pendingCount = interviews.filter(
+      (i) => !i.conclusion && !i.interviewToken,
+    ).length;
+    return (
+      <PointAlertDialog
+        points={pendingCount * 5}
+        onConfirm={async () => {
+          const pending = interviews.filter(
+            (i) => !i.conclusion && !i.interviewToken,
+          );
+          for (const interview of pending) {
+            await fetch("/interview/api/chat/background", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                analyst,
+                persona: interview.persona,
+                analystInterviewId: interview.id,
+              }),
+            });
+          }
+          router.refresh();
+        }}
+      >
+        <Button variant="default" disabled={pendingCount === 0}>
+          开始对话 ({pendingCount})
+        </Button>
+      </PointAlertDialog>
+    );
+  }, [analyst, interviews, router]);
+
   return (
-    <div className="container mx-auto py-12 max-w-4xl">
-      <div className="flex flex-col items-center space-y-8">
+    <div className="mx-auto py-12 max-w-4xl">
+      <div className="w-full flex flex-col items-center space-y-8">
         {/* <Card className="w-full">
           <CardHeader>
             <CardTitle className="text-2xl">{analyst.role}</CardTitle>
@@ -163,48 +198,34 @@ export function AnalystDetail({
         </Card> */}
 
         <div className="w-full">
-          <h1 className="text-2xl font-semibold mb-2">{analyst.role}</h1>
-          <p className="text-muted-foreground whitespace-pre-wrap">
-            {analyst.topic}
-          </p>
+          <div className="relative w-full">
+            <div className="absolute left-0">
+              <Button variant="ghost" size="sm" onClick={() => router.back()}>
+                ← 返回
+              </Button>
+            </div>
+            <h1 className="text-center text-xl font-medium mb-4">
+              {analyst.role}
+            </h1>
+          </div>
+          <div className="bg-accent/40 rounded-lg p-6 border">
+            <div className="flex items-start gap-3">
+              <div className="mt-1 rounded-md bg-background p-2 border">📝</div>
+              <div className="flex-1">
+                <div className="text-sm font-medium mb-2">研究主题</div>
+                <p className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed">
+                  {analyst.topic}
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div className="w-full">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-xl font-semibold">访谈列表</h2>
             <div className="flex gap-2">
-              <Button
-                variant="default"
-                disabled={
-                  !interviews.some((i) => !i.conclusion && !i.interviewToken)
-                }
-                onClick={async () => {
-                  const pending = interviews.filter(
-                    (i) => !i.conclusion && !i.interviewToken,
-                  );
-                  for (const interview of pending) {
-                    await fetch("/interview/api/chat/background", {
-                      method: "POST",
-                      headers: {
-                        "Content-Type": "application/json",
-                      },
-                      body: JSON.stringify({
-                        analyst,
-                        persona: interview.persona,
-                        analystInterviewId: interview.id,
-                      }),
-                    });
-                    router.refresh();
-                  }
-                }}
-              >
-                开始对话 (
-                {
-                  interviews.filter((i) => !i.conclusion && !i.interviewToken)
-                    .length
-                }
-                )
-              </Button>
+              {pointsDialog}
               <Button variant="outline" onClick={addPersona}>
                 添加访谈对象
               </Button>
