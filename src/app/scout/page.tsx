@@ -79,22 +79,32 @@ export default function ScoutPage() {
           </Button>
         </div>
         <h1 className="text-lg font-medium mb-2 text-center">寻找目标用户</h1>
-        <p className="text-sm text-zinc-500 dark:text-zinc-400 text-center mb-4">
-          AI 会帮你找到最合适的目标用户，并自动加入到{" "}
-          <Link
-            href="/personas"
-            className="text-blue-500 dark:text-blue-400 hover:underline"
-          >
-            用户画像库
-          </Link>{" "}
-          以供后续分析调研
-        </p>
       </div>
       <div className="flex-1 overflow-hidden flex flex-col justify-between gap-4 w-full">
         <div
           ref={messagesContainerRef}
           className="flex flex-col gap-6 h-full w-full items-center overflow-y-scroll"
         >
+          <div className="bg-muted/50 rounded-lg p-4 mt-4">
+            <div className="space-y-2 mr-2">
+              <div className="font-medium">💡 使用建议：</div>
+              <ul className="text-sm ml-4 list-disc space-y-1 text-muted-foreground">
+                <li>描述越具体，AI 找到的用户越准确</li>
+                <li>可以包含用户的兴趣、行为、消费习惯等特征</li>
+                <li>AI 会自动搜索，帮你总结最合适的目标用户画像</li>
+                <li>
+                  结果会自动加入到
+                  <Link
+                    href="/personas"
+                    className="text-blue-500 hover:underline mx-1"
+                  >
+                    用户画像库
+                  </Link>
+                  以供后续分析调研
+                </li>
+              </ul>
+            </div>
+          </div>
           {/* 目前先只保留最后5条用于避免页面越来越卡 */}
           {messages.slice(-5).map((message) => (
             <ChatMessage

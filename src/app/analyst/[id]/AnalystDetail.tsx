@@ -17,7 +17,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { CircleCheckBig, LoaderCircle } from "lucide-react";
+import { CircleCheckBig, LoaderCircle, PlusIcon, UndoIcon } from "lucide-react";
 import { PointAlertDialog } from "@/components/PointAlertDialog";
 
 interface SelectPersonaDialogProps {
@@ -289,7 +289,7 @@ export function AnalystDetail({
           router.refresh();
         }}
       >
-        <Button variant="default" disabled={pendingCount === 0}>
+        <Button variant="default" size="sm" disabled={pendingCount === 0}>
           开启所有人访谈 ({pendingCount})
         </Button>
       </PointAlertDialog>
@@ -297,52 +297,38 @@ export function AnalystDetail({
   }, [analyst, interviews, router]);
 
   return (
-    <div className="mx-auto py-12 max-w-4xl">
-      <div className="w-full flex flex-col items-center space-y-8">
-        <div className="w-full">
-          <div className="relative w-full">
-            <div className="absolute left-0">
-              <Button variant="ghost" size="sm" onClick={() => router.back()}>
-                ← 返回
-              </Button>
-            </div>
-            <h1 className="text-center text-xl font-medium mb-4">
-              {analyst.role}
-            </h1>
+    <div className="mx-auto py-12 max-w-4xl flex flex-col items-center space-y-8">
+      <div className="w-full">
+        <div className="relative w-full">
+          <div className="absolute left-0">
+            <Button variant="ghost" size="sm" onClick={() => router.back()}>
+              ← 返回
+            </Button>
           </div>
-          <div className="bg-accent/40 rounded-lg p-6 border">
-            <div className="flex items-start gap-3">
-              <div className="mt-1 rounded-md bg-background p-2 border">📝</div>
-              <div className="flex-1">
-                <div className="text-sm font-medium mb-2">研究主题</div>
-                <p className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed">
-                  {analyst.topic}
-                </p>
-                <div className="mt-4 flex justify-end gap-2">
-                  {analyst.report ? (
-                    <>
-                      <Button
-                        variant="default"
-                        size="sm"
-                        onClick={() =>
-                          window.open(`/analyst/${analyst.id}/html`, "_blank")
-                        }
-                      >
-                        查看报告
-                      </Button>
-                      <PointAlertDialog
-                        points={100}
-                        onConfirm={async () => {
-                          await clearReport();
-                          setIsReportOpen(true);
-                        }}
-                      >
-                        <Button variant="outline" size="sm">
-                          重新生成报告
-                        </Button>
-                      </PointAlertDialog>
-                    </>
-                  ) : (
+          <h1 className="text-center text-xl font-medium mb-4">
+            {analyst.role}
+          </h1>
+        </div>
+        <div className="bg-accent/40 rounded-lg p-6 border">
+          <div className="flex items-start gap-3">
+            <div className="mt-1 rounded-md bg-background p-2 border">📝</div>
+            <div className="flex-1">
+              <div className="text-sm font-medium mb-2">研究主题</div>
+              <p className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed">
+                {analyst.topic}
+              </p>
+              <div className="mt-4 flex justify-end gap-2">
+                {analyst.report ? (
+                  <>
+                    <Button
+                      variant="default"
+                      size="sm"
+                      onClick={() =>
+                        window.open(`/analyst/${analyst.id}/html`, "_blank")
+                      }
+                    >
+                      查看报告
+                    </Button>
                     <PointAlertDialog
                       points={100}
                       onConfirm={async () => {
@@ -350,92 +336,103 @@ export function AnalystDetail({
                         setIsReportOpen(true);
                       }}
                     >
-                      <Button variant="default" size="sm">
-                        生成报告
+                      <Button variant="outline" size="sm">
+                        <UndoIcon /> 重新生成报告
                       </Button>
                     </PointAlertDialog>
-                  )}
-                </div>
+                  </>
+                ) : (
+                  <PointAlertDialog
+                    points={100}
+                    onConfirm={async () => {
+                      await clearReport();
+                      setIsReportOpen(true);
+                    }}
+                  >
+                    <Button variant="default" size="sm">
+                      生成报告
+                    </Button>
+                  </PointAlertDialog>
+                )}
               </div>
             </div>
           </div>
         </div>
+      </div>
 
-        <div className="w-full">
-          <div className="space-y-4 mb-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-xl font-semibold">访谈列表</h2>
-            </div>
-            <div className="bg-muted/50 rounded-lg p-4 text-sm text-muted-foreground">
-              <p>你可以：</p>
-              <ul className="list-disc ml-4 mt-1 space-y-1">
-                <li>添加更多访谈对象来获取更全面的见解</li>
-                <li>
-                  选择单个访谈逐一进行，或使用&quot;开启所有人访谈&quot;批量开始
-                </li>
-                <li>
-                  在访谈过程中随时生成报告，也可以在所有访谈结束后生成最终报告
-                </li>
-              </ul>
-            </div>
-            <div className="flex items-center justify-end gap-2">
-              {pointsDialog}
-              <Button variant="outline" onClick={addPersona}>
-                添加访谈对象
-              </Button>
-            </div>
+      <div className="w-full">
+        <div className="mb-8 bg-muted/50 rounded-lg p-4 text-sm text-muted-foreground">
+          <p>💡 你可以：</p>
+          <ul className="list-disc ml-4 mt-1 space-y-1">
+            <li>添加更多访谈对象来获取更全面的见解</li>
+            <li>
+              选择单个访谈逐一进行，或使用&quot;开启所有人访谈&quot;批量开始
+            </li>
+            <li>
+              在访谈过程中随时生成报告，也可以在所有访谈结束后生成最终报告
+            </li>
+          </ul>
+        </div>
 
-            <ReportDialog
-              open={isReportOpen}
-              onOpenChange={setIsReportOpen}
-              src={`/analyst/${analyst.id}/live`}
-            />
-          </div>
-
-          <div className="grid grid-cols-3 gap-4">
-            {interviews.map((interview) => (
-              <Card key={interview.id} className="w-full">
-                <CardHeader>
-                  <CardTitle className="line-clamp-1">
-                    {interview.persona.name}
-                  </CardTitle>
-                  <CardDescription className="mt-2 line-clamp-1">
-                    {interview.persona.tags.join(", ")}
-                  </CardDescription>
-                </CardHeader>
-                <CardFooter className="justify-between">
-                  {interview.interviewToken ? (
-                    <div className="flex items-center justify-start gap-2 text-sm">
-                      <LoaderCircle className="animate-spin text-orange-300 size-4" />
-                      正在访谈
-                    </div>
-                  ) : interview.conclusion ? (
-                    <div className="flex items-center justify-start gap-2 text-sm">
-                      <CircleCheckBig className="text-green-600 size-4" />
-                      已总结
-                    </div>
-                  ) : (
-                    <div></div>
-                  )}
-                  <Link
-                    href={`/interview/${interview.id}`}
-                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    {interview.conclusion ? "查看总结" : "去访谈"} →
-                  </Link>
-                </CardFooter>
-              </Card>
-            ))}
+        <div className="flex items-end justify-start space-y-4 mb-4">
+          <h2 className="text-lg font-medium m-0">访谈用户</h2>
+          <div className="ml-auto" />
+          <div className="flex items-center justify-end gap-2">
+            {pointsDialog}
+            <Button variant="outline" size="sm" onClick={addPersona}>
+              <PlusIcon /> 添加访谈对象
+            </Button>
           </div>
         </div>
 
-        <SelectPersonaDialog
-          open={isOpen}
-          onOpenChange={setIsOpen}
-          analystId={analyst.id}
-          onSuccess={() => router.refresh()}
-        />
+        <div className="grid grid-cols-3 gap-4">
+          {interviews.map((interview) => (
+            <Card key={interview.id} className="w-full">
+              <CardHeader>
+                <CardTitle className="line-clamp-1">
+                  {interview.persona.name}
+                </CardTitle>
+                <CardDescription className="mt-2 line-clamp-1">
+                  {interview.persona.tags.join(", ")}
+                </CardDescription>
+              </CardHeader>
+              <CardFooter className="justify-between">
+                {interview.interviewToken ? (
+                  <div className="flex items-center justify-start gap-2 text-sm">
+                    <LoaderCircle className="animate-spin text-orange-300 size-4" />
+                    正在访谈
+                  </div>
+                ) : interview.conclusion ? (
+                  <div className="flex items-center justify-start gap-2 text-sm">
+                    <CircleCheckBig className="text-green-600 size-4" />
+                    已总结
+                  </div>
+                ) : (
+                  <div></div>
+                )}
+                <Link
+                  href={`/interview/${interview.id}`}
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {interview.conclusion ? "查看总结" : "去访谈"} →
+                </Link>
+              </CardFooter>
+            </Card>
+          ))}
+        </div>
       </div>
+
+      <SelectPersonaDialog
+        open={isOpen}
+        onOpenChange={setIsOpen}
+        analystId={analyst.id}
+        onSuccess={() => router.refresh()}
+      />
+      <ReportDialog
+        open={isReportOpen}
+        onOpenChange={setIsReportOpen}
+        src={`/analyst/${analyst.id}/live`}
+      />
     </div>
   );
 }

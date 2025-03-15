@@ -64,17 +64,17 @@ export function AnalystsList({
               ← 返回
             </Button>
           </div>
-          <h1 className="text-xl font-medium text-center">分析师</h1>
+          <h1 className="text-xl font-medium text-center">用户调研主题</h1>
           <div className="absolute right-0 top-0">
             <Dialog open={isOpen} onOpenChange={setIsOpen}>
               <DialogTrigger asChild>
                 <Button variant="default" size="sm">
-                  创建新分析师
+                  创建新的主题
                 </Button>
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>创建新分析师</DialogTitle>
+                  <DialogTitle>创建新的主题</DialogTitle>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="space-y-2">
@@ -105,6 +105,16 @@ export function AnalystsList({
           </div>
         </div>
 
+        <div className="mb-4">
+          <div className="bg-muted/50 rounded-lg p-6">
+            <h3 className="font-medium mb-2">💡 使用指南</h3>
+            <ul className="list-disc ml-4 space-y-1 text-sm text-muted-foreground">
+              <li>创建一个研究主题，利用 AI 进行用户访谈</li>
+              <li>点击卡片查看访谈对象、访谈内容和完整报告</li>
+            </ul>
+          </div>
+        </div>
+
         <div className="grid gap-4">
           {analysts.map((analyst) => (
             <Card
@@ -114,7 +124,7 @@ export function AnalystsList({
             >
               <CardHeader>
                 <CardTitle className="text-lg">{analyst.role}</CardTitle>
-                <CardDescription className="mt-2 whitespace-pre-wrap line-clamp-2">
+                <CardDescription className="mt-2 whitespace-pre-wrap line-clamp-4">
                   {analyst.topic}
                 </CardDescription>
               </CardHeader>
