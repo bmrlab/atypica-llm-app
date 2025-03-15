@@ -17,6 +17,13 @@ jobs:
         id: get_version
         run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
 
+      - name: Log into ghcr.io
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Login to Docker Registry
         uses: docker/login-action@v2
         with:
@@ -34,8 +41,10 @@ jobs:
           context: .
           push: true
           tags: |
-            musecr.azurecr.cn/bmrlab/atypica-llm-app:${{ env.VERSION }}
-            musecr.azurecr.cn/bmrlab/atypica-llm-app:latest
+            ghcr.io/bmrlab/atypica-llm-app:${{ env.VERSION }}
+            ghcr.io/bmrlab/atypica-llm-app:latest
+      #      musecr.azurecr.cn/bmrlab/atypica-llm-app:${{ env.VERSION }}
+      #      musecr.azurecr.cn/bmrlab/atypica-llm-app:latest
 
       - name: Build and push Docker image for Jobs
         uses: docker/build-push-action@v4
@@ -45,8 +54,10 @@ jobs:
           file: ./Dockerfile.job
           push: true
           tags: |
-            musecr.azurecr.cn/bmrlab/atypica-llm-app:${{ env.VERSION }}-job
-            musecr.azurecr.cn/bmrlab/atypica-llm-app:latest-job
+            ghcr.io/bmrlab/atypica-llm-app:${{ env.VERSION }}-job
+            ghcr.io/bmrlab/atypica-llm-app:latest-job
+      #      musecr.azurecr.cn/bmrlab/atypica-llm-app:${{ env.VERSION }}-job
+      #      musecr.azurecr.cn/bmrlab/atypica-llm-app:latest-job
 
       # - name: Setup Kubernetes Config And Update Deployment
       #   run: |

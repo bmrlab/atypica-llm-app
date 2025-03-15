@@ -13,5 +13,7 @@ FROM base AS runner
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY prisma ./prisma
+# 运行 version 触发下载一下 prisma 的依赖 bin
+RUN npx prisma version
 
 ENV NODE_ENV=production
