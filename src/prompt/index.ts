@@ -135,9 +135,10 @@ export const reportHTMLSystem = () => `
 
 请遵循以下要求：
 1. 使用 HTML 格式输出一个总结页面
-2. 用叙事的方式讲述
-3. 要体现出和用户的互动性
-4. 要有观点，要抓眼球
+2. 开篇就要有明确的结论
+3. 用叙事的方式讲述
+4. 要体现出和用户的互动性
+5. 要有观点，要抓眼球
 
 风格要求：
 1. 根据调研主题选择最适合的现代网页风格
@@ -170,6 +171,7 @@ export const reportHTMLPrologue = (
 我的角色是<role>${analyst.role}</role>，
 
 研究主题是：
+
 <topic>
 ${analyst.topic}
 </topic>
