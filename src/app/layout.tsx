@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -12,9 +12,59 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+export const viewport: Viewport = {
+  themeColor: "black",
+};
+
 export const metadata: Metadata = {
-  title: "AtypicaLLM",
-  description: "Created by Tezign",
+  title: {
+    default: "Atypica LLM - AI 驱动的用户研究平台",
+    template: "%s | Atypica LLM",
+  },
+  description:
+    "通过 AI 驱动的深度访谈，发现用户真实需求，构建立体用户画像，为产品决策提供支持",
+  keywords: [
+    "用户研究",
+    "用户画像",
+    "AI访谈",
+    "市场调研",
+    "用户洞察",
+    "消费者行为",
+    "产品决策",
+  ],
+  authors: [{ name: "Tezign" }],
+  category: "technology",
+  openGraph: {
+    title: "Atypica LLM - AI 驱动的用户研究平台",
+    description:
+      "通过 AI 驱动的深度访谈，发现用户真实需求，构建立体用户画像，为产品决策提供支持",
+    type: "website",
+    locale: "zh_CN",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Atypica LLM - AI 驱动的用户研究平台",
+    description:
+      "通过 AI 驱动的深度访谈，发现用户真实需求，构建立体用户画像，为产品决策提供支持",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+  icons: {
+    icon: [
+      { url: "/atypica.png" },
+      { url: "/atypica.png", sizes: "16x16", type: "image/png" },
+      { url: "/atypica.png", sizes: "32x32", type: "image/png" },
+      { url: "/atypica.png", sizes: "48x48", type: "image/png" },
+    ],
+    shortcut: ["/atypica.png"],
+    apple: [
+      { url: "/atypica.png" },
+      { url: "/atypica.png", sizes: "180x180", type: "image/png" },
+    ],
+  },
+  manifest: "/manifest.json",
 };
 
 export default function RootLayout({
