@@ -131,6 +131,21 @@ export function AnalystDetail({
   const router = useRouter();
 
   const [isOpen, setIsOpen] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  // Auto refresh when there are ongoing interviews
+  useEffect(() => {
+    const hasOngoingInterviews = interviews.some((i) => i.interviewToken);
+    if (hasOngoingInterviews && !isRefreshing) {
+      const timeoutId = setTimeout(() => {
+        setIsRefreshing(true);
+        router.refresh();
+        setIsRefreshing(false);
+      }, 10000);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [interviews, router, isRefreshing]);
+
   const addPersona = () => {
     setIsOpen(true);
   };
@@ -157,9 +172,43 @@ export function AnalystDetail({
         <div className="w-full">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-xl font-semibold">访谈列表</h2>
-            <Button variant="outline" onClick={addPersona}>
-              添加访谈对象
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                variant="default"
+                disabled={
+                  !interviews.some((i) => !i.conclusion && !i.interviewToken)
+                }
+                onClick={async () => {
+                  const pending = interviews.filter(
+                    (i) => !i.conclusion && !i.interviewToken,
+                  );
+                  for (const interview of pending) {
+                    await fetch("/interview/api/chat/background", {
+                      method: "POST",
+                      headers: {
+                        "Content-Type": "application/json",
+                      },
+                      body: JSON.stringify({
+                        analyst,
+                        persona: interview.persona,
+                        analystInterviewId: interview.id,
+                      }),
+                    });
+                    router.refresh();
+                  }
+                }}
+              >
+                开始对话 (
+                {
+                  interviews.filter((i) => !i.conclusion && !i.interviewToken)
+                    .length
+                }
+                )
+              </Button>
+              <Button variant="outline" onClick={addPersona}>
+                添加访谈对象
+              </Button>
+            </div>
           </div>
 
           <div className="grid grid-cols-3 gap-4">
