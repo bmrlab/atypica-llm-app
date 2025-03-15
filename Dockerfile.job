@@ -1,0 +1,11 @@
+FROM node:20-alpine AS base
+
+FROM base AS deps
+RUN apk add --no-cache libc6-compat
+WORKDIR /app
+
+COPY . .
+RUN npm install -g pnpm@10.6.2
+RUN pnpm i --frozen-lockfile
+
+ENV NODE_ENV=production
