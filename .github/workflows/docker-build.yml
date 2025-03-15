@@ -29,6 +29,7 @@ jobs:
 
       - name: Build and push Docker image for Next.js app
         uses: docker/build-push-action@v4
+        timeout-minutes: 10  # 10 分钟超时
         with:
           context: .
           push: true
@@ -38,6 +39,7 @@ jobs:
 
       - name: Build and push Docker image for Jobs
         uses: docker/build-push-action@v4
+        timeout-minutes: 10  # 10 分钟超时
         with:
           context: .
           file: ./Dockerfile.job
