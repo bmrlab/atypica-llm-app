@@ -1,7 +1,7 @@
 "use client";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { useChat } from "@ai-sdk/react";
-import { ChatMessage } from "@/components/Message";
+import { ChatMessage } from "@/components/ChatMessage";
 import { useScrollToBottom } from "@/components/use-scroll-to-bottom";
 import { Analyst, Persona } from "@/data";
 import { Markdown } from "@/components/markdown";

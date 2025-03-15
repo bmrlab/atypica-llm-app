@@ -54,10 +54,8 @@ export default function PersonasList({ personas }: { personas: Persona[] }) {
                 <CardTitle className="text-lg line-clamp-1">
                   {persona.name}
                 </CardTitle>
-                <CardDescription>
-                  <div className="text-xs text-muted-foreground">
-                    来源：{persona.source}
-                  </div>
+                <CardDescription className="text-xs text-muted-foreground">
+                  来源：{persona.source}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -83,10 +81,8 @@ export default function PersonasList({ personas }: { personas: Persona[] }) {
           <DialogContent className="sm:max-w-2xl">
             <DialogHeader>
               <DialogTitle>{selectedPersona?.name}</DialogTitle>
-              <DialogDescription>
-                <div className="text-xs text-muted-foreground">
-                  来源：{selectedPersona?.source}
-                </div>
+              <DialogDescription className="text-xs text-muted-foreground">
+                来源：{selectedPersona?.source}
               </DialogDescription>
             </DialogHeader>
             <div className="bg-muted/50 rounded-lg p-4 max-h-[60vh] overflow-y-auto">

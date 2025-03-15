@@ -1,6 +1,6 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
-import { ChatMessage } from "@/components/Message";
+import { ChatMessage } from "@/components/ChatMessage";
 import { useScrollToBottom } from "@/components/use-scroll-to-bottom";
 import { Analyst, Persona } from "@/data";
 import { AnalystInterview } from "@/data";
