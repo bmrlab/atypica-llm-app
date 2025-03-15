@@ -3,9 +3,9 @@ import { useCallback, useEffect, useState } from "react";
 import { ChatMessage } from "@/components/Message";
 import { useScrollToBottom } from "@/components/use-scroll-to-bottom";
 import { Analyst, Persona } from "@/data";
-import { Markdown } from "@/components/markdown";
 import { AnalystInterview } from "@/data";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 import { Message } from "ai";
 
 export function InterviewBackground({
@@ -17,13 +17,6 @@ export function InterviewBackground({
   analyst: Analyst;
   persona: Persona;
 }) {
-  const [stop, setStop] = useState<"initial" | "talking" | "terminated">(
-    analystInterview.interviewToken
-      ? "talking"
-      : analystInterview.conclusion
-        ? "terminated"
-        : "initial",
-  );
   const [messages, setMessages] = useState<Message[]>(
     analystInterview.messages,
   );
@@ -37,13 +30,6 @@ export function InterviewBackground({
       const response = await fetch(`/interview/api?${searchParams.toString()}`);
       const analystInterview = await response.json();
       setMessages(analystInterview.messages);
-      setStop(
-        analystInterview.interviewToken
-          ? "talking"
-          : analystInterview.conclusion
-            ? "terminated"
-            : "initial",
-      );
     } catch (error) {
       console.error("Error fetching analystInterview:", error);
     }
@@ -60,7 +46,6 @@ export function InterviewBackground({
   }, [fetchUpdate]);
 
   const startBackgroundChat = useCallback(async () => {
-    setStop("talking");
     await fetch("/interview/api/chat/background", {
       method: "POST",
       headers: {
@@ -72,17 +57,32 @@ export function InterviewBackground({
         analystInterviewId: analystInterview.id,
       }),
     });
-  }, [analyst, persona, analystInterview.id]);
+    await fetchUpdate();
+  }, [fetchUpdate, analyst, persona, analystInterview.id]);
 
   const [messagesContainerRef, messagesEndRef] =
     useScrollToBottom<HTMLDivElement>();
 
+  const router = useRouter();
+
   return (
-    <div className="flex flex-row justify-center pb-20 h-dvh bg-white dark:bg-zinc-900">
-      <div className="text-xs w-[400px] m-10 h-full overflow-y-scroll">
-        <Markdown>{analystInterview.conclusion}</Markdown>
+    <div className="flex flex-col items-center justify-start p-10 h-dvh w-dvw max-w-7xl mx-auto">
+      <div className="relative w-full">
+        <div className="absolute left-0">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => router.back()}
+            className="mb-4"
+          >
+            ← 返回
+          </Button>
+        </div>
+        <h1 className="text-lg font-medium mb-4 text-center">
+          {analyst.role}访谈{persona.name}
+        </h1>
       </div>
-      <div className="flex flex-col justify-between gap-4 w-[1000px] h-full">
+      <div className="flex-1 overflow-hidden flex flex-col justify-between gap-4 w-full">
         <div
           ref={messagesContainerRef}
           className="flex flex-col gap-6 h-full w-full items-center overflow-y-scroll"
@@ -90,35 +90,46 @@ export function InterviewBackground({
           {messages.map((message) => (
             <ChatMessage
               key={`message-${message.id}`}
-              nickname={message.role === "assistant" ? "用户" : "品牌"}
+              nickname={
+                message.role === "assistant" ? persona.name : analyst.role
+              }
               role={message.role}
               content={message.content}
               parts={message.parts}
             ></ChatMessage>
           ))}
+          {!analystInterview.interviewToken && analystInterview.conclusion ? (
+            <ChatMessage
+              key="message-conclusion"
+              nickname="调研结论"
+              role="system"
+              content={analystInterview.conclusion}
+            ></ChatMessage>
+          ) : null}
           <div ref={messagesEndRef} />
         </div>
 
         <div className="flex justify-center items-center">
-          {stop === "initial" ? (
-            <Button size="sm" onClick={() => startBackgroundChat()}>
-              开始会话
+          {!analystInterview.interviewToken && !analystInterview.conclusion ? (
+            <Button
+              size="sm"
+              className="px-10"
+              onClick={() => startBackgroundChat()}
+            >
+              开始访谈
             </Button>
-          ) : stop === "talking" ? (
+          ) : analystInterview.interviewToken ? (
             <div className="flex flex-col items-center gap-2">
-              <div className="text-sm">Interview is ongoing</div>
-              <Button size="sm" onClick={() => startBackgroundChat()}>
-                重新开始
-              </Button>
+              <div className="text-sm text-gray-500">访谈进行中</div>
             </div>
-          ) : stop === "terminated" ? (
+          ) : (
             <div className="flex flex-col items-center gap-2">
-              <div className="text-sm">已结束</div>
-              <Button size="sm" onClick={() => startBackgroundChat()}>
+              <div className="text-sm text-gray-500">访谈已结束</div>
+              {/* <Button size="sm" onClick={() => startBackgroundChat()}>
                 重新开始
-              </Button>
+              </Button> */}
             </div>
-          ) : null}
+          )}
         </div>
       </div>
     </div>

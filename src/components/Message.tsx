@@ -10,6 +10,7 @@ import {
   XHSSearchResultMessage,
   XHSUserNotesResultMessage,
 } from "@/tools/ui/tool-message";
+import { CpuIcon } from "lucide-react";
 
 const ToolArgs: FC<
   HTMLAttributes<HTMLPreElement> & {
@@ -96,20 +97,45 @@ const PlainText = ({ children }: PropsWithChildren) => {
 
 export const ChatMessage = (message: {
   nickname?: string;
-  role: string;
+  role: "assistant" | "user" | "system" | "data";
   content: string | ReactNode;
-  parts: MessageType["parts"];
+  parts?: MessageType["parts"];
 }) => {
   const { nickname, role, content, parts } = message;
 
   return (
     <motion.div
-      className={`flex flex-row gap-4 px-4 w-full first-of-type:pt-20`}
+      className={`flex flex-row gap-4 px-4 w-full first-of-type:mt-10 py-4
+        ${
+          role === "user"
+            ? "bg-blue-50/50 border-l-4 border-blue-200"
+            : role === "assistant"
+              ? "bg-gray-50/50 border-l-4 border-gray-200"
+              : role === "system"
+                ? "bg-green-50/50 border-l-4 border-green-200"
+                : ""
+        }`}
       initial={{ y: 5, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
     >
-      <div className="size-[24px] flex flex-col justify-center items-center flex-shrink-0 text-zinc-400">
-        {role === "assistant" ? <BotIcon /> : <UserIcon />}
+      <div
+        className={`size-[24px] flex flex-col justify-center items-center flex-shrink-0 ${
+          role === "user"
+            ? "text-blue-500"
+            : role === "assistant"
+              ? "text-gray-500"
+              : role === "system"
+                ? "text-green-500"
+                : ""
+        }`}
+      >
+        {role === "user" ? (
+          <UserIcon />
+        ) : role === "assistant" ? (
+          <BotIcon />
+        ) : role === "system" ? (
+          <CpuIcon />
+        ) : null}
       </div>
 
       <div className="flex flex-col gap-6 flex-1 overflow-hidden">
