@@ -68,7 +68,7 @@ async function chatWithInterviewer({
         system: interviewerSystem(analyst),
         messages,
         tools: {
-          // reasoningThinking: tools.reasoningThinking,
+          reasoningThinking: tools.reasoningThinking,
           saveInterviewConclusion: tools.saveInterviewConclusion(
             analystInterviewId,
             interviewToken,
