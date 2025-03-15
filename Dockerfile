@@ -8,6 +8,8 @@ WORKDIR /app
 
 # Install dependencies based on the preferred package manager
 COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
+# prisma generate need this folder
+COPY prisma ./prisma
 RUN npm install -g pnpm@10.6.2
 RUN pnpm i --frozen-lockfile
 
@@ -17,7 +19,7 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-RUN npm install -g pnpm
+RUN npm install -g pnpm@10.6.2
 RUN pnpm run build
 
 # Production image, copy all the files and run next
