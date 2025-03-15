@@ -114,7 +114,11 @@ export interface Persona {
 
 export async function fetchAllPersonas(): Promise<Persona[]> {
   try {
-    const personas = await prisma.persona.findMany();
+    const personas = await prisma.persona.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
     return personas.map(({ id, name, source, tags, prompt }) => {
       return {
         id,

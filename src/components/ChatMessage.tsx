@@ -14,15 +14,15 @@ import { CpuIcon } from "lucide-react";
 
 const ToolArgs: FC<
   HTMLAttributes<HTMLPreElement> & {
-    title: string;
+    toolName: string;
     args: ToolInvocation["args"];
   }
-> = ({ title, args, className }) => {
+> = ({ toolName, args, className }) => {
   return (
     <pre
       className={`text-xs whitespace-pre-wrap bg-gray-50 border border-gray-100 rounded-lg p-2 ${className}`}
     >
-      <div className="ml-2 mt-1 font-bold">{title}</div>
+      <div className="ml-2 mt-1 font-bold">{toolName} 执行参数</div>
       <table className="text-left mt-2">
         <tbody>
           {Object.entries(args).map(([key, value]) => (
@@ -30,7 +30,7 @@ const ToolArgs: FC<
               <td className="p-2 align-top">{key}:</td>
               <td className="p-2 whitespace-pre-wrap">
                 {typeof value === "object"
-                  ? JSON.stringify(value)
+                  ? JSON.stringify(value, null, 2)
                   : value?.toString()}
               </td>
             </tr>
@@ -53,7 +53,8 @@ const ToolInvocationMessage = ({
     const { toolName, args } = toolInvocation;
     return (
       <div>
-        <ToolArgs title={`正在执行 ${toolName}`} args={args} />
+        {/* 正在执行  */}
+        <ToolArgs toolName={toolName} args={args} />
       </div>
     );
   } else if (toolInvocation.state === "result") {
@@ -70,15 +71,16 @@ const ToolInvocationMessage = ({
           return <ReasoningThinkingResultMessage result={result} />;
         default:
           return (
-            <pre className="text-xs whitespace-pre-wrap">
-              {JSON.stringify(result, null, 2)}
+            <pre className="text-xs whitespace-pre-wrap p-4 text-muted-foreground bg-gray-50 border border-gray-100 rounded-lg">
+              {toolName} {JSON.stringify(result)}
             </pre>
           );
       }
     };
     return (
       <div>
-        <ToolArgs title={`${toolName} 执行结果`} args={args} className="mb-4" />
+        <ToolArgs toolName={toolName} args={args} />
+        <div className="text-sm text-zinc-800 my-4">执行结果：</div>
         {renderResult()}
       </div>
     );
@@ -89,7 +91,7 @@ const ToolInvocationMessage = ({
 
 const PlainText = ({ children }: PropsWithChildren) => {
   return (
-    <div className="text-sm text-zinc-800 dark:text-zinc-300 flex flex-col gap-4">
+    <div className="text-sm text-zinc-800 flex flex-col gap-4">
       <Markdown>{children as string}</Markdown>
     </div>
   );

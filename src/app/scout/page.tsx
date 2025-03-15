@@ -1,11 +1,14 @@
 "use client";
+import { useRouter } from "next/navigation";
 import { useChat } from "@ai-sdk/react";
-import { ChatMessage } from "@/components/Message";
+import { ChatMessage } from "@/components/ChatMessage";
 import { useScrollToBottom } from "@/components/use-scroll-to-bottom";
-import { motion } from "framer-motion";
 import { useRef } from "react";
+import { Button } from "@/components/ui/button";
 
+import Link from "next/link";
 export default function ScoutPage() {
+  const router = useRouter();
   const {
     messages,
     setMessages,
@@ -13,7 +16,7 @@ export default function ScoutPage() {
     handleSubmit,
     input,
     setInput,
-    append,
+    // append,
     status,
   } = useChat({
     maxSteps: 30,
@@ -32,23 +35,62 @@ export default function ScoutPage() {
     handleSubmit(event);
   }
 
-  const suggestedActions = [
-    {
-      title: "帮我找3个博主",
-      label: "热爱穿搭、巧克力、本地美食",
-      action: "帮我找3个博主，热爱穿搭、巧克力、本地美食",
-    },
-    {
-      title: "寻找10个用户",
-      label: "参与调研我的新产品",
-      action:
-        "从小红书上找10个用户，参与我新款巧克力味运动鞋的产品调研。你需要找到他们，然后写 prompt 构建他们的 persona agent",
-    },
-  ];
+  const inputDisabled = status === "streaming" || status === "submitted";
 
+  const getStatusMessage = (status: string) => {
+    switch (status) {
+      case "streaming":
+        return "AI 正在思考中...";
+      case "submitted":
+        return "正在处理您的请求...";
+      case "complete":
+        return "处理完成 ✨";
+      case "error":
+        return "出现错误，请重试";
+      case "ready":
+        return "";
+      default:
+        return "";
+    }
+  };
+
+  const StatusDisplay = ({ status }: { status: string }) => {
+    if (!status) return null;
+
+    return (
+      <div className="flex gap-2 justify-center items-center text-zinc-500 dark:text-zinc-400 text-sm">
+        {status === "streaming" && (
+          <div className="flex gap-1">
+            <span className="animate-bounce">·</span>
+            <span className="animate-bounce [animation-delay:0.2s]">·</span>
+            <span className="animate-bounce [animation-delay:0.4s]">·</span>
+          </div>
+        )}
+        <span>{getStatusMessage(status)}</span>
+      </div>
+    );
+  };
   return (
-    <div className="flex flex-row justify-center pb-20 h-dvh bg-white dark:bg-zinc-900">
-      <div className="flex flex-col justify-between gap-4 w-[1200px] overflow-hidden">
+    <div className="flex flex-col items-center justify-start p-10 h-dvh w-dvw max-w-7xl mx-auto">
+      <div className="relative w-full">
+        <div className="absolute left-0">
+          <Button variant="ghost" size="sm" onClick={() => router.back()}>
+            ← 返回
+          </Button>
+        </div>
+        <h1 className="text-lg font-medium mb-2 text-center">寻找目标用户</h1>
+        <p className="text-sm text-zinc-500 dark:text-zinc-400 text-center mb-4">
+          AI 会帮你找到最合适的目标用户，并自动加入到{" "}
+          <Link
+            href="/personas"
+            className="text-blue-500 dark:text-blue-400 hover:underline"
+          >
+            用户画像库
+          </Link>{" "}
+          以供后续分析调研
+        </p>
+      </div>
+      <div className="flex-1 overflow-hidden flex flex-col justify-between gap-4 w-full">
         <div
           ref={messagesContainerRef}
           className="flex flex-col gap-6 h-full w-full items-center overflow-y-scroll"
@@ -70,39 +112,7 @@ export default function ScoutPage() {
           <div ref={messagesEndRef} />
         </div>
 
-        {status && (
-          <div className="flex justify-center items-center text-zinc-500 dark:text-zinc-400 text-sm">
-            {status}
-          </div>
-        )}
-
-        <div className="grid sm:grid-cols-2 gap-2 w-full px-4 mx-auto mb-4">
-          {messages.length === 0 &&
-            suggestedActions.map((suggestedAction, index) => (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.05 * index }}
-                key={index}
-                className={index > 1 ? "hidden sm:block" : "block"}
-              >
-                <button
-                  onClick={async () => {
-                    append({
-                      role: "user",
-                      content: suggestedAction.action,
-                    });
-                  }}
-                  className="w-full text-left border border-zinc-200 dark:border-zinc-800 text-zinc-800 dark:text-zinc-300 rounded-lg p-2 text-sm hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors flex flex-col"
-                >
-                  <span className="font-medium">{suggestedAction.title}</span>
-                  <span className="text-zinc-500 dark:text-zinc-400">
-                    {suggestedAction.label}
-                  </span>
-                </button>
-              </motion.div>
-            ))}
-        </div>
+        <StatusDisplay status={status} />
 
         <form
           className="flex flex-col gap-2 relative items-center"
@@ -110,15 +120,20 @@ export default function ScoutPage() {
         >
           <textarea
             ref={inputRef}
-            className="bg-zinc-100 rounded-md px-4 py-3.5 w-full outline-none dark:bg-zinc-700 text-sm text-zinc-800 dark:text-zinc-300 md:max-w-[1200px] max-w-[calc(100dvw-32px)]"
-            placeholder="Send a message..."
+            className={`bg-zinc-100 rounded-md px-4 py-3.5 w-full outline-none dark:bg-zinc-700 text-sm text-zinc-800 dark:text-zinc-300 md:max-w-[1200px] max-w-[calc(100dvw-32px)] ${inputDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
+            placeholder="描述你想找的用户特征，例如：帮我找3位经常分享手工巧克力、有试吃经验、对美食很有研究的博主"
             rows={3}
             value={input}
+            disabled={inputDisabled}
             onChange={(event) => {
               setInput(event.target.value);
             }}
             onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
+              if (
+                e.key === "Enter" &&
+                !e.shiftKey &&
+                !e.nativeEvent.isComposing
+              ) {
                 e.preventDefault();
                 if (input.trim()) {
                   const form = e.currentTarget.form;
