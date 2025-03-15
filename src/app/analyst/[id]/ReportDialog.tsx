@@ -10,26 +10,28 @@ import {
 } from "@/components/ui/dialog";
 import { CircleCheckBig, LoaderCircle } from "lucide-react";
 import Link from "next/link";
+import { fetchAnalystById } from "@/data";
 
 interface ReportDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  src: string;
+  analystId: number;
 }
 
-export function ReportDialog({ open, onOpenChange, src }: ReportDialogProps) {
-  const analystId = src.split("/")[2]; // Extract analyst ID from src URL
+export function ReportDialog({
+  open,
+  onOpenChange,
+  analystId,
+}: ReportDialogProps) {
   const [hasReport, setHasReport] = useState(false);
 
   // Check if report is generated
   useEffect(() => {
     if (open) {
       const checkReport = async () => {
-        const response = await fetch(`/analyst/api?id=${analystId}`);
-        const analyst = await response.json();
-        setHasReport(!!analyst.report);
+        const analyst = await fetchAnalystById(analystId);
+        setHasReport(!!analyst?.report);
       };
-
       const intervalId = setInterval(checkReport, 5000);
       return () => clearInterval(intervalId);
     }
@@ -76,7 +78,10 @@ export function ReportDialog({ open, onOpenChange, src }: ReportDialogProps) {
           </div>
         </DialogHeader>
         <div className="h-[70vh]">
-          <iframe src={src} className="w-full h-full border-none"></iframe>
+          <iframe
+            src={`/analyst/${analystId}/live`}
+            className="w-full h-full border-none"
+          ></iframe>
         </div>
         <div className="flex justify-end gap-2">
           {hasReport && (

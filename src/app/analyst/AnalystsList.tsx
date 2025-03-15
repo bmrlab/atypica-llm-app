@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { Analyst } from "@/data";
+import { Analyst, createAnalyst } from "@/data";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -32,17 +32,9 @@ export function AnalystsList({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const response = await fetch("/analyst/api", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ role, topic }),
-    });
-
-    if (response.ok) {
-      const newAnalyst = await response.json();
-      setAnalysts([...analysts, newAnalyst]);
+    const newAnalyst = await createAnalyst({ role, topic });
+    if (newAnalyst) {
+      setAnalysts([newAnalyst, ...analysts]);
       setIsOpen(false);
       setRole("");
       setTopic("");

@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { ChatMessage } from "@/components/ChatMessage";
 import { useScrollToBottom } from "@/components/use-scroll-to-bottom";
-import { Analyst, Persona } from "@/data";
+import { Analyst, fetchAnalystInterviewById, Persona } from "@/data";
 import { AnalystInterview } from "@/data";
 import { Button } from "@/components/ui/button";
 import { PointAlertDialog } from "@/components/PointAlertDialog";
@@ -26,18 +26,15 @@ export function InterviewBackground({
 
   const fetchUpdate = useCallback(async () => {
     try {
-      const searchParams = new URLSearchParams({
-        analystId: analyst.id.toString(),
-        personaId: persona.id.toString(),
-      });
-      const response = await fetch(`/interview/api?${searchParams.toString()}`);
-      const analystInterview = await response.json();
-      setMessages(analystInterview.messages);
-      setInterview(analystInterview);
+      const updated = await fetchAnalystInterviewById(interview.id);
+      if (updated) {
+        setMessages(updated.messages);
+        setInterview(updated);
+      }
     } catch (error) {
       console.error("Error fetching analystInterview:", error);
     }
-  }, [analyst.id, persona.id]);
+  }, [interview.id]);
 
   // 添加定时器效果
   useEffect(() => {
@@ -50,7 +47,7 @@ export function InterviewBackground({
   }, [fetchUpdate]);
 
   const startBackgroundChat = useCallback(async () => {
-    await fetch("/interview/api/chat/background", {
+    await fetch("/api/chat/interview/background", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

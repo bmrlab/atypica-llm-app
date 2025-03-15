@@ -1,8 +1,7 @@
-import { fetchPersonaById } from "@/data";
+import { fetchAnalystInterviewById, fetchPersonaById } from "@/data";
 import { InterviewBackground } from "./InterviewBackground";
 import { notFound } from "next/navigation";
 import { fetchAnalystById } from "@/data";
-import { prisma } from "@/lib/prisma";
 import { AnalystInterview } from "@/data";
 
 export const dynamic = "force-dynamic";
@@ -14,9 +13,7 @@ export default async function InterviewPage({
 }) {
   const id = parseInt((await params).id);
 
-  const analystInterview = await prisma.analystInterview.findUnique({
-    where: { id },
-  });
+  const analystInterview = await fetchAnalystInterviewById(id);
   if (!analystInterview) {
     notFound();
   }
@@ -34,14 +31,8 @@ export default async function InterviewPage({
   return (
     <InterviewBackground
       analystInterview={{
-        id: analystInterview.id,
-        analystId: analystInterview.analystId,
-        personaId: analystInterview.personaId,
-        personaPrompt: analystInterview.personaPrompt,
-        interviewerPrompt: analystInterview.interviewerPrompt,
+        ...analystInterview,
         messages: analystInterview.messages as AnalystInterview["messages"],
-        conclusion: analystInterview.conclusion,
-        interviewToken: analystInterview.interviewToken,
       }}
       analyst={analyst}
       persona={persona}

@@ -20,7 +20,7 @@ export default function ScoutPage() {
     status,
   } = useChat({
     maxSteps: 30,
-    api: "/scout/api/chat",
+    api: "/api/chat/scout",
   });
 
   const inputRef = useRef<HTMLTextAreaElement>(null);

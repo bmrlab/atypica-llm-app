@@ -1,7 +1,7 @@
 "use client";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Analyst, AnalystInterview, Persona } from "@/data";
+import { Analyst, AnalystInterview, Persona, updateAnalyst } from "@/data";
 import { Button } from "@/components/ui/button";
 import { PlusIcon, UndoIcon } from "lucide-react";
 import { PointAlertDialog } from "@/components/PointAlertDialog";
@@ -11,7 +11,7 @@ import { InterviewCard } from "./InterviewCard";
 import Link from "next/link";
 
 export function AnalystDetail({
-  analyst: _analyst,
+  analyst,
   interviews,
 }: {
   analyst: Analyst;
@@ -19,57 +19,33 @@ export function AnalystDetail({
 }) {
   const router = useRouter();
 
-  const [analyst, setAnalyst] = useState(_analyst);
   const [isOpen, setIsOpen] = useState(false);
-  const [isRefreshing, setIsRefreshing] = useState(false);
   const [isReportOpen, setIsReportOpen] = useState(false);
 
-  // Auto refresh when there are ongoing interviews
+  // Poll for status
   useEffect(() => {
-    const hasOngoingInterviews = interviews.some((i) => i.interviewToken);
-    if (hasOngoingInterviews && !isRefreshing) {
-      const timeoutId = setTimeout(() => {
-        setIsRefreshing(true);
-        router.refresh();
-        setIsRefreshing(false);
-      }, 10000);
-      return () => clearTimeout(timeoutId);
-    }
-  }, [interviews, router, isRefreshing]);
-
-  // Poll for report status when generating
-  useEffect(() => {
-    const checkReport = async () => {
-      const response = await fetch(`/analyst/api?id=${analyst.id}`);
-      const updatedAnalyst = await response.json();
-      setAnalyst(updatedAnalyst);
+    const check = async () => {
+      router.refresh();
     };
-    const intervalId = setInterval(checkReport, 5000);
+    const intervalId = setInterval(check, 5000);
     return () => clearInterval(intervalId);
-  }, [analyst.id]);
+  }, [router, analyst.id]);
 
   const addPersona = () => {
     setIsOpen(true);
   };
 
-  const generateReport = async () => {
+  const clearReport = useCallback(async () => {
+    await updateAnalyst(analyst.id, {
+      report: "",
+    });
+    router.refresh();
+  }, [analyst, router]);
+
+  const generateReport = useCallback(async () => {
     await clearReport();
     setIsReportOpen(true);
-  };
-
-  const clearReport = async () => {
-    await fetch(`/analyst/api?id=${analyst.id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        ...analyst,
-        report: "",
-      }),
-    });
-    setAnalyst({ ...analyst, report: "" });
-  };
+  }, [clearReport]);
 
   const pointsDialog = useMemo(() => {
     const pendingCount = interviews.filter(
@@ -83,7 +59,7 @@ export function AnalystDetail({
             (i) => !i.conclusion && !i.interviewToken,
           );
           for (const interview of pending) {
-            await fetch("/interview/api/chat/background", {
+            await fetch("/api/chat/interview/background", {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
@@ -188,7 +164,7 @@ export function AnalystDetail({
       <ReportDialog
         open={isReportOpen}
         onOpenChange={setIsReportOpen}
-        src={`/analyst/${analyst.id}/live`}
+        analystId={analyst.id}
       />
     </div>
   );

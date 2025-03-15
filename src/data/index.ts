@@ -1,11 +1,12 @@
+"use server";
 import { prisma } from "@/lib/prisma";
+import {
+  AnalystInterview as AnalystInterviewPrisma,
+  Persona as PersonaPrisma,
+  Analyst as AnalystPrisma,
+} from "@prisma/client";
 
-export interface AnalystInterview {
-  id: number;
-  analystId: number;
-  personaId: number;
-  personaPrompt: string;
-  interviewerPrompt: string;
+export type AnalystInterview = AnalystInterviewPrisma & {
   messages: {
     id: string;
     role: "data" | "system" | "user" | "assistant";
@@ -14,9 +15,7 @@ export interface AnalystInterview {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     parts?: any[];
   }[];
-  conclusion: string;
-  interviewToken: string | null;
-}
+};
 
 export async function fetchAnalystInterviews(
   analystId: number,
@@ -31,43 +30,69 @@ export async function fetchAnalystInterviews(
     },
   });
   return interviews.map((interview) => {
-    const {
-      id,
-      analystId,
-      personaId,
-      persona,
-      personaPrompt,
-      interviewerPrompt,
-      messages,
-      conclusion,
-      interviewToken,
-    } = interview;
+    const { persona, messages } = interview;
     return {
-      id,
-      analystId,
-      personaId,
+      ...interview,
       persona: {
-        id: persona.id,
-        name: persona.name,
-        source: persona.source,
+        ...persona,
         tags: persona.tags as string[],
-        prompt: persona.prompt,
       },
-      personaPrompt,
-      interviewerPrompt,
       messages: messages as AnalystInterview["messages"],
-      conclusion,
-      interviewToken,
     };
   });
 }
 
-export interface Analyst {
-  id: number;
-  role: string;
-  topic: string;
-  report: string;
+export async function fetchAnalystInterviewById(
+  id: number,
+): Promise<AnalystInterview | null> {
+  try {
+    const interview = await prisma.analystInterview.findUniqueOrThrow({
+      where: { id },
+    });
+    const { messages } = interview;
+    return {
+      ...interview,
+      messages: messages as AnalystInterview["messages"],
+    };
+  } catch (error) {
+    console.error("Error fetching analyst interview", error);
+    return null;
+  }
 }
+
+export async function upsertAnalystInterview({
+  analystId,
+  personaId,
+}: {
+  analystId: number;
+  personaId: number;
+}) {
+  try {
+    const interview = await prisma.analystInterview.upsert({
+      where: {
+        analystId_personaId: {
+          analystId,
+          personaId,
+        },
+      },
+      update: {},
+      create: {
+        analystId,
+        personaId,
+        personaPrompt: "",
+        interviewerPrompt: "",
+        messages: [],
+        conclusion: "",
+      },
+    });
+    return interview;
+  } catch (error) {
+    console.error("Interview already exists", error);
+    return null;
+  }
+}
+
+export type Analyst = AnalystPrisma;
 
 export async function fetchAnalysts() {
   const analysts = await prisma.analyst.findMany({
@@ -75,60 +100,77 @@ export async function fetchAnalysts() {
       createdAt: "desc",
     },
   });
-  return analysts.map(({ id, role, topic, report }) => {
-    return {
-      id,
-      role,
-      topic,
-      report,
-    };
+  return analysts.map((analyst) => {
+    return { ...analyst };
   });
 }
 
 export async function fetchAnalystById(id: number): Promise<Analyst | null> {
   try {
-    const analyst = await prisma.analyst.findUnique({
-      where: {
-        id: id,
-      },
+    const analyst = await prisma.analyst.findUniqueOrThrow({
+      where: { id },
     });
-    if (!analyst) {
-      return null;
-    }
-    return {
-      id: analyst.id,
-      role: analyst.role,
-      topic: analyst.topic,
-      report: analyst.report,
-    };
+    return { ...analyst };
   } catch (error) {
     console.error("Error fetching analyst:", error);
     return null;
   }
 }
 
-export interface Persona {
-  id: number;
-  name: string;
-  source: string;
-  tags: string[];
-  prompt: string;
+export async function createAnalyst({
+  role,
+  topic,
+}: Pick<Analyst, "role" | "topic">) {
+  try {
+    const analyst = await prisma.analyst.create({
+      data: {
+        role,
+        topic,
+        report: "", // Empty report for new analysts
+      },
+    });
+    return analyst;
+  } catch (error) {
+    console.error("Error creating analyst:", error);
+    return null;
+  }
 }
 
-export async function fetchAllPersonas(): Promise<Persona[]> {
+export async function updateAnalyst(
+  id: number,
+  { role, topic, report }: Partial<Pick<Analyst, "role" | "topic" | "report">>,
+) {
+  try {
+    const data: Partial<Pick<Analyst, "role" | "topic" | "report">> = {};
+    if (typeof role !== "undefined") data.role = role;
+    if (typeof topic !== "undefined") data.topic = topic;
+    if (typeof report !== "undefined") data.report = report;
+    const analyst = await prisma.analyst.update({
+      where: { id },
+      data,
+    });
+    return analyst;
+  } catch (error) {
+    console.error("Error updating analyst:", error);
+    return null;
+  }
+}
+
+export type Persona = PersonaPrisma & {
+  tags: string[];
+};
+
+export async function fetchPersonas(): Promise<Persona[]> {
   try {
     const personas = await prisma.persona.findMany({
       orderBy: {
         createdAt: "desc",
       },
     });
-    return personas.map(({ id, name, source, tags, prompt }) => {
+    return personas.map((persona) => {
       return {
-        id,
-        name,
-        source,
-        tags: tags as string[],
-        prompt,
+        ...persona,
+        tags: persona.tags as string[],
       };
     });
   } catch (error) {
@@ -139,20 +181,14 @@ export async function fetchAllPersonas(): Promise<Persona[]> {
 
 export async function fetchPersonaById(id: number): Promise<Persona | null> {
   try {
-    const persona = await prisma.persona.findUnique({
+    const persona = await prisma.persona.findUniqueOrThrow({
       where: {
         id: id,
       },
     });
-    if (!persona) {
-      return null;
-    }
     return {
-      id: persona.id,
-      name: persona.name,
-      source: persona.source,
+      ...persona,
       tags: persona.tags as string[],
-      prompt: persona.prompt,
     };
   } catch (error) {
     console.error("Error fetching persona:", error);

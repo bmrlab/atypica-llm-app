@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Persona } from "@/data";
+import { fetchPersonas, Persona, upsertAnalystInterview } from "@/data";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -37,10 +37,9 @@ export function SelectPersonaDialog({
   useEffect(() => {
     if (open) {
       setLoading(true);
-      fetch("/personas/api")
-        .then((res) => res.json())
-        .then((data) => {
-          setPersonas(data);
+      fetchPersonas()
+        .then((personas) => {
+          setPersonas(personas);
           setSelectedIds([]);
         })
         .finally(() => setLoading(false));
@@ -49,13 +48,7 @@ export function SelectPersonaDialog({
 
   const handleSubmit = async () => {
     for (const personaId of selectedIds) {
-      await fetch(`/interview/api`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ analystId, personaId }),
-      });
+      await upsertAnalystInterview({ analystId, personaId });
     }
     onOpenChange(false);
     onSuccess();
@@ -106,7 +99,10 @@ export function SelectPersonaDialog({
               <Button variant="outline" onClick={() => onOpenChange(false)}>
                 取消
               </Button>
-              <Button onClick={handleSubmit} disabled={selectedIds.length === 0}>
+              <Button
+                onClick={handleSubmit}
+                disabled={selectedIds.length === 0}
+              >
                 确定 ({selectedIds.length})
               </Button>
             </div>
