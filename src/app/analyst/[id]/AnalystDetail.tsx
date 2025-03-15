@@ -9,6 +9,7 @@ import {
   CardTitle,
   CardDescription,
   CardFooter,
+  CardContent,
 } from "@/components/ui/card";
 import {
   Dialog,
@@ -164,7 +165,7 @@ function SelectPersonaDialog({
               {personas.map((persona) => (
                 <Card
                   key={persona.id}
-                  className={`cursor-pointer transition-colors ${
+                  className={`gap-3 cursor-pointer transition-colors ${
                     selectedIds.includes(persona.id)
                       ? "bg-accent"
                       : "hover:bg-accent/50"
@@ -177,14 +178,15 @@ function SelectPersonaDialog({
                     );
                   }}
                 >
-                  <CardHeader className="p-4">
-                    <CardTitle className="text-base truncate">
-                      {persona.name}
-                    </CardTitle>
-                    <CardDescription className="text-xs line-clamp-2">
-                      {persona.tags.join(", ")}
-                    </CardDescription>
+                  <CardHeader>
+                    <CardTitle className="truncate">{persona.name}</CardTitle>
                   </CardHeader>
+                  <CardContent className="text-muted-foreground text-xs line-clamp-2">
+                    {persona.prompt}
+                  </CardContent>
+                  <CardFooter className="text-xs line-clamp-1 text-muted-foreground">
+                    {persona.tags.join(", ")}
+                  </CardFooter>
                 </Card>
               ))}
             </div>
