@@ -1,45 +1,110 @@
 "use client";
 import { Persona } from "@/data";
 
-export default function PersonasList({ personas }: { personas: Persona[] }) {
-  return (
-    <div className="container mx-auto py-8 px-4">
-      <h1 className="text-3xl font-bold mb-8 text-center">Personas</h1>
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
+import { useRouter } from "next/navigation";
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {personas.map((persona, index) => (
-          <div
-            key={index}
-            className="group relative hover:shadow-lg transition-all duration-300 overflow-hidden rounded-lg border bg-card text-card-foreground"
-          >
-            <div className="p-6">
-              <div>
-                <h2 className="text-lg font-medium mb-2">{persona.name}</h2>
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {persona.tags.map((tag, tagIndex) => (
-                    <span
-                      key={tagIndex}
-                      className="bg-gray-200 px-2 py-1 rounded-full text-xs"
-                    >
+export default function PersonasList({ personas }: { personas: Persona[] }) {
+  const router = useRouter();
+  const [selectedPersona, setSelectedPersona] = useState<Persona | null>(null);
+
+  return (
+    <div className="mx-auto py-12 max-w-6xl">
+      <div className="w-full flex flex-col space-y-8">
+        <div className="relative w-full">
+          <div className="absolute left-0">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => router.back()}
+              className="mb-4"
+            >
+              ← 返回
+            </Button>
+          </div>
+          <h1 className="text-xl font-medium text-center">用户画像</h1>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {personas.map((persona) => (
+            <Card
+              key={persona.id}
+              className="transition-all duration-300 hover:bg-accent/50 cursor-pointer hover:shadow-md"
+              onClick={() => setSelectedPersona(persona)}
+            >
+              <CardHeader>
+                <CardTitle className="text-lg line-clamp-1">
+                  {persona.name}
+                </CardTitle>
+                <CardDescription>
+                  <div className="text-xs text-muted-foreground">
+                    来源：{persona.source}
+                  </div>
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="line-clamp-2 text-sm">{persona.prompt}</div>
+              </CardContent>
+              <CardFooter>
+                <div className="flex flex-wrap gap-1.5">
+                  {persona.tags.map((tag, index) => (
+                    <Badge key={index} variant="outline" className="text-xs">
                       {tag}
-                    </span>
+                    </Badge>
                   ))}
                 </div>
-                {/* Truncated prompt preview */}
-                <p className="text-sm line-clamp-2 mb-2">{persona.prompt}</p>
+              </CardFooter>
+            </Card>
+          ))}
+        </div>
 
-                <div className="text-xs text-gray-400">{persona.source}</div>
-              </div>
-
-              {/* Full prompt on hover */}
-              <div className="absolute inset-0 bg-background/95 p-6 overflow-y-auto opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <pre className="text-xs whitespace-pre-wrap">
-                  {persona.prompt}
-                </pre>
-              </div>
+        <Dialog
+          open={!!selectedPersona}
+          onOpenChange={() => setSelectedPersona(null)}
+        >
+          <DialogContent className="sm:max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>{selectedPersona?.name}</DialogTitle>
+              <DialogDescription>
+                <div className="text-xs text-muted-foreground">
+                  来源：{selectedPersona?.source}
+                </div>
+              </DialogDescription>
+            </DialogHeader>
+            <div className="bg-muted/50 rounded-lg p-4 max-h-[60vh] overflow-y-auto">
+              <pre className="text-sm whitespace-pre-wrap font-mono">
+                {selectedPersona?.prompt}
+              </pre>
             </div>
-          </div>
-        ))}
+            <DialogFooter>
+              <div className="flex flex-wrap gap-2">
+                {selectedPersona?.tags.map((tag, index) => (
+                  <Badge key={index} variant="outline">
+                    {tag}
+                  </Badge>
+                ))}
+              </div>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
