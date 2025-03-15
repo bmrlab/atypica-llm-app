@@ -30,7 +30,6 @@ interface SelectPersonaDialogProps {
 interface ReportDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSuccess: () => void;
   src: string;
 }
 
@@ -53,8 +52,11 @@ function ReportDialog({ open, onOpenChange, src }: ReportDialogProps) {
   }, [open, analystId]);
 
   return (
-    <Dialog open={open} onOpenChange={() => {}} modal>
-      <DialogContent className="sm:max-w-[80vw]">
+    <Dialog open={open} onOpenChange={onOpenChange} modal>
+      <DialogContent
+        className="sm:max-w-[80vw]"
+        onPointerDownOutside={(e) => e.preventDefault()}
+      >
         <DialogHeader className="space-y-4">
           <DialogTitle className="flex items-center gap-2">
             {hasReport ? (
@@ -97,7 +99,6 @@ function ReportDialog({ open, onOpenChange, src }: ReportDialogProps) {
             <Button
               variant="default"
               onClick={() => {
-                onOpenChange(false);
                 window.open(`/analyst/${analystId}/html`, "_blank");
               }}
             >
@@ -339,7 +340,6 @@ export function AnalystDetail({
             <ReportDialog
               open={isReportOpen}
               onOpenChange={setIsReportOpen}
-              onSuccess={() => router.refresh()}
               src={`/analyst/${analyst.id}/live`}
             />
           </div>
