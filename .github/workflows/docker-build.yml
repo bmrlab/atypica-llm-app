@@ -59,11 +59,11 @@ jobs:
             musecr.azurecr.cn/bmrlab/atypica-llm-app:${{ env.VERSION }}-job
             musecr.azurecr.cn/bmrlab/atypica-llm-app:latest-job
 
-      # - name: Setup Kubernetes Config And Update Deployment
-      #   run: |
-      #     mkdir -p $HOME/.kube
-      #     echo "${{ secrets.KUBE_CONFIG_MUSE_CLUSTER }}" > $HOME/.kube/config
-      #     chmod 600 $HOME/.kube/config
-      #     export KUBECONFIG=$HOME/.kube/config
-      #     kubectl config use-context muse-aws-cn-prod
-      #     kubectl set image deployment/atypica-llm-app atypica-llm-app=musecr.azurecr.cn/bmrlab/atypica-llm-app:${{ env.VERSION }} --namespace bmrlab
+      - name: Setup Kubernetes Config And Update Deployment
+        run: |
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.KUBE_CONFIG_MUSE_CLUSTER }}" > $HOME/.kube/config
+          chmod 600 $HOME/.kube/config
+          export KUBECONFIG=$HOME/.kube/config
+          kubectl config use-context muse-aws-cn-prod
+          kubectl set image deployment/atypica-llm-app atypica-llm-app=musecr.azurecr.cn/bmrlab/atypica-llm-app:${{ env.VERSION }} --namespace bmrlab
