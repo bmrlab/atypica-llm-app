@@ -2,6 +2,8 @@ import { AnalystDetail } from "./AnalystDetail";
 import { fetchAnalystById, fetchAnalystInterviews } from "@/data";
 import { notFound } from "next/navigation";
 
+export const dynamic = "force-dynamic";
+
 export default async function AnalystPage({
   params,
 }: {
