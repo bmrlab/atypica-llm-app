@@ -14,6 +14,10 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  experimental: {
+    // see https://nextjs.org/docs/app/api-reference/functions/forbidden
+    authInterrupts: true,
+  },
 };
 
 export default nextConfig;
