@@ -22,15 +22,18 @@ model User {
   updatedAt DateTime @updatedAt
 
   userAnalysts UserAnalyst[]
+  scoutChats   UserScoutChat[]
 }
 
 model Persona {
-  id      Int    @id @default(autoincrement())
-  name    String @db.VarChar(255)
-  source  String @db.VarChar(255)
-  tags    Json // 存储标签数组
-  samples Json // 存储小红书用户主页链接作为参考样本
-  prompt  String @db.Text
+  id              Int            @id @default(autoincrement())
+  name            String         @db.VarChar(255)
+  source          String         @db.VarChar(255)
+  tags            Json // 存储标签数组
+  samples         Json // 存储小红书用户主页链接作为参考样本
+  prompt          String         @db.Text
+  userScoutChatId Int?           @db.Int
+  userScoutChat   UserScoutChat? @relation(fields: [userScoutChatId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -83,4 +86,17 @@ model UserAnalyst {
   @@unique([userId, analystId])
   @@index([userId])
   @@index([analystId])
+}
+
+model UserScoutChat {
+  id       Int    @id @default(autoincrement())
+  userId   Int
+  user     User   @relation(fields: [userId], references: [id])
+  title    String @db.VarChar(255)
+  messages Json
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  personas Persona[]
 }
