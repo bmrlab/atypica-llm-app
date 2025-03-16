@@ -9,6 +9,7 @@ import UserMenu from "@/components/UserMenu";
   <UserMenu />
 </div>;
 import { AuthProvider } from "@/components/AuthProvider";
+import { GoogleAnalytics } from "@next/third-parties/google";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -92,6 +93,9 @@ export default function RootLayout({
         </AuthProvider>
         <Toaster />
       </body>
+      {process.env.NODE_ENV === "production" && (
+        <GoogleAnalytics gaId="G-EJTF0VJKQP" />
+      )}
     </html>
   );
 }
