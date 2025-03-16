@@ -1,14 +1,29 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { useChat } from "@ai-sdk/react";
+import { Message, useChat } from "@ai-sdk/react";
 import { ChatMessage } from "@/components/ChatMessage";
 import { useScrollToBottom } from "@/components/use-scroll-to-bottom";
-import { useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { fetchUserScoutChats, saveUserScoutChat, UserScoutChat } from "@/data";
 
-export function ScoutChat() {
+const validateChatMessages = (currentChat: UserScoutChat | null) => {
+  const messages = currentChat?.messages ?? [];
+  if (messages[messages.length - 1]?.role === "user") {
+    messages.pop();
+  }
+  return messages;
+};
+
+export function ScoutChatSingle({
+  currentChat,
+}: {
+  currentChat: UserScoutChat | null;
+}) {
   const router = useRouter();
+  const [chatId, setChatId] = useState<number | null>(currentChat?.id ?? null);
+
   const {
     messages,
     setMessages,
@@ -16,22 +31,48 @@ export function ScoutChat() {
     handleSubmit,
     input,
     setInput,
-    // append,
     status,
+    stop,
   } = useChat({
+    initialMessages: validateChatMessages(currentChat),
     maxSteps: 30,
     api: "/api/chat/scout",
   });
+
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    // useChat 的 onResponse 和 onFinish 都监听不到 chatId 的变化，只能这里主动监听 messages
+    if (messages.length < 2) return; // AI 回复了再保存
+    if (timeoutRef.current) return; // throttled
+    timeoutRef.current = setTimeout(async () => {
+      console.log("Saving chat...", chatId, messages);
+      const chat = await saveUserScoutChat(chatId, messages);
+      setChatId(chat.id);
+      timeoutRef.current = null;
+    }, 5000);
+  }, [chatId, messages]);
+
+  useEffect(() => {
+    // 监听 currentChat?.id 切换对话
+    // 同时 clearTimeout，这个要写在这里，不能写在上一个 useEffect 里，否则 messages 更新就会导致 clearTimeout
+    stop();
+    setMessages(validateChatMessages(currentChat));
+    setChatId(currentChat?.id ?? null);
+    return () => {
+      console.log("Cleaning up timeoutRef.current");
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, [currentChat?.id]);
 
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const [messagesContainerRef, messagesEndRef] =
     useScrollToBottom<HTMLDivElement>();
 
-  function customSubmit(event: React.FormEvent<HTMLFormElement>) {
+  function handleSubmitMessage(event: React.FormEvent<HTMLFormElement>) {
     if (error != null) {
       setMessages(messages.slice(0, -1)); // remove last message
     }
-
     handleSubmit(event);
   }
 
@@ -72,13 +113,15 @@ export function ScoutChat() {
   };
   return (
     <div className="flex flex-col items-center justify-start py-3 sm:py-12 h-dvh w-full max-w-5xl mx-auto">
-      <div className="relative w-full">
-        <div className="absolute left-0">
+      <div className="relative w-full mb-4 sm:mb-8">
+        <div className="absolute left-0 top-1/2 -translate-y-1/2">
           <Button variant="ghost" size="sm" onClick={() => router.back()}>
             ← 返回
           </Button>
         </div>
-        <h1 className="text-lg font-medium mb-2 text-center">寻找目标用户</h1>
+        <h1 className="sm:text-lg font-medium px-18 text-center truncate">
+          {currentChat?.title || "寻找目标用户"}
+        </h1>
       </div>
       <div className="flex-1 overflow-hidden flex flex-col justify-between gap-4 w-full">
         <div
@@ -126,7 +169,7 @@ export function ScoutChat() {
 
         <form
           className="flex flex-col gap-2 relative items-center"
-          onSubmit={customSubmit}
+          onSubmit={handleSubmitMessage}
         >
           <textarea
             ref={inputRef}
@@ -153,6 +196,55 @@ export function ScoutChat() {
             }}
           />
         </form>
+      </div>
+    </div>
+  );
+}
+
+export function ScoutChat() {
+  const [currentChat, setCurrentChat] = useState<UserScoutChat | null>(null);
+  const [chats, setChats] = useState<UserScoutChat[]>([]);
+
+  useEffect(() => {
+    const fetchChats = async () => {
+      try {
+        const chats = await fetchUserScoutChats();
+        setChats(chats);
+      } catch (error) {
+        console.error("Failed to fetch active chats:", error);
+      }
+    };
+    fetchChats();
+    const interval = setInterval(() => {
+      fetchChats();
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="relative xl:px-[200px]">
+      <ScoutChatSingle currentChat={currentChat} />
+      <div className="hidden xl:block absolute right-0 top-0 w-[180px] pt-20 max-h-dvh">
+        <div className="text-sm font-medium text-zinc-500 mb-3 text-center">
+          历史对话
+        </div>
+        <div className="space-y-2">
+          <div
+            className="px-3 py-2 text-sm text-zinc-500 hover:bg-zinc-100 rounded cursor-pointer"
+            onClick={() => setCurrentChat(null)}
+          >
+            新对话
+          </div>
+          {chats.map((chat) => (
+            <div
+              key={chat.id}
+              onClick={() => setCurrentChat(chat)}
+              className="px-3 py-2 text-sm truncate text-zinc-500 hover:bg-zinc-100 rounded cursor-pointer"
+            >
+              {chat.title || "未命名对话"}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

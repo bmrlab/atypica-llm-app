@@ -30,8 +30,8 @@ export default function PersonasList({ personas }: { personas: Persona[] }) {
   return (
     <div className="py-12 max-w-6xl mx-auto">
       <div className="w-full flex flex-col space-y-8">
-        <div className="relative w-full">
-          <div className="absolute left-0">
+        <div className="relative w-full mb-4 sm:mb-8">
+          <div className="absolute left-0 top-1/2 -translate-y-1/2">
             <Button
               variant="ghost"
               size="sm"
@@ -41,7 +41,9 @@ export default function PersonasList({ personas }: { personas: Persona[] }) {
               ← 返回
             </Button>
           </div>
-          <h1 className="text-xl font-medium text-center">用户画像</h1>
+          <h1 className="sm:text-lg font-medium px-18 text-center truncate">
+            用户画像
+          </h1>
         </div>
 
         <div className="mb-8">

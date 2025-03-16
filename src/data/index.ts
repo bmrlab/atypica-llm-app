@@ -7,6 +7,7 @@ import {
   AnalystInterview as AnalystInterviewPrisma,
   Persona as PersonaPrisma,
   Analyst as AnalystPrisma,
+  UserScoutChat as UserScoutChatPrisma,
 } from "@prisma/client";
 import { Session } from "next-auth";
 
@@ -21,15 +22,17 @@ async function withAuth<T>(
   return action(session.user);
 }
 
+type MessageField = {
+  id: string;
+  role: "data" | "system" | "user" | "assistant";
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  content: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  parts?: any[];
+};
+
 export type AnalystInterview = AnalystInterviewPrisma & {
-  messages: {
-    id: string;
-    role: "data" | "system" | "user" | "assistant";
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    content: any;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    parts?: any[];
-  }[];
+  messages: MessageField[];
 };
 
 export async function fetchAnalystInterviews(
@@ -57,7 +60,7 @@ export async function fetchAnalystInterviews(
           ...persona,
           tags: persona.tags as string[],
         },
-        messages: messages as AnalystInterview["messages"],
+        messages: messages as MessageField[],
       };
     });
   });
@@ -81,7 +84,7 @@ export async function fetchAnalystInterviewById(
       const { messages } = interview;
       return {
         ...interview,
-        messages: messages as AnalystInterview["messages"],
+        messages: messages as MessageField[],
       };
     } catch (error) {
       console.log("Error fetching analyst interview", error);
@@ -122,7 +125,7 @@ export async function upsertAnalystInterview({
       });
       return {
         ...interview,
-        messages: interview.messages as AnalystInterview["messages"],
+        messages: interview.messages as MessageField[],
       };
     } catch (error) {
       console.log("Interview already exists", error);
@@ -259,4 +262,64 @@ export async function fetchPersonaById(personaId: number): Promise<Persona> {
     console.log("Error fetching persona:", error);
     throw error;
   }
+}
+
+export type UserScoutChat = UserScoutChatPrisma & {
+  messages: MessageField[];
+};
+
+export async function saveUserScoutChat(
+  chatId: number | null,
+  messages: MessageField[],
+): Promise<UserScoutChat> {
+  if (messages.length < 2) {
+    // AI 回复了再保存
+    throw new Error("No messages provided");
+  }
+  return withAuth(async (user) => {
+    try {
+      const data = {
+        userId: user.id,
+        title: messages[0].content.substring(0, 50),
+        messages: messages,
+      };
+      const userScoutChat = chatId
+        ? await prisma.userScoutChat.update({
+            where: { id: chatId },
+            data,
+          })
+        : await prisma.userScoutChat.create({
+            data,
+          });
+      return {
+        ...userScoutChat,
+        messages: userScoutChat.messages as MessageField[],
+      };
+    } catch (error) {
+      console.log("Error creating user scout chat:", error);
+      throw error;
+    }
+  });
+}
+
+export async function fetchUserScoutChats(): Promise<UserScoutChat[]> {
+  return withAuth(async (user) => {
+    try {
+      const userScoutChats = await prisma.userScoutChat.findMany({
+        where: { userId: user.id },
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
+      return userScoutChats.map((chat) => {
+        return {
+          ...chat,
+          messages: chat.messages as MessageField[],
+        };
+      });
+    } catch (error) {
+      console.log("Error fetching user scout chats:", error);
+      throw error;
+    }
+  });
 }
