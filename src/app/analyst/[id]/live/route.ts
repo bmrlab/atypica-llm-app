@@ -1,5 +1,5 @@
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 import { forbidden, redirect } from "next/navigation";
 import { streamText } from "ai";
 import { prisma } from "@/lib/prisma";

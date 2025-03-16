@@ -21,14 +21,13 @@ function LoginOrLogout() {
     );
   }
 
-  const userInitial =
-    session.user?.name?.charAt(0) || session.user?.email?.charAt(0) || "?";
+  const userInitial = session.user?.email?.charAt(0) || "?";
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger>
         <Avatar className="size-8 cursor-pointer">
-          <AvatarImage src={session.user?.image || ""} />
+          <AvatarImage src={""} />
           <AvatarFallback>{userInitial}</AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
