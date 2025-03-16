@@ -36,6 +36,10 @@ export async function fetchAnalystInterviews(
   analystId: number,
 ): Promise<(AnalystInterview & { persona: Persona })[]> {
   return withAuth(async (user) => {
+    const userAnalyst = await prisma.userAnalyst.findUnique({
+      where: { userId_analystId: { userId: user.id, analystId } },
+    });
+    if (!userAnalyst) forbidden();
     const interviews = await prisma.analystInterview.findMany({
       where: { analystId },
       include: {

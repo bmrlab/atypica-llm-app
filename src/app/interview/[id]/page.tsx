@@ -3,7 +3,6 @@ import { redirect } from "next/navigation";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { fetchAnalystInterviewById, fetchPersonaById } from "@/data";
 import { InterviewBackground } from "./InterviewBackground";
-import { notFound } from "next/navigation";
 import { fetchAnalystById } from "@/data";
 import { AnalystInterview } from "@/data";
 

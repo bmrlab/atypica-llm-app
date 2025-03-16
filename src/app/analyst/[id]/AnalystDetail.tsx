@@ -38,7 +38,7 @@ export function AnalystDetail({
 
   const generateReport = useCallback(async () => {
     try {
-      const res = await updateAnalyst(analyst.id, {
+      await updateAnalyst(analyst.id, {
         report: "",
       });
       router.refresh();

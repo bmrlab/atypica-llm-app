@@ -18,6 +18,17 @@ export async function POST(req: Request) {
     const user = await prisma.user.create({
       data: { email, password: hashedPassword },
     });
+    try {
+      // 给每个用户关联一个样例主题
+      await prisma.userAnalyst.create({
+        data: {
+          userId: user.id,
+          analystId: 1,
+        },
+      });
+    } catch (error) {
+      console.log("Failed to create userAnalyst:", error);
+    }
     return NextResponse.json({
       user: {
         email: user.email,
