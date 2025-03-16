@@ -31,7 +31,7 @@ export async function savePersona({
       plainText: `Saved persona prompt to DB with id ${persona.id}`,
     };
   } catch (error) {
-    console.error("Error saving persona:", error);
+    console.log("Error saving persona:", error);
     throw error;
   }
 }

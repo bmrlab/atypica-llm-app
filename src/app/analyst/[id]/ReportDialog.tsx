@@ -29,8 +29,12 @@ export function ReportDialog({
   useEffect(() => {
     if (open) {
       const checkReport = async () => {
-        const analyst = await fetchAnalystById(analystId);
-        setHasReport(!!analyst?.report);
+        try {
+          const analyst = await fetchAnalystById(analystId);
+          setHasReport(!!analyst.report);
+        } catch (error) {
+          console.log("Error fetching analyst:", error);
+        }
       };
       const intervalId = setInterval(checkReport, 5000);
       return () => clearInterval(intervalId);

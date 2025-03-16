@@ -16,6 +16,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { toast } from "sonner";
 
 interface SelectPersonaDialogProps {
   open: boolean;
@@ -47,11 +48,15 @@ export function SelectPersonaDialog({
   }, [open]);
 
   const handleSubmit = async () => {
-    for (const personaId of selectedIds) {
-      await upsertAnalystInterview({ analystId, personaId });
+    try {
+      for (const personaId of selectedIds) {
+        await upsertAnalystInterview({ analystId, personaId });
+      }
+      onOpenChange(false);
+      onSuccess();
+    } catch (error) {
+      toast.error(`无法保存访谈对象 ${error}`);
     }
-    onOpenChange(false);
-    onSuccess();
   };
 
   return (

@@ -46,14 +46,14 @@ ${question}
           });
         },
         onError: (error) => {
-          console.error("Error generating reasoning thinking:", error);
+          console.log("Error generating reasoning thinking:", error);
           reject(error);
         },
       });
       await response.consumeStream();
     });
   } catch (error) {
-    console.error("Error generating reasoning thinking:", error);
+    console.log("Error generating reasoning thinking:", error);
     throw error;
   }
 }

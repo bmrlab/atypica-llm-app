@@ -43,7 +43,7 @@ async function importPersonas() {
 
     console.log("Import completed successfully!");
   } catch (error) {
-    console.error("Error importing personas:", error);
+    console.log("Error importing personas:", error);
   } finally {
     await prisma.$disconnect();
   }

@@ -16,7 +16,7 @@ export async function POST(req: Request) {
       },
     });
   } catch (error) {
-    console.error("Error saving messages:", error);
+    console.log("Error saving messages:", error);
   }
 
   return new Response(JSON.stringify({ success: true }), { status: 200 });

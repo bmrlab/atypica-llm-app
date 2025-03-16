@@ -27,12 +27,10 @@ export function InterviewBackground({
   const fetchUpdate = useCallback(async () => {
     try {
       const updated = await fetchAnalystInterviewById(interview.id);
-      if (updated) {
-        setMessages(updated.messages);
-        setInterview(updated);
-      }
+      setMessages(updated.messages);
+      setInterview(updated);
     } catch (error) {
-      console.error("Error fetching analystInterview:", error);
+      console.log("Error fetching analystInterview:", error);
     }
   }, [interview.id]);
 

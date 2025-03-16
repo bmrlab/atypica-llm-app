@@ -88,7 +88,7 @@ export async function xhsUserNotes({ userid }: { userid: string }) {
     const result = parseXHSUserNotes(data);
     return result;
   } catch (error) {
-    console.error("Error fetching XHS user posts:", error);
+    console.log("Error fetching XHS user posts:", error);
     throw error;
   }
 }

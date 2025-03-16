@@ -20,7 +20,7 @@ export async function POST(req: Request) {
     },
     maxSteps: 3,
     onError: async (error) => {
-      console.error("Error occurred:", error);
+      console.log("Error occurred:", error);
     },
   });
 

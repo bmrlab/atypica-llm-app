@@ -24,7 +24,7 @@ export async function saveInterviewConclusion({
       plainText: `Saved interview conclusion to DB with id ${interviewId}`,
     };
   } catch (error) {
-    console.error(
+    console.log(
       `Error saving interview conclusion to DB with id ${interviewId} token ${interviewToken}`,
       error,
     );

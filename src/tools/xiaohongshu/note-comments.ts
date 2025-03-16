@@ -66,7 +66,7 @@ export async function xhsNoteComments({ noteid }: { noteid: string }) {
     const result = parseXHSNoteComments(data);
     return result;
   } catch (error) {
-    console.error("Error fetching XHS note comments:", error);
+    console.log("Error fetching XHS note comments:", error);
     throw error;
   }
 }

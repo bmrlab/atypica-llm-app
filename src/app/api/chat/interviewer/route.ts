@@ -23,7 +23,7 @@ export async function POST(req: Request) {
       },
     });
   } catch (error) {
-    console.error("Error saving personaPrompt:", error);
+    console.log("Error saving personaPrompt:", error);
   }
 
   const result = streamText({
@@ -38,7 +38,7 @@ export async function POST(req: Request) {
     },
     maxSteps: 2,
     onError: async (error) => {
-      console.error("Error occurred:", error);
+      console.log("Error occurred:", error);
     },
   });
 

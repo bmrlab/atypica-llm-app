@@ -1,6 +1,7 @@
 import "./globals.css";
 import { Geist, Geist_Mono } from "next/font/google";
 import type { Metadata, Viewport } from "next";
+import { Toaster } from "@/components/ui/sonner";
 import Navigation from "@/components/Navigation";
 import UserMenu from "@/components/UserMenu";
 
@@ -89,6 +90,7 @@ export default function RootLayout({
           <UserMenu />
           {children}
         </AuthProvider>
+        <Toaster />
       </body>
     </html>
   );

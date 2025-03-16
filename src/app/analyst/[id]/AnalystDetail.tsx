@@ -9,6 +9,7 @@ import { ReportDialog } from "./ReportDialog";
 import { SelectPersonaDialog } from "./SelectPersonaDialog";
 import { InterviewCard } from "./InterviewCard";
 import Link from "next/link";
+import { toast } from "sonner";
 
 export function AnalystDetail({
   analyst,
@@ -35,17 +36,18 @@ export function AnalystDetail({
     setIsOpen(true);
   };
 
-  const clearReport = useCallback(async () => {
-    await updateAnalyst(analyst.id, {
-      report: "",
-    });
-    router.refresh();
-  }, [analyst, router]);
-
   const generateReport = useCallback(async () => {
-    await clearReport();
-    setIsReportOpen(true);
-  }, [clearReport]);
+    try {
+      const res = await updateAnalyst(analyst.id, {
+        report: "",
+      });
+      router.refresh();
+      setIsReportOpen(true);
+    } catch (error) {
+      toast.error(`${error}`);
+      throw error;
+    }
+  }, [analyst, router]);
 
   const pointsDialog = useMemo(() => {
     const pendingCount = interviews.filter(

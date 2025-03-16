@@ -22,19 +22,8 @@ export default async function InterviewPage({
   }
 
   const analystInterview = await fetchAnalystInterviewById(id);
-  if (!analystInterview) {
-    notFound();
-  }
-
   const persona = await fetchPersonaById(analystInterview.personaId);
-  if (!persona) {
-    notFound();
-  }
-
   const analyst = await fetchAnalystById(analystInterview.analystId);
-  if (!analyst) {
-    notFound();
-  }
 
   return (
     <InterviewBackground

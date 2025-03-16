@@ -96,7 +96,7 @@ export async function xhsSearch({ keyword }: { keyword: string }) {
     const result = parseXHSSearchResult(data);
     return result;
   } catch (error) {
-    console.error("Error fetching XHS feed:", error);
+    console.log("Error fetching XHS feed:", error);
     throw error;
   }
 }

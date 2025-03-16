@@ -22,7 +22,7 @@ export async function POST(req: Request) {
       },
     });
   } catch (error) {
-    console.error("Error saving personaPrompt:", error);
+    console.log("Error saving personaPrompt:", error);
   }
 
   const result = streamText({
@@ -35,7 +35,7 @@ export async function POST(req: Request) {
     },
     maxSteps: 2,
     onError: async (error) => {
-      console.error("Error occurred:", error);
+      console.log("Error occurred:", error);
     },
     // 这里保存有问题，有时候 tool 的 result 是 experimental_toToolResultContent 的结果，没有 tool 返回的结果
     // 研究了一下是这样，message.content 是有 type 的，一种 type 是 tool 结果的文本序列化给模型看的，但是不体现在 assistant 回复的 content 中，这类文本需要忽略

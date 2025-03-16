@@ -1,3 +1,6 @@
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { forbidden, redirect } from "next/navigation";
 import { streamText } from "ai";
 import { prisma } from "@/lib/prisma";
 import openai from "@/lib/openai";
@@ -8,6 +11,20 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> },
 ) {
   const analystId = parseInt((await params).id);
+
+  const session = await getServerSession(authOptions);
+  if (!session?.user) {
+    redirect(`/auth/signin?callbackUrl=/analyst/${analystId}/live`);
+  }
+
+  const userAnalyst = await prisma.userAnalyst.findUnique({
+    where: { userId_analystId: { userId: session.user.id, analystId } },
+  });
+  if (!userAnalyst) {
+    // return new Response("Analyst not belong to user", { status: 403 });
+    forbidden();
+  }
+
   const analyst = await prisma.analyst.findUnique({
     where: { id: analystId },
     include: {

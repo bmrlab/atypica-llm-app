@@ -85,7 +85,7 @@ async function chatWithInterviewer({
           resolve(message);
         },
         onError: (error) => {
-          console.error(error);
+          console.log(error);
           reject(error);
         },
       });
@@ -122,7 +122,7 @@ async function chatWithPersona({
           resolve(message);
         },
         onError: (error) => {
-          console.error(error);
+          console.log(error);
           reject(error);
         },
       });
@@ -166,7 +166,7 @@ async function backgroundRun({
       personaAgent.messages.push({ ...message, role: "assistant" });
       interviewer.messages.push({ ...message, role: "user" });
     } catch (error) {
-      console.error(`Error in Persona Agent: ${error}`);
+      console.log(`Error in Persona Agent: ${error}`);
       break;
     }
 
@@ -187,7 +187,7 @@ async function backgroundRun({
         interviewer.terminated = true;
       }
     } catch (error) {
-      console.error(`Error in Interviewer Agent: ${error}`);
+      console.log(`Error in Interviewer Agent: ${error}`);
       break;
     }
 
@@ -201,7 +201,7 @@ async function backgroundRun({
         data: { messages },
       });
     } catch (error) {
-      console.error(
+      console.log(
         `Error saving messages with interview id ${analystInterviewId} and token ${interviewToken}`,
         error,
       );
@@ -214,7 +214,7 @@ async function backgroundRun({
           data: { interviewToken: null },
         });
       } catch (error) {
-        console.error(
+        console.log(
           `Error clearing interview token with interview id ${analystInterviewId} and token ${interviewToken}`,
           error,
         );
@@ -243,7 +243,7 @@ export async function POST(req: Request) {
       },
     });
   } catch (error) {
-    console.error("Error saving prompts:", error);
+    console.log("Error saving prompts:", error);
   }
 
   waitUntil(
