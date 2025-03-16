@@ -28,7 +28,7 @@ export default function PersonasList({ personas }: { personas: Persona[] }) {
   const [selectedPersona, setSelectedPersona] = useState<Persona | null>(null);
 
   return (
-    <div className="mx-auto py-12 max-w-6xl">
+    <div className="py-12 max-w-6xl mx-auto">
       <div className="w-full flex flex-col space-y-8">
         <div className="relative w-full">
           <div className="absolute left-0">

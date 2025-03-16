@@ -100,7 +100,7 @@ export function AnalystDetail({
             <p className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed">
               {analyst.topic}
             </p>
-            <div className="mt-4 flex justify-end gap-2">
+            <div className="mt-4 flex justify-end flex-wrap gap-4">
               {analyst.report ? (
                 <>
                   <Button asChild variant="default" size="sm">
@@ -138,10 +138,10 @@ export function AnalystDetail({
         </ul>
       </div>
 
-      <div className="flex items-end justify-start space-y-4 mb-4">
+      <div className="flex items-end justify-start flex-wrap gap-4 mb-4">
         <h2 className="text-lg font-medium m-0">访谈用户</h2>
         <div className="ml-auto" />
-        <div className="flex items-center justify-end gap-2">
+        <div className="flex items-center justify-end flex-wrap gap-4">
           {pointsDialog}
           <Button variant="outline" size="sm" onClick={addPersona}>
             <PlusIcon /> 添加访谈对象
@@ -149,7 +149,7 @@ export function AnalystDetail({
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {interviews.map((interview) => (
           <InterviewCard key={interview.id} interview={interview} />
         ))}

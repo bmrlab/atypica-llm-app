@@ -71,7 +71,7 @@ export default function ScoutPage() {
     );
   };
   return (
-    <div className="flex flex-col items-center justify-start p-10 h-dvh w-dvw max-w-7xl mx-auto">
+    <div className="flex flex-col items-center justify-start py-3 sm:py-12 h-dvh w-full max-w-5xl mx-auto">
       <div className="relative w-full">
         <div className="absolute left-0">
           <Button variant="ghost" size="sm" onClick={() => router.back()}>
@@ -130,7 +130,7 @@ export default function ScoutPage() {
         >
           <textarea
             ref={inputRef}
-            className={`bg-zinc-100 rounded-md px-4 py-3.5 w-full outline-none dark:bg-zinc-700 text-sm text-zinc-800 dark:text-zinc-300 md:max-w-[1200px] max-w-[calc(100dvw-32px)] ${inputDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
+            className={`bg-zinc-100 rounded-md px-4 py-3.5 w-full outline-none text-sm text-zinc-800 ${inputDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
             placeholder="描述你想找的用户特征，例如：帮我找3位经常分享手工巧克力、有试吃经验、对美食很有研究的博主"
             rows={3}
             value={input}

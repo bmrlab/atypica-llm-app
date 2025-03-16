@@ -9,7 +9,7 @@ export default function Navigation() {
   ];
 
   return (
-    <nav className="fixed left-0 top-0 h-screen p-6 pt-10">
+    <nav className="fixed left-0 top-0 h-screen sm:px-2 2xl:px-6 pt-10 hidden sm:block">
       <div className="space-y-1">
         {menuItems.map((item) => {
           return (

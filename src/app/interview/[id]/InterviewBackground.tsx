@@ -67,14 +67,14 @@ export function InterviewBackground({
   const router = useRouter();
 
   return (
-    <div className="flex flex-col items-center justify-start p-10 h-dvh w-dvw max-w-7xl mx-auto">
-      <div className="relative w-full">
-        <div className="absolute left-0">
+    <div className="flex flex-col items-center justify-start py-3 sm:py-12 h-dvh w-full max-w-5xl mx-auto">
+      <div className="relative w-full mb-4">
+        <div className="absolute left-0 top-1/2 -translate-y-1/2">
           <Button variant="ghost" size="sm" onClick={() => router.back()}>
             ← 返回
           </Button>
         </div>
-        <h1 className="text-lg font-medium mb-4 text-center">
+        <h1 className="sm:text-lg font-medium px-18 text-center truncate">
           {analyst.role}访谈{persona.name}
         </h1>
       </div>
