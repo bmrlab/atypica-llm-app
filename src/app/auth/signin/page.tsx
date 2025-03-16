@@ -28,7 +28,7 @@ export default function SignIn() {
       });
 
       if (!result?.error) {
-        router.push(callbackUrl);
+        router.replace(callbackUrl);
       } else {
         setError("Invalid email or password");
       }

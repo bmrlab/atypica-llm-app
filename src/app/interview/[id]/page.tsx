@@ -1,3 +1,6 @@
+import { getServerSession } from "next-auth/next";
+import { redirect } from "next/navigation";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { fetchAnalystInterviewById, fetchPersonaById } from "@/data";
 import { InterviewBackground } from "./InterviewBackground";
 import { notFound } from "next/navigation";
@@ -12,6 +15,11 @@ export default async function InterviewPage({
   params: Promise<{ id: string }>;
 }) {
   const id = parseInt((await params).id);
+
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    redirect(`/auth/signin?callbackUrl=/interview/${id}`);
+  }
 
   const analystInterview = await fetchAnalystInterviewById(id);
   if (!analystInterview) {
