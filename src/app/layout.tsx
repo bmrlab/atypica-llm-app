@@ -1,7 +1,13 @@
-import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { Geist, Geist_Mono } from "next/font/google";
+import type { Metadata, Viewport } from "next";
 import Navigation from "@/components/Navigation";
+import UserMenu from "@/components/UserMenu";
+
+<div className="flex items-center gap-4">
+  <UserMenu />
+</div>;
+import { AuthProvider } from "@/components/AuthProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -78,8 +84,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased px-3 sm:px-24`}
       >
-        <Navigation />
-        {children}
+        <AuthProvider>
+          <Navigation />
+          <UserMenu />
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );
