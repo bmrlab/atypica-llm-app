@@ -20,6 +20,8 @@ model User {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  userAnalysts UserAnalyst[]
 }
 
 model Persona {
@@ -45,7 +47,8 @@ model Analyst {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  interviews AnalystInterview[]
+  interviews   AnalystInterview[]
+  userAnalysts UserAnalyst[]
 }
 
 model AnalystInterview {
@@ -64,4 +67,20 @@ model AnalystInterview {
   updatedAt DateTime @updatedAt
 
   @@unique([analystId, personaId])
+}
+
+model UserAnalyst {
+  id        Int     @id @default(autoincrement())
+  userId    Int
+  user      User    @relation(fields: [userId], references: [id])
+  analystId Int
+  analyst   Analyst @relation(fields: [analystId], references: [id])
+  role      String  @default("admin") @db.VarChar(255)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, analystId])
+  @@index([userId])
+  @@index([analystId])
 }
