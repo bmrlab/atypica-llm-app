@@ -1,5 +1,5 @@
 "use client";
-import { Persona } from "@/data";
+import { Persona, UserScoutChat } from "@/data";
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -23,7 +23,13 @@ import { Badge } from "@/components/ui/badge";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-export default function PersonasList({ personas }: { personas: Persona[] }) {
+export default function PersonasList({
+  personas,
+  userScoutChat,
+}: {
+  personas: Persona[];
+  userScoutChat?: UserScoutChat;
+}) {
   const router = useRouter();
   const [selectedPersona, setSelectedPersona] = useState<Persona | null>(null);
 

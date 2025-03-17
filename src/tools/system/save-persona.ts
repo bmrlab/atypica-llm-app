@@ -6,12 +6,14 @@ export async function savePersona({
   tags,
   userids,
   personaPrompt,
+  userScoutChatId,
 }: {
   name: string;
   source: string;
   tags: string[];
   userids: string[];
   personaPrompt: string;
+  userScoutChatId: number;
 }) {
   try {
     const persona = await prisma.persona.create({
@@ -23,6 +25,7 @@ export async function savePersona({
           (id) => `https://www.xiaohongshu.com/user/profile/${id}`,
         ),
         prompt: personaPrompt,
+        userScoutChatId,
       },
     });
 

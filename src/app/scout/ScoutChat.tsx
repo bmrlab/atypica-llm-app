@@ -3,14 +3,20 @@ import { useRouter } from "next/navigation";
 import { Message, useChat } from "@ai-sdk/react";
 import { ChatMessage } from "@/components/ChatMessage";
 import { useScrollToBottom } from "@/components/use-scroll-to-bottom";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { fetchUserScoutChats, saveUserScoutChat, UserScoutChat } from "@/data";
+import {
+  createUserScoutChat,
+  fetchUserScoutChats,
+  updateUserScoutChat,
+  UserScoutChat,
+} from "@/data";
+import { generateId } from "ai";
+import { fixChatMessages } from "@/lib/utils";
 
-const validateChatMessages = (currentChat: UserScoutChat | null) => {
-  const messages = currentChat?.messages ?? [];
-  if (messages[messages.length - 1]?.role === "user") {
+const validateChatMessages = (messages: Message[]) => {
+  if (messages.length > 0 && messages[messages.length - 1]?.role === "user") {
     messages.pop();
   }
   return messages;
@@ -24,6 +30,10 @@ export function ScoutChatSingle({
   const router = useRouter();
   const [chatId, setChatId] = useState<number | null>(currentChat?.id ?? null);
 
+  // https://github.com/vercel/ai/blob/50555848a54e6bace3e22d175db58c04f04ea5a4/packages/react/src/use-chat.ts#L230
+  // useChat 会监听 credentials,headers,body, 的变化，但是其他的不监听
+  // onResponse 和 onFinish 也被 hook 保存状态了，所以他俩都监听不到 chatId 的变化，只能在下面 useEffect 里主动监听 messages
+
   const {
     messages,
     setMessages,
@@ -33,22 +43,25 @@ export function ScoutChatSingle({
     setInput,
     status,
     stop,
+    reload,
   } = useChat({
-    initialMessages: validateChatMessages(currentChat),
     maxSteps: 30,
     api: "/api/chat/scout",
+    initialMessages: validateChatMessages(currentChat?.messages ?? []),
+    body: {
+      chatId: chatId,
+    },
   });
 
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    // useChat 的 onResponse 和 onFinish 都监听不到 chatId 的变化，只能这里主动监听 messages
-    if (messages.length < 2) return; // AI 回复了再保存
+    if (!chatId || messages.length < 2) return; // 有了 chatId 并且 AI 回复了再保存
     if (timeoutRef.current) return; // throttled
     timeoutRef.current = setTimeout(async () => {
       console.log("Saving chat...", chatId, messages);
-      const chat = await saveUserScoutChat(chatId, messages);
-      setChatId(chat.id);
+      // 保存之前先 fix 一下，清除异常的数据
+      await updateUserScoutChat(chatId, fixChatMessages(messages));
       timeoutRef.current = null;
     }, 5000);
   }, [chatId, messages]);
@@ -57,7 +70,7 @@ export function ScoutChatSingle({
     // 监听 currentChat?.id 切换对话
     // 同时 clearTimeout，这个要写在这里，不能写在上一个 useEffect 里，否则 messages 更新就会导致 clearTimeout
     stop();
-    setMessages(validateChatMessages(currentChat));
+    setMessages(validateChatMessages(currentChat?.messages ?? []));
     setChatId(currentChat?.id ?? null);
     return () => {
       console.log("Cleaning up timeoutRef.current");
@@ -65,16 +78,34 @@ export function ScoutChatSingle({
     };
   }, [currentChat?.id]);
 
-  const inputRef = useRef<HTMLTextAreaElement>(null);
+  // const inputRef = useRef<HTMLTextAreaElement>(null);
+  const handleSubmitMessage = useCallback(
+    async (event: React.FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+      if (!input) return;
+      if (!chatId) {
+        const message: Message = {
+          id: generateId(),
+          role: "user",
+          content: input,
+        };
+        const userScoutChat = await createUserScoutChat([message]);
+        // 这里设置了，在调用 handleSubmit 的时候还没有更新 useChat 的 body，所以在 handleSubmit 里直接提交
+        // setChatId(userScoutChat.id);
+        handleSubmit(event, {
+          body: { chatId: userScoutChat.id },
+        });
+      } else {
+        handleSubmit(event, {
+          body: { chatId },
+        });
+      }
+    },
+    [handleSubmit],
+  );
+
   const [messagesContainerRef, messagesEndRef] =
     useScrollToBottom<HTMLDivElement>();
-
-  function handleSubmitMessage(event: React.FormEvent<HTMLFormElement>) {
-    if (error != null) {
-      setMessages(messages.slice(0, -1)); // remove last message
-    }
-    handleSubmit(event);
-  }
 
   const inputDisabled = status === "streaming" || status === "submitted";
 
@@ -172,7 +203,7 @@ export function ScoutChatSingle({
           onSubmit={handleSubmitMessage}
         >
           <textarea
-            ref={inputRef}
+            // ref={inputRef}
             className={`bg-zinc-100 rounded-md px-4 py-3.5 w-full outline-none text-sm text-zinc-800 ${inputDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
             placeholder="描述你想找的用户特征，例如：帮我找3位经常分享手工巧克力、有试吃经验、对美食很有研究的博主"
             rows={3}
@@ -238,7 +269,13 @@ export function ScoutChat() {
           {chats.map((chat) => (
             <div
               key={chat.id}
-              onClick={() => setCurrentChat(chat)}
+              onClick={() =>
+                // 切换 chat 在读取前先 fix 一下，确保意外保存的异常数据也没问题
+                setCurrentChat({
+                  ...chat,
+                  messages: fixChatMessages(chat.messages),
+                })
+              }
               className="px-3 py-2 text-sm truncate text-zinc-500 hover:bg-zinc-100 rounded cursor-pointer"
             >
               {chat.title || "未命名对话"}

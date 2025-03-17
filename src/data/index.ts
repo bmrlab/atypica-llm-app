@@ -10,6 +10,8 @@ import {
   UserScoutChat as UserScoutChatPrisma,
 } from "@prisma/client";
 import { Session } from "next-auth";
+import { Message } from "ai";
+import { InputJsonValue } from "@prisma/client/runtime/library";
 
 // Helper function to check authentication
 async function withAuth<T>(
@@ -22,17 +24,8 @@ async function withAuth<T>(
   return action(session.user);
 }
 
-type MessageField = {
-  id: string;
-  role: "data" | "system" | "user" | "assistant";
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  content: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  parts?: any[];
-};
-
-export type AnalystInterview = AnalystInterviewPrisma & {
-  messages: MessageField[];
+export type AnalystInterview = Omit<AnalystInterviewPrisma, "messages"> & {
+  messages: Message[];
 };
 
 export async function fetchAnalystInterviews(
@@ -60,7 +53,7 @@ export async function fetchAnalystInterviews(
           ...persona,
           tags: persona.tags as string[],
         },
-        messages: messages as MessageField[],
+        messages: messages as unknown as Message[],
       };
     });
   });
@@ -84,7 +77,7 @@ export async function fetchAnalystInterviewById(
       const { messages } = interview;
       return {
         ...interview,
-        messages: messages as MessageField[],
+        messages: messages as unknown as Message[],
       };
     } catch (error) {
       console.log("Error fetching analyst interview", error);
@@ -125,7 +118,7 @@ export async function upsertAnalystInterview({
       });
       return {
         ...interview,
-        messages: interview.messages as MessageField[],
+        messages: interview.messages as unknown as Message[],
       };
     } catch (error) {
       console.log("Interview already exists", error);
@@ -225,13 +218,16 @@ export async function updateAnalyst(
   });
 }
 
-export type Persona = PersonaPrisma & {
+export type Persona = Omit<PersonaPrisma, "tags"> & {
   tags: string[];
 };
 
-export async function fetchPersonas(): Promise<Persona[]> {
+export async function fetchPersonas(
+  userScoutChatId?: number,
+): Promise<Persona[]> {
   try {
     const personas = await prisma.persona.findMany({
+      where: userScoutChatId ? { userScoutChatId } : undefined,
       orderBy: {
         createdAt: "desc",
       },
@@ -264,36 +260,53 @@ export async function fetchPersonaById(personaId: number): Promise<Persona> {
   }
 }
 
-export type UserScoutChat = UserScoutChatPrisma & {
-  messages: MessageField[];
+export type UserScoutChat = Omit<UserScoutChatPrisma, "messages"> & {
+  messages: Message[];
 };
 
-export async function saveUserScoutChat(
-  chatId: number | null,
-  messages: MessageField[],
+export async function updateUserScoutChat(
+  chatId: number,
+  messages: Message[],
 ): Promise<UserScoutChat> {
   if (messages.length < 2) {
     // AI 回复了再保存
     throw new Error("No messages provided");
   }
-  return withAuth(async (user) => {
+  return withAuth(async () => {
     try {
-      const data = {
-        userId: user.id,
-        title: messages[0].content.substring(0, 50),
-        messages: messages,
-      };
-      const userScoutChat = chatId
-        ? await prisma.userScoutChat.update({
-            where: { id: chatId },
-            data,
-          })
-        : await prisma.userScoutChat.create({
-            data,
-          });
+      const userScoutChat = await prisma.userScoutChat.update({
+        where: { id: chatId },
+        data: { messages: messages as unknown as InputJsonValue },
+      });
       return {
         ...userScoutChat,
-        messages: userScoutChat.messages as MessageField[],
+        messages: userScoutChat.messages as unknown as Message[],
+      };
+    } catch (error) {
+      console.log("Error creating user scout chat:", error);
+      throw error;
+    }
+  });
+}
+
+export async function createUserScoutChat(
+  messages: Message[],
+): Promise<UserScoutChat> {
+  if (!messages.length) {
+    throw new Error("No messages provided");
+  }
+  return withAuth(async (user) => {
+    try {
+      const userScoutChat = await prisma.userScoutChat.create({
+        data: {
+          userId: user.id,
+          title: messages[0].content.substring(0, 50),
+          messages: messages as unknown as InputJsonValue,
+        },
+      });
+      return {
+        ...userScoutChat,
+        messages: userScoutChat.messages as unknown as Message[],
       };
     } catch (error) {
       console.log("Error creating user scout chat:", error);
@@ -314,11 +327,31 @@ export async function fetchUserScoutChats(): Promise<UserScoutChat[]> {
       return userScoutChats.map((chat) => {
         return {
           ...chat,
-          messages: chat.messages as MessageField[],
+          messages: chat.messages as unknown as Message[],
         };
       });
     } catch (error) {
       console.log("Error fetching user scout chats:", error);
+      throw error;
+    }
+  });
+}
+
+export async function fetchUserScoutChatById(
+  userScoutChatId: number,
+): Promise<UserScoutChat> {
+  return withAuth(async (user) => {
+    try {
+      const userScoutChat = await prisma.userScoutChat.findUnique({
+        where: { id: userScoutChatId },
+      });
+      if (!userScoutChat) notFound();
+      return {
+        ...userScoutChat,
+        messages: userScoutChat.messages as unknown as Message[],
+      };
+    } catch (error) {
+      console.log("Error fetching user scout chat:", error);
       throw error;
     }
   });
