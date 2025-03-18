@@ -1,24 +1,24 @@
-import { fetchPersonas, fetchUserScoutChatById } from "@/data";
+import { fetchPersonas, fetchUserChatById } from "@/data";
 import PersonasList from "./PersonasList";
 
 // 关闭 SSG，否则 build 环境会读取数据库
 export const dynamic = "force-dynamic";
 
 // type PageProps = {
-//   searchParams?: { userScoutChat?: string };
+//   searchParams?: { userChat?: string };
 // };
 
 export default async function PersonasPage({
   searchParams,
 }: {
-  searchParams: Promise<{ userScoutChat?: string }>;
+  searchParams: Promise<{ userChat?: string }>;
 }) {
-  const userScoutChatParam = (await searchParams)?.userScoutChat;
-  if (userScoutChatParam) {
-    const userScoutChatId = parseInt(userScoutChatParam);
-    const userScoutChat = await fetchUserScoutChatById(userScoutChatId);
-    const personas = await fetchPersonas(userScoutChatId);
-    return <PersonasList personas={personas} userScoutChat={userScoutChat} />;
+  const userChatParam = (await searchParams)?.userChat;
+  if (userChatParam) {
+    const userChatId = parseInt(userChatParam);
+    const userChat = await fetchUserChatById(userChatId);
+    const personas = await fetchPersonas(userChatId);
+    return <PersonasList personas={personas} userChat={userChat} />;
   } else {
     const personas = await fetchPersonas();
     return <PersonasList personas={personas} />;

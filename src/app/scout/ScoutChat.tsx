@@ -8,10 +8,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import {
-  createUserScoutChat,
-  fetchUserScoutChats,
-  updateUserScoutChat,
-  UserScoutChat,
+  createUserChat,
+  fetchUserChats,
+  updateUserChat,
+  UserChat,
 } from "@/data";
 import { fixChatMessages } from "@/lib/utils";
 
@@ -84,7 +84,7 @@ const StatusDisplay = ({
       <span>{getStatusMessage(status)}</span>
       {personasScouted && (
         <Link
-          href={`/personas?userScoutChat=${chatId}`}
+          href={`/personas?userChat=${chatId}`}
           target="_blank"
           className="text-blue-500 hover:underline mx-1"
         >
@@ -98,7 +98,7 @@ const StatusDisplay = ({
 export function ScoutChatSingle({
   currentChat,
 }: {
-  currentChat: UserScoutChat | null;
+  currentChat: UserChat | null;
 }) {
   const router = useRouter();
   const [chatId, setChatId] = useState<number | null>(currentChat?.id ?? null);
@@ -133,7 +133,7 @@ export function ScoutChatSingle({
     timeoutRef.current = setTimeout(async () => {
       console.log("Saving chat...", chatId, messages);
       // 保存之前先 fix 一下，清除异常的数据
-      await updateUserScoutChat(chatId, fixChatMessages(messages));
+      await updateUserChat(chatId, fixChatMessages(messages));
       timeoutRef.current = null;
     }, 5000);
   }, [chatId, messages]);
@@ -156,14 +156,14 @@ export function ScoutChatSingle({
       event.preventDefault();
       if (!input) return;
       if (!chatId) {
-        const userScoutChat = await createUserScoutChat({
+        const userChat = await createUserChat("scout", {
           role: "user",
           content: input,
         });
         // 这里设置了，在调用 handleSubmit 的时候还没有更新 useChat 的 body，所以在 handleSubmit 里直接提交
-        // setChatId(userScoutChat.id);
+        // setChatId(userChat.id);
         handleSubmit(event, {
-          body: { chatId: userScoutChat.id },
+          body: { chatId: userChat.id },
         });
       } else {
         handleSubmit(event, {
@@ -272,13 +272,13 @@ export function ScoutChatSingle({
 }
 
 export function ScoutChat() {
-  const [currentChat, setCurrentChat] = useState<UserScoutChat | null>(null);
-  const [chats, setChats] = useState<UserScoutChat[]>([]);
+  const [currentChat, setCurrentChat] = useState<UserChat | null>(null);
+  const [chats, setChats] = useState<UserChat[]>([]);
 
   useEffect(() => {
     const fetchChats = async () => {
       try {
-        const chats = await fetchUserScoutChats();
+        const chats = await fetchUserChats("scout");
         setChats(chats);
       } catch (error) {
         console.error("Failed to fetch active chats:", error);

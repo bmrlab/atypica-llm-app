@@ -71,7 +71,7 @@ const tools = {
       return result;
     },
   }),
-  savePersona: (userScoutChatId: number) =>
+  savePersona: (userChatId: number) =>
     tool({
       description: "将生成的 persona prompt 保存到数据库",
       parameters: z.object({
@@ -91,7 +91,7 @@ const tools = {
           tags,
           userids,
           personaPrompt,
-          userScoutChatId,
+          userChatId,
         });
         return result;
       },

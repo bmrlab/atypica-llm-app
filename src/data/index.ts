@@ -7,7 +7,7 @@ import {
   AnalystInterview as AnalystInterviewPrisma,
   Persona as PersonaPrisma,
   Analyst as AnalystPrisma,
-  UserScoutChat as UserScoutChatPrisma,
+  UserChat as UserChatPrisma,
 } from "@prisma/client";
 import { Session } from "next-auth";
 import { Message } from "ai";
@@ -252,12 +252,10 @@ export type Persona = Omit<PersonaPrisma, "tags"> & {
   tags: string[];
 };
 
-export async function fetchPersonas(
-  userScoutChatId?: number,
-): Promise<Persona[]> {
+export async function fetchPersonas(userChatId?: number): Promise<Persona[]> {
   try {
     const personas = await prisma.persona.findMany({
-      where: userScoutChatId ? { userScoutChatId } : undefined,
+      where: userChatId ? { userChatId } : undefined,
       orderBy: {
         createdAt: "desc",
       },
@@ -290,27 +288,29 @@ export async function fetchPersonaById(personaId: number): Promise<Persona> {
   }
 }
 
-export type UserScoutChat = Omit<UserScoutChatPrisma, "messages"> & {
+export type UserChat = Omit<UserChatPrisma, "messages" | "kind"> & {
+  kind: "scout" | "analyst" | "interview";
   messages: Message[];
 };
 
-export async function updateUserScoutChat(
+export async function updateUserChat(
   chatId: number,
   messages: Message[],
-): Promise<UserScoutChat> {
+): Promise<UserChat> {
   if (messages.length < 2) {
     // AI 回复了再保存
     throw new Error("No messages provided");
   }
   return withAuth(async () => {
     try {
-      const userScoutChat = await prisma.userScoutChat.update({
+      const userChat = await prisma.userChat.update({
         where: { id: chatId },
         data: { messages: messages as unknown as InputJsonValue },
       });
       return {
-        ...userScoutChat,
-        messages: userScoutChat.messages as unknown as Message[],
+        ...userChat,
+        kind: userChat.kind as UserChat["kind"],
+        messages: userChat.messages as unknown as Message[],
       };
     } catch (error) {
       console.log("Error creating user scout chat:", error);
@@ -319,21 +319,24 @@ export async function updateUserScoutChat(
   });
 }
 
-export async function createUserScoutChat(
+export async function createUserChat(
+  kind: UserChat["kind"],
   message: Pick<Message, "role" | "content">,
-): Promise<UserScoutChat> {
+): Promise<UserChat> {
   return withAuth(async (user) => {
     try {
-      const userScoutChat = await prisma.userScoutChat.create({
+      const userChat = await prisma.userChat.create({
         data: {
           userId: user.id,
           title: message.content.substring(0, 50),
+          kind,
           messages: [message],
         },
       });
       return {
-        ...userScoutChat,
-        messages: userScoutChat.messages as unknown as Message[],
+        ...userChat,
+        kind: userChat.kind as UserChat["kind"],
+        messages: userChat.messages as unknown as Message[],
       };
     } catch (error) {
       console.log("Error creating user scout chat:", error);
@@ -342,18 +345,24 @@ export async function createUserScoutChat(
   });
 }
 
-export async function fetchUserScoutChats(): Promise<UserScoutChat[]> {
+export async function fetchUserChats(
+  kind: UserChat["kind"],
+): Promise<UserChat[]> {
   return withAuth(async (user) => {
     try {
-      const userScoutChats = await prisma.userScoutChat.findMany({
-        where: { userId: user.id },
+      const userChats = await prisma.userChat.findMany({
+        where: {
+          userId: user.id,
+          kind,
+        },
         orderBy: {
           createdAt: "desc",
         },
       });
-      return userScoutChats.map((chat) => {
+      return userChats.map((chat) => {
         return {
           ...chat,
+          kind: chat.kind as UserChat["kind"],
           messages: chat.messages as unknown as Message[],
         };
       });
@@ -364,18 +373,17 @@ export async function fetchUserScoutChats(): Promise<UserScoutChat[]> {
   });
 }
 
-export async function fetchUserScoutChatById(
-  userScoutChatId: number,
-): Promise<UserScoutChat> {
+export async function fetchUserChatById(userChatId: number): Promise<UserChat> {
   return withAuth(async () => {
     try {
-      const userScoutChat = await prisma.userScoutChat.findUnique({
-        where: { id: userScoutChatId },
+      const userChat = await prisma.userChat.findUnique({
+        where: { id: userChatId },
       });
-      if (!userScoutChat) notFound();
+      if (!userChat) notFound();
       return {
-        ...userScoutChat,
-        messages: userScoutChat.messages as unknown as Message[],
+        ...userChat,
+        kind: userChat.kind as UserChat["kind"],
+        messages: userChat.messages as unknown as Message[],
       };
     } catch (error) {
       console.log("Error fetching user scout chat:", error);

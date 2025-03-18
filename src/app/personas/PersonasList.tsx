@@ -1,5 +1,5 @@
 "use client";
-import { Persona, UserScoutChat } from "@/data";
+import { Persona, UserChat } from "@/data";
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -26,10 +26,10 @@ import { XIcon } from "lucide-react";
 
 export default function PersonasList({
   personas,
-  userScoutChat,
+  userChat,
 }: {
   personas: Persona[];
-  userScoutChat?: UserScoutChat;
+  userChat?: UserChat;
 }) {
   const router = useRouter();
   const [selectedPersona, setSelectedPersona] = useState<Persona | null>(null);
@@ -82,7 +82,7 @@ export default function PersonasList({
           </div>
         </div>
 
-        {userScoutChat && (
+        {userChat && (
           <div className="flex items-center justify-start gap-3">
             <div className="flex items-center justify-center size-8 rounded-md border">
               🔍
@@ -90,7 +90,7 @@ export default function PersonasList({
             <p className="text-sm text-muted-foreground">
               通过搜索「
               <span className="truncate inline-block align-bottom max-w-[20ch]">
-                {userScoutChat.title}
+                {userChat.title}
               </span>
               」找到的用户画像
             </p>
