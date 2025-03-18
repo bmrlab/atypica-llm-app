@@ -1,20 +1,12 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { UserChat } from "@/data";
-import { Message } from "ai";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { ScoutChatHistory } from "./ScoutChatHistory";
-import { ScoutChatMessages } from "./ScoutChatMessages";
+import { StudyChatHistory } from "./StudyChatHistory";
+import { StudyChatMessages } from "./StudyChatMessages";
 
-const validateChatMessages = (messages: Message[]) => {
-  if (messages.length > 0 && messages[messages.length - 1]?.role === "user") {
-    messages.pop();
-  }
-  return messages;
-};
-
-export function ScoutChat() {
+export function StudyChat() {
   const router = useRouter();
   const [currentChat, setCurrentChat] = useState<UserChat | null>(null);
 
@@ -27,13 +19,13 @@ export function ScoutChat() {
           </Button>
         </div>
         <h1 className="sm:text-lg font-medium px-18 text-center truncate">
-          {currentChat?.title || "寻找目标用户"}
+          {currentChat?.title || "研究"}
         </h1>
         <div className="absolute right-0 top-1/2 -translate-y-1/2">
-          <ScoutChatHistory onSelectChat={setCurrentChat} />
+          <StudyChatHistory onSelectChat={setCurrentChat} />
         </div>
       </div>
-      <ScoutChatMessages currentChat={currentChat} />
+      <StudyChatMessages currentChat={currentChat} />
     </div>
   );
 }

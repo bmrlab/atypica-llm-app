@@ -1,4 +1,6 @@
 import { PlainTextToolResult } from "@/tools/utils";
+import { tool } from "ai";
+import { z } from "zod";
 
 interface XHSComment {
   id: string;
@@ -51,7 +53,7 @@ function parseXHSNoteComments(data: {
   };
 }
 
-export async function xhsNoteComments({ noteid }: { noteid: string }) {
+async function xhsNoteComments({ noteid }: { noteid: string }) {
   try {
     const params = {
       token: process.env.XHS_API_TOKEN!,
@@ -70,3 +72,17 @@ export async function xhsNoteComments({ noteid }: { noteid: string }) {
     throw error;
   }
 }
+
+export const xhsNoteCommentsTool = tool({
+  description: "获取小红书特定帖子的评论，用于获取对特定品牌或者主题关注的用户，以及他们的反馈",
+  parameters: z.object({
+    noteid: z.string().describe("The note ID to fetch comments from"),
+  }),
+  experimental_toToolResultContent: (result: PlainTextToolResult) => {
+    return [{ type: "text", text: result.plainText }];
+  },
+  execute: async ({ noteid }) => {
+    const result = await xhsNoteComments({ noteid });
+    return result;
+  },
+});

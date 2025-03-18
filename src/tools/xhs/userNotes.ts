@@ -1,4 +1,6 @@
 import { PlainTextToolResult } from "@/tools/utils";
+import { tool } from "ai";
+import { z } from "zod";
 
 interface XHSUserNote {
   id: string;
@@ -73,7 +75,7 @@ function parseXHSUserNotes(data: {
   };
 }
 
-export async function xhsUserNotes({ userid }: { userid: string }) {
+async function xhsUserNotes({ userid }: { userid: string }) {
   try {
     const params = {
       token: process.env.XHS_API_TOKEN!,
@@ -92,3 +94,17 @@ export async function xhsUserNotes({ userid }: { userid: string }) {
     throw error;
   }
 }
+
+export const xhsUserNotesTool = tool({
+  description: "获取小红书特定用户的帖子，用于分析用户的特征和喜好",
+  parameters: z.object({
+    userid: z.string().describe("The user ID to fetch notes from"),
+  }),
+  experimental_toToolResultContent: (result: PlainTextToolResult) => {
+    return [{ type: "text", text: result.plainText }];
+  },
+  execute: async ({ userid }) => {
+    const result = await xhsUserNotes({ userid });
+    return result;
+  },
+});

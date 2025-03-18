@@ -1,4 +1,6 @@
 import { PlainTextToolResult } from "@/tools/utils";
+import { tool } from "ai";
+import { z } from "zod";
 
 interface XHSNote {
   id: string;
@@ -36,9 +38,7 @@ function parseXHSSearchResult(data: {
   };
 }): XHSSearchResult {
   const notes: XHSNote[] = [];
-  const items = (data?.data?.items ?? []).filter(
-    (item) => item.model_type === "note",
-  );
+  const items = (data?.data?.items ?? []).filter((item) => item.model_type === "note");
   items.forEach(({ note }) => {
     notes.push({
       id: note.id,
@@ -78,7 +78,7 @@ function parseXHSSearchResult(data: {
   };
 }
 
-export async function xhsSearch({ keyword }: { keyword: string }) {
+async function xhsSearch({ keyword }: { keyword: string }) {
   try {
     const params = {
       token: process.env.XHS_API_TOKEN!,
@@ -88,9 +88,7 @@ export async function xhsSearch({ keyword }: { keyword: string }) {
       noteType: "_0",
     };
     const queryString = new URLSearchParams(params).toString();
-    const response = await fetch(
-      `${process.env.XHS_API_BASE_URL}/search-note/v2?${queryString}`,
-    );
+    const response = await fetch(`${process.env.XHS_API_BASE_URL}/search-note/v2?${queryString}`);
     const data = await response.json();
     console.log("Response text:", JSON.stringify(data).slice(0, 100));
     const result = parseXHSSearchResult(data);
@@ -100,3 +98,18 @@ export async function xhsSearch({ keyword }: { keyword: string }) {
     throw error;
   }
 }
+
+export const xhsSearchTool = tool({
+  description: "在小红书上搜索笔记，可以搜索特定的主题，也可以搜索一个品牌",
+  parameters: z.object({
+    keyword: z.string().describe("Search keywords"),
+  }),
+  // 这个方法返回的结果会发给 LLM 用来生成回复，只需要把 LLM 能够使用的文本给它就行，节省很多 tokens
+  experimental_toToolResultContent: (result: PlainTextToolResult) => {
+    return [{ type: "text", text: result.plainText }];
+  },
+  execute: async ({ keyword }) => {
+    const result = await xhsSearch({ keyword });
+    return result;
+  },
+});

@@ -1,9 +1,9 @@
-import { streamText } from "ai";
-import tools from "@/tools/tools";
 import { Analyst } from "@/data";
+import openai from "@/lib/openai";
 import { prisma } from "@/lib/prisma";
 import { interviewerSystem } from "@/prompt";
-import openai from "@/lib/openai";
+import tools from "@/tools";
+import { streamText } from "ai";
 
 export async function POST(req: Request) {
   const { messages, analyst, analystInterviewId } = (await req.json()) as {
@@ -32,9 +32,8 @@ export async function POST(req: Request) {
     system: systemPrompt,
     messages,
     tools: {
-      // reasoningThinking: tools.reasoningThinking,
-      saveInterviewConclusion:
-        tools.saveInterviewConclusion(analystInterviewId),
+      reasoningThinking: tools.reasoningThinking,
+      saveInterviewConclusion: tools.saveInterviewConclusion(analystInterviewId),
     },
     maxSteps: 2,
     onError: async (error) => {

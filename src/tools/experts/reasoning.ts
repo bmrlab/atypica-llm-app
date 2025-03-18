@@ -1,6 +1,7 @@
 import { PlainTextToolResult } from "@/tools/utils";
 import { createDeepSeek } from "@ai-sdk/deepseek";
-import { streamText } from "ai";
+import { streamText, tool } from "ai";
+import { z } from "zod";
 
 const deepseek = createDeepSeek({
   apiKey: process.env.SILICONFLOW_API_KEY,
@@ -13,7 +14,7 @@ export interface ReasoningThinkingResult extends PlainTextToolResult {
   plainText: string;
 }
 
-export async function reasoningThinking({
+async function reasoningThinking({
   background,
   question,
 }: {
@@ -31,8 +32,7 @@ ${question}
     return new Promise(async (resolve, reject) => {
       const response = streamText({
         model: deepseek("Pro/deepseek-ai/DeepSeek-R1"),
-        system:
-          "你是一个专业的顾问，需要逐步仔细思考这个问题。用较少的文字回复，不要超过300字。",
+        system: "你是一个专业的顾问，需要逐步仔细思考这个问题。用较少的文字回复，不要超过300字。",
         messages: [{ role: "user", content: prompt }],
         // maxTokens: 500,
         onChunk: (chunk) => console.log("[Reasoning]", JSON.stringify(chunk)),
@@ -57,3 +57,25 @@ ${question}
     throw error;
   }
 }
+
+export const reasoningThinkingTool = tool({
+  description:
+    "针对特定话题或问题提供专家分析和逐步思考过程，问问题的时候要把当前对话内容的总结也发给专家，以帮助专家更好地理解问题。",
+  parameters: z.object({
+    background: z.string().describe("问题的背景，你当前的发现和思考"),
+    question: z.string().describe("问题或需要分析的主题"),
+  }),
+  experimental_toToolResultContent: (result: PlainTextToolResult) => {
+    return [{ type: "text", text: result.plainText }];
+  },
+  execute: async (
+    { background, question },
+    {
+      // 第二个参数有 messages 等数据
+      // messages
+    },
+  ) => {
+    const result = await reasoningThinking({ background, question });
+    return result;
+  },
+});

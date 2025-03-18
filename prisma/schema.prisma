@@ -94,7 +94,7 @@ model UserChat {
   user     User   @relation(fields: [userId], references: [id])
   title    String @db.VarChar(255)
   messages Json
-  kind     String @db.VarChar(255) // scout, analyst, interview
+  kind     String @db.VarChar(255) // scout | study | analyst | interview
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

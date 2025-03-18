@@ -1,16 +1,17 @@
 "use client";
-import { motion } from "framer-motion";
-import { BotIcon, UserIcon } from "./icons";
-import { Markdown } from "./markdown";
-import { ReactNode, PropsWithChildren, FC, HTMLAttributes } from "react";
-import { ToolInvocation, Message as MessageType } from "ai";
 import {
   ReasoningThinkingResultMessage,
+  SaveAnalystToolResultMessage,
   XHSNoteCommentsResultMessage,
   XHSSearchResultMessage,
   XHSUserNotesResultMessage,
-} from "@/tools/ui/tool-message";
+} from "@/tools/ui/ToolMessage";
+import { Message as MessageType, ToolInvocation } from "ai";
+import { motion } from "framer-motion";
 import { CpuIcon } from "lucide-react";
+import { FC, HTMLAttributes, PropsWithChildren, ReactNode } from "react";
+import { BotIcon, UserIcon } from "./icons";
+import { Markdown } from "./markdown";
 
 const ToolArgs: FC<
   HTMLAttributes<HTMLPreElement> & {
@@ -29,9 +30,7 @@ const ToolArgs: FC<
             <tr key={key}>
               <td className="p-2 align-top">{key}:</td>
               <td className="p-2 whitespace-pre-wrap">
-                {typeof value === "object"
-                  ? JSON.stringify(value, null, 2)
-                  : value?.toString()}
+                {typeof value === "object" ? JSON.stringify(value, null, 2) : value?.toString()}
               </td>
             </tr>
           ))}
@@ -41,15 +40,8 @@ const ToolArgs: FC<
   );
 };
 
-const ToolInvocationMessage = ({
-  toolInvocation,
-}: {
-  toolInvocation: ToolInvocation;
-}) => {
-  if (
-    toolInvocation.state === "call" ||
-    toolInvocation.state === "partial-call"
-  ) {
+const ToolInvocationMessage = ({ toolInvocation }: { toolInvocation: ToolInvocation }) => {
+  if (toolInvocation.state === "call" || toolInvocation.state === "partial-call") {
     const { toolName, args } = toolInvocation;
     return (
       <div>
@@ -69,6 +61,8 @@ const ToolInvocationMessage = ({
           return <XHSNoteCommentsResultMessage result={result} />;
         case "reasoningThinking":
           return <ReasoningThinkingResultMessage result={result} />;
+        case "saveAnalyst":
+          return <SaveAnalystToolResultMessage result={result} />;
         default:
           return (
             <pre className="text-xs whitespace-pre-wrap p-4 text-muted-foreground bg-gray-50 border border-gray-100 rounded-lg">
@@ -142,9 +136,7 @@ export const ChatMessage = (message: {
 
       <div className="flex flex-col gap-6 flex-1 overflow-hidden">
         {nickname && (
-          <div className="leading-[24px] text-zinc-800 text-sm font-medium">
-            {nickname}
-          </div>
+          <div className="leading-[24px] text-zinc-800 text-sm font-medium">{nickname}</div>
         )}
         {parts ? (
           <div className="flex flex-col gap-4">
@@ -155,16 +147,9 @@ export const ChatMessage = (message: {
                 case "reasoning":
                   return <PlainText key={i}>{part.reasoning}</PlainText>;
                 case "source":
-                  return (
-                    <PlainText key={i}>{JSON.stringify(part.source)}</PlainText>
-                  );
+                  return <PlainText key={i}>{JSON.stringify(part.source)}</PlainText>;
                 case "tool-invocation":
-                  return (
-                    <ToolInvocationMessage
-                      key={i}
-                      toolInvocation={part.toolInvocation}
-                    />
-                  );
+                  return <ToolInvocationMessage key={i} toolInvocation={part.toolInvocation} />;
                 default:
                   return null;
               }

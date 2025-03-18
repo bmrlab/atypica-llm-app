@@ -1,16 +1,12 @@
-import { waitUntil } from "@vercel/functions";
-import { Persona, Analyst } from "@/data";
-import { generateId, Message, StepResult, streamText, ToolSet } from "ai";
-import tools from "@/tools/tools";
-import { prisma } from "@/lib/prisma";
-import { NextResponse } from "next/server";
-import {
-  interviewerPrologue,
-  interviewerSystem,
-  personaAgentSystem,
-} from "@/prompt";
+import { Analyst, Persona } from "@/data";
 import openai from "@/lib/openai";
+import { prisma } from "@/lib/prisma";
+import { interviewerPrologue, interviewerSystem, personaAgentSystem } from "@/prompt";
+import tools from "@/tools";
 import { InputJsonValue } from "@prisma/client/runtime/library";
+import { waitUntil } from "@vercel/functions";
+import { generateId, Message, StepResult, streamText, ToolSet } from "ai";
+import { NextResponse } from "next/server";
 
 type ChatProps = {
   messages: Message[];
@@ -20,9 +16,7 @@ type ChatProps = {
   interviewToken: string;
 };
 
-function generateTextToUIMessage<T extends ToolSet>(
-  steps: StepResult<T>[],
-): Omit<Message, "role"> {
+function generateTextToUIMessage<T extends ToolSet>(steps: StepResult<T>[]): Omit<Message, "role"> {
   const parts: Message["parts"] = [];
   const contents = [];
   for (const step of steps) {
@@ -62,39 +56,31 @@ async function chatWithInterviewer({
   analystInterviewId,
   interviewToken,
 }: ChatProps) {
-  const result = await new Promise<Omit<Message, "role">>(
-    async (resolve, reject) => {
-      const response = streamText({
-        model: openai("claude-3-7-sonnet"),
-        system: interviewerSystem(analyst),
-        messages,
-        tools: {
-          reasoningThinking: tools.reasoningThinking,
-          saveInterviewConclusion: tools.saveInterviewConclusion(
-            analystInterviewId,
-            interviewToken,
-          ),
-        },
-        maxSteps: 2,
-        onChunk: (chunk) =>
-          console.log(
-            `[${analystInterviewId}] Interviewer:`,
-            JSON.stringify(chunk),
-          ),
-        onFinish: ({ steps }) => {
-          const message = generateTextToUIMessage(steps);
-          resolve(message);
-        },
-        onError: (error) => {
-          console.log(error);
-          reject(error);
-        },
-      });
-      await response.consumeStream();
-      // 必须写这个 await，把 stream 消费完，也可以使用 consumeStream 方法
-      // for await (const textPart of response.textStream) { console.log(textPart); }
-    },
-  );
+  const result = await new Promise<Omit<Message, "role">>(async (resolve, reject) => {
+    const response = streamText({
+      model: openai("claude-3-7-sonnet"),
+      system: interviewerSystem(analyst),
+      messages,
+      tools: {
+        reasoningThinking: tools.reasoningThinking,
+        saveInterviewConclusion: tools.saveInterviewConclusion(analystInterviewId, interviewToken),
+      },
+      maxSteps: 2,
+      onChunk: (chunk) =>
+        console.log(`[${analystInterviewId}] Interviewer:`, JSON.stringify(chunk)),
+      onFinish: ({ steps }) => {
+        const message = generateTextToUIMessage(steps);
+        resolve(message);
+      },
+      onError: (error) => {
+        console.log(error);
+        reject(error);
+      },
+    });
+    await response.consumeStream();
+    // 必须写这个 await，把 stream 消费完，也可以使用 consumeStream 方法
+    // for await (const textPart of response.textStream) { console.log(textPart); }
+  });
   return result;
 }
 
@@ -103,33 +89,27 @@ async function chatWithPersona({
   persona,
   analystInterviewId,
 }: Omit<ChatProps, "interviewToken">) {
-  const result = await new Promise<Omit<Message, "role">>(
-    async (resolve, reject) => {
-      const response = streamText({
-        model: openai("gpt-4o"),
-        system: personaAgentSystem(persona),
-        messages,
-        tools: {
-          xhsSearch: tools.xhsSearch,
-        },
-        maxSteps: 2,
-        onChunk: (chunk) =>
-          console.log(
-            `[${analystInterviewId}] Persona:`,
-            JSON.stringify(chunk),
-          ),
-        onFinish: ({ steps }) => {
-          const message = generateTextToUIMessage(steps);
-          resolve(message);
-        },
-        onError: (error) => {
-          console.log(error);
-          reject(error);
-        },
-      });
-      await response.consumeStream();
-    },
-  );
+  const result = await new Promise<Omit<Message, "role">>(async (resolve, reject) => {
+    const response = streamText({
+      model: openai("gpt-4o"),
+      system: personaAgentSystem(persona),
+      messages,
+      tools: {
+        xhsSearch: tools.xhsSearch,
+      },
+      maxSteps: 2,
+      onChunk: (chunk) => console.log(`[${analystInterviewId}] Persona:`, JSON.stringify(chunk)),
+      onFinish: ({ steps }) => {
+        const message = generateTextToUIMessage(steps);
+        resolve(message);
+      },
+      onError: (error) => {
+        console.log(error);
+        reject(error);
+      },
+    });
+    await response.consumeStream();
+  });
   return result;
 }
 
@@ -142,9 +122,7 @@ async function backgroundRun({
   const personaAgent: {
     messages: Message[];
   } = {
-    messages: [
-      { id: generateId(), role: "user", content: interviewerPrologue(analyst) },
-    ],
+    messages: [{ id: generateId(), role: "user", content: interviewerPrologue(analyst) }],
   };
 
   const interviewer: {
@@ -179,9 +157,7 @@ async function backgroundRun({
         analystInterviewId,
         interviewToken,
       });
-      console.log(
-        `\n[${analystInterviewId}] Interviewer:\n${message.content}\n`,
-      );
+      console.log(`\n[${analystInterviewId}] Interviewer:\n${message.content}\n`);
       interviewer.messages.push({ ...message, role: "assistant" });
       personaAgent.messages.push({ ...message, role: "user" });
       if (message.content.includes("本次访谈结束，谢谢您的参与！")) {
@@ -264,9 +240,7 @@ export async function POST(req: Request) {
         if (stop) {
           console.log(`\n[${analystInterviewId}] Interview stopped\n`);
         } else {
-          console.log(
-            `\n[${analystInterviewId}] Interview is ongoing, ${elapsedSeconds} seconds`,
-          );
+          console.log(`\n[${analystInterviewId}] Interview is ongoing, ${elapsedSeconds} seconds`);
           setTimeout(() => tick(), 5000);
         }
       };

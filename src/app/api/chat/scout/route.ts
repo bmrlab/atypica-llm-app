@@ -1,8 +1,8 @@
-import { streamText } from "ai";
-import tools from "@/tools/tools";
-import { scoutSystem } from "@/prompt";
 import openai from "@/lib/openai";
 import { fixChatMessages } from "@/lib/utils";
+import { scoutSystem } from "@/prompt";
+import tools from "@/tools";
+import { streamText } from "ai";
 
 export async function POST(req: Request) {
   const { messages, chatId } = await req.json();

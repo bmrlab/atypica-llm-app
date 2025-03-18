@@ -1,6 +1,7 @@
+import { HomeIcon } from "lucide-react";
 import Link from "next/link";
 
-export default function Navigation() {
+function NavigationOld() {
   const menuItems = [
     { name: "首页", href: "/" },
     { name: "主题调研", href: "/analyst" },
@@ -9,7 +10,7 @@ export default function Navigation() {
   ];
 
   return (
-    <nav className="fixed left-0 top-0 h-screen sm:px-2 2xl:px-6 pt-10 hidden sm:block">
+    <nav className="hidden sm:block fixed left-0 top-0 h-screen sm:px-2 2xl:px-6 pt-10">
       <div className="space-y-1">
         {menuItems.map((item) => {
           return (
@@ -24,5 +25,15 @@ export default function Navigation() {
         })}
       </div>
     </nav>
+  );
+}
+
+export default function Navigation() {
+  return (
+    <div className="fixed left-0 top-0 h-screen sm:mx-2 2xl:mx-6 mt-2 2xl:mt-6 hidden sm:block">
+      <Link href="/" className="flex items-center justify-start gap-2 text-sm">
+        <HomeIcon size={16} /> 首页
+      </Link>
+    </div>
   );
 }

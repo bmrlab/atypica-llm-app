@@ -1,9 +1,9 @@
-import { Message, streamText } from "ai";
-import tools from "@/tools/tools";
 import { Persona } from "@/data";
+import openai from "@/lib/openai";
 import { prisma } from "@/lib/prisma";
 import { personaAgentSystem } from "@/prompt";
-import openai from "@/lib/openai";
+import tools from "@/tools";
+import { Message, streamText } from "ai";
 
 export async function POST(req: Request) {
   const { messages, persona, analystInterviewId } = (await req.json()) as {
