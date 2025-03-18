@@ -2,14 +2,11 @@
 import { Button } from "@/components/ui/button";
 import { UserChat } from "@/data";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { StudyChatHistory } from "./StudyChatHistory";
 import { StudyChatMessages } from "./StudyChatMessages";
 
-export function StudyChat() {
+export function StudyChat({ userChat }: { userChat: UserChat }) {
   const router = useRouter();
-  const [currentChat, setCurrentChat] = useState<UserChat | null>(null);
-
   return (
     <div className="flex flex-col items-stretch justify-between gap-4 max-w-5xl mx-auto h-dvh py-6">
       <div className="relative w-full">
@@ -19,13 +16,17 @@ export function StudyChat() {
           </Button>
         </div>
         <h1 className="sm:text-lg font-medium px-18 text-center truncate">
-          {currentChat?.title || "研究"}
+          {userChat?.title || "研究"}
         </h1>
         <div className="absolute right-0 top-1/2 -translate-y-1/2">
-          <StudyChatHistory onSelectChat={setCurrentChat} />
+          <StudyChatHistory
+            onSelectChat={(userChat) => {
+              window.location.replace(`/study?id=${userChat.id}`);
+            }}
+          />
         </div>
       </div>
-      <StudyChatMessages currentChat={currentChat} />
+      <StudyChatMessages userChat={userChat} />
     </div>
   );
 }

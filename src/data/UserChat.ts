@@ -2,7 +2,7 @@
 import { prisma } from "@/lib/prisma";
 import { UserChat as UserChatPrisma } from "@prisma/client";
 import { InputJsonValue } from "@prisma/client/runtime/library";
-import { Message } from "ai";
+import { generateId, Message } from "ai";
 import { notFound } from "next/navigation";
 import withAuth from "./withAuth";
 
@@ -45,7 +45,12 @@ export async function createUserChat(
           userId: user.id,
           title: message.content.substring(0, 50),
           kind,
-          messages: [message],
+          messages: [
+            {
+              id: generateId(),
+              ...message,
+            },
+          ],
         },
       });
       return {

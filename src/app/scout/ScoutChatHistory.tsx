@@ -18,6 +18,7 @@ export function ScoutChatHistory({
   onSelectChat: (chat: UserChat | null) => void;
 }) {
   const [chats, setChats] = useState<UserChat[]>([]);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     const fetchChats = async () => {
@@ -35,8 +36,13 @@ export function ScoutChatHistory({
     return () => clearInterval(interval);
   }, []);
 
+  const handleSelectChat = (chat: UserChat | null) => {
+    onSelectChat(chat);
+    setOpen(false); // Close drawer when a chat is selected
+  };
+
   return (
-    <Drawer direction="right" modal={true}>
+    <Drawer direction="right" open={open} onOpenChange={setOpen} modal={true}>
       <DrawerTrigger asChild>
         <Button variant="ghost" size="icon">
           <HistoryIcon className="h-5 w-5" />
@@ -49,7 +55,7 @@ export function ScoutChatHistory({
         <div className="p-4 space-y-2">
           <div
             className="px-3 py-2 text-sm text-zinc-500 hover:bg-zinc-100 rounded cursor-pointer"
-            onClick={() => onSelectChat(null)}
+            onClick={() => handleSelectChat(null)}
           >
             新对话
           </div>
@@ -57,7 +63,7 @@ export function ScoutChatHistory({
             <div
               key={chat.id}
               onClick={() =>
-                onSelectChat({
+                handleSelectChat({
                   ...chat,
                   messages: fixChatMessages(chat.messages),
                 })

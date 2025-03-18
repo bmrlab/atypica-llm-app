@@ -1,18 +1,10 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { UserChat } from "@/data";
-import { Message } from "ai";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ScoutChatHistory } from "./ScoutChatHistory";
 import { ScoutChatMessages } from "./ScoutChatMessages";
-
-const validateChatMessages = (messages: Message[]) => {
-  if (messages.length > 0 && messages[messages.length - 1]?.role === "user") {
-    messages.pop();
-  }
-  return messages;
-};
 
 export function ScoutChat() {
   const router = useRouter();
