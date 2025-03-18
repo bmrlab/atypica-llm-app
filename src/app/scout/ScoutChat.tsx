@@ -130,12 +130,13 @@ export function ScoutChatSingle({
   useEffect(() => {
     if (!chatId || messages.length < 2) return; // 有了 chatId 并且 AI 回复了再保存
     if (timeoutRef.current) return; // throttled
-    timeoutRef.current = setTimeout(async () => {
+    timeoutRef.current = setTimeout(() => (timeoutRef.current = null), 5000);
+    // 先保存然后等待 5 分钟
+    (async () => {
       console.log("Saving chat...", chatId, messages);
       // 保存之前先 fix 一下，清除异常的数据
       await updateUserChat(chatId, fixChatMessages(messages));
-      timeoutRef.current = null;
-    }, 5000);
+    })();
   }, [chatId, messages]);
 
   useEffect(() => {
