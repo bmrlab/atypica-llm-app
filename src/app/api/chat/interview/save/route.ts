@@ -1,6 +1,6 @@
 import { Message } from "ai";
-import { AnalystInterview } from "@/data";
 import { prisma } from "@/lib/prisma";
+import { InputJsonValue } from "@prisma/client/runtime/library";
 
 export async function POST(req: Request) {
   const { messages, analystInterviewId } = (await req.json()) as {
@@ -12,7 +12,7 @@ export async function POST(req: Request) {
     await prisma.analystInterview.update({
       where: { id: analystInterviewId },
       data: {
-        messages: messages as AnalystInterview["messages"],
+        messages: messages as unknown as InputJsonValue,
       },
     });
   } catch (error) {

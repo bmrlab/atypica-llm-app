@@ -290,18 +290,15 @@ export async function updateUserScoutChat(
 }
 
 export async function createUserScoutChat(
-  messages: Message[],
+  message: Pick<Message, "role" | "content">,
 ): Promise<UserScoutChat> {
-  if (!messages.length) {
-    throw new Error("No messages provided");
-  }
   return withAuth(async (user) => {
     try {
       const userScoutChat = await prisma.userScoutChat.create({
         data: {
           userId: user.id,
-          title: messages[0].content.substring(0, 50),
-          messages: messages as unknown as InputJsonValue,
+          title: message.content.substring(0, 50),
+          messages: [message],
         },
       });
       return {
@@ -340,7 +337,7 @@ export async function fetchUserScoutChats(): Promise<UserScoutChat[]> {
 export async function fetchUserScoutChatById(
   userScoutChatId: number,
 ): Promise<UserScoutChat> {
-  return withAuth(async (user) => {
+  return withAuth(async () => {
     try {
       const userScoutChat = await prisma.userScoutChat.findUnique({
         where: { id: userScoutChatId },

@@ -1,4 +1,4 @@
-import { Message, streamText } from "ai";
+import { streamText } from "ai";
 import tools from "@/tools/tools";
 import { scoutSystem } from "@/prompt";
 import openai from "@/lib/openai";

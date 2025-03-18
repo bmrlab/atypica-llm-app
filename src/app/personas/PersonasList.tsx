@@ -22,6 +22,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { XIcon } from "lucide-react";
 
 export default function PersonasList({
   personas,
@@ -80,6 +81,30 @@ export default function PersonasList({
             </ul>
           </div>
         </div>
+
+        {userScoutChat && (
+          <div className="flex items-center justify-start gap-3">
+            <div className="flex items-center justify-center size-8 rounded-md border">
+              🔍
+            </div>
+            <p className="text-sm text-muted-foreground">
+              通过搜索「
+              <span className="truncate inline-block align-bottom max-w-[20ch]">
+                {userScoutChat.title}
+              </span>
+              」找到的用户画像
+            </p>
+            <Button
+              variant="ghost"
+              className="size-6 p-0"
+              onClick={() => {
+                router.replace("/personas", { scroll: false });
+              }}
+            >
+              <XIcon className="size-3 text-muted-foreground" />
+            </Button>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {personas.map((persona) => (

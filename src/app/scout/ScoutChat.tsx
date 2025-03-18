@@ -1,6 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { Message, useChat } from "@ai-sdk/react";
+import { Message } from "ai";
+import { useChat } from "@ai-sdk/react";
 import { ChatMessage } from "@/components/ChatMessage";
 import { useScrollToBottom } from "@/components/use-scroll-to-bottom";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -12,7 +13,6 @@ import {
   updateUserScoutChat,
   UserScoutChat,
 } from "@/data";
-import { generateId } from "ai";
 import { fixChatMessages } from "@/lib/utils";
 
 const validateChatMessages = (messages: Message[]) => {
@@ -20,6 +20,79 @@ const validateChatMessages = (messages: Message[]) => {
     messages.pop();
   }
   return messages;
+};
+
+const StatusDisplay = ({
+  chatId,
+  status,
+  messages,
+}: {
+  chatId: number;
+  status: string;
+  messages: Message[];
+}) => {
+  const getStatusMessage = (status: string) => {
+    switch (status) {
+      case "streaming":
+        return "AI 正在思考中...";
+      case "submitted":
+        return "正在处理您的请求...";
+      case "complete":
+        return "处理完成 ✨";
+      case "error":
+        return "出现错误，请重试";
+      case "ready":
+        return "";
+      default:
+        return "";
+    }
+  };
+
+  const personasScouted = useMemo(() => {
+    if (status !== "ready") {
+      return false;
+    }
+    for (let i = messages.length - 1; i >= 0; i--) {
+      const message = messages[i];
+      if (message.role === "assistant" && message.parts) {
+        for (let j = message.parts.length - 1; j >= 0; j--) {
+          const part = message.parts[j];
+          if (
+            part.type === "tool-invocation" &&
+            part.toolInvocation.toolName === "savePersona" &&
+            part.toolInvocation.state === "result"
+          ) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  }, [status, messages]);
+
+  if (!status) return null;
+
+  return (
+    <div className="flex gap-2 justify-center items-center text-zinc-500 dark:text-zinc-400 text-sm">
+      {status === "streaming" && (
+        <div className="flex gap-1">
+          <span className="animate-bounce">·</span>
+          <span className="animate-bounce [animation-delay:0.2s]">·</span>
+          <span className="animate-bounce [animation-delay:0.4s]">·</span>
+        </div>
+      )}
+      <span>{getStatusMessage(status)}</span>
+      {personasScouted && (
+        <Link
+          href={`/personas?userScoutChat=${chatId}`}
+          target="_blank"
+          className="text-blue-500 hover:underline mx-1"
+        >
+          🔍 查看此次搜索找到的画像
+        </Link>
+      )}
+    </div>
+  );
 };
 
 export function ScoutChatSingle({
@@ -43,7 +116,6 @@ export function ScoutChatSingle({
     setInput,
     status,
     stop,
-    reload,
   } = useChat({
     maxSteps: 30,
     api: "/api/chat/scout",
@@ -76,7 +148,7 @@ export function ScoutChatSingle({
       console.log("Cleaning up timeoutRef.current");
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
-  }, [currentChat?.id]);
+  }, [currentChat?.id, currentChat?.messages, setMessages, stop]);
 
   // const inputRef = useRef<HTMLTextAreaElement>(null);
   const handleSubmitMessage = useCallback(
@@ -84,12 +156,10 @@ export function ScoutChatSingle({
       event.preventDefault();
       if (!input) return;
       if (!chatId) {
-        const message: Message = {
-          id: generateId(),
+        const userScoutChat = await createUserScoutChat({
           role: "user",
           content: input,
-        };
-        const userScoutChat = await createUserScoutChat([message]);
+        });
         // 这里设置了，在调用 handleSubmit 的时候还没有更新 useChat 的 body，所以在 handleSubmit 里直接提交
         // setChatId(userScoutChat.id);
         handleSubmit(event, {
@@ -101,7 +171,7 @@ export function ScoutChatSingle({
         });
       }
     },
-    [handleSubmit],
+    [handleSubmit, chatId, input],
   );
 
   const [messagesContainerRef, messagesEndRef] =
@@ -109,39 +179,6 @@ export function ScoutChatSingle({
 
   const inputDisabled = status === "streaming" || status === "submitted";
 
-  const getStatusMessage = (status: string) => {
-    switch (status) {
-      case "streaming":
-        return "AI 正在思考中...";
-      case "submitted":
-        return "正在处理您的请求...";
-      case "complete":
-        return "处理完成 ✨";
-      case "error":
-        return "出现错误，请重试";
-      case "ready":
-        return "";
-      default:
-        return "";
-    }
-  };
-
-  const StatusDisplay = ({ status }: { status: string }) => {
-    if (!status) return null;
-
-    return (
-      <div className="flex gap-2 justify-center items-center text-zinc-500 dark:text-zinc-400 text-sm">
-        {status === "streaming" && (
-          <div className="flex gap-1">
-            <span className="animate-bounce">·</span>
-            <span className="animate-bounce [animation-delay:0.2s]">·</span>
-            <span className="animate-bounce [animation-delay:0.4s]">·</span>
-          </div>
-        )}
-        <span>{getStatusMessage(status)}</span>
-      </div>
-    );
-  };
   return (
     <div className="flex flex-col items-center justify-start py-3 sm:py-12 h-dvh w-full max-w-5xl mx-auto">
       <div className="relative w-full mb-4 sm:mb-8">
@@ -196,7 +233,9 @@ export function ScoutChatSingle({
           <div ref={messagesEndRef} />
         </div>
 
-        <StatusDisplay status={status} />
+        {chatId && (
+          <StatusDisplay chatId={chatId} status={status} messages={messages} />
+        )}
 
         <form
           className="flex flex-col gap-2 relative items-center"

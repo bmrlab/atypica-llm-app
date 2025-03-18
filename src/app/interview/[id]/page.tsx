@@ -4,7 +4,6 @@ import { authOptions } from "@/lib/auth";
 import { fetchAnalystInterviewById, fetchPersonaById } from "@/data";
 import { InterviewBackground } from "./InterviewBackground";
 import { fetchAnalystById } from "@/data";
-import { AnalystInterview } from "@/data";
 
 export const dynamic = "force-dynamic";
 
@@ -26,10 +25,7 @@ export default async function InterviewPage({
 
   return (
     <InterviewBackground
-      analystInterview={{
-        ...analystInterview,
-        messages: analystInterview.messages as AnalystInterview["messages"],
-      }}
+      analystInterview={analystInterview}
       analyst={analyst}
       persona={persona}
     />

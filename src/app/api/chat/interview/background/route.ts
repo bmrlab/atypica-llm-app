@@ -1,5 +1,5 @@
 import { waitUntil } from "@vercel/functions";
-import { Persona, Analyst, AnalystInterview } from "@/data";
+import { Persona, Analyst } from "@/data";
 import { generateId, Message, StepResult, streamText, ToolSet } from "ai";
 import tools from "@/tools/tools";
 import { prisma } from "@/lib/prisma";
@@ -10,6 +10,7 @@ import {
   personaAgentSystem,
 } from "@/prompt";
 import openai from "@/lib/openai";
+import { InputJsonValue } from "@prisma/client/runtime/library";
 
 type ChatProps = {
   messages: Message[];
@@ -192,13 +193,15 @@ async function backgroundRun({
     }
 
     try {
-      const messages = personaAgent.messages as AnalystInterview["messages"];
+      const messages = personaAgent.messages;
       await prisma.analystInterview.update({
         where: {
           id: analystInterviewId,
           interviewToken,
         },
-        data: { messages },
+        data: {
+          messages: messages as unknown as InputJsonValue,
+        },
       });
     } catch (error) {
       console.log(
