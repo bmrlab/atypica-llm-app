@@ -127,6 +127,36 @@ export async function upsertAnalystInterview({
   });
 }
 
+export async function updateAnalystInterview(
+  analystInterviewId: number,
+  {
+    messages,
+    conclusion,
+  }: Partial<{
+    messages: Message[];
+    conclusion: string;
+  }>,
+): Promise<AnalystInterview> {
+  try {
+    const updatedInterview = await prisma.analystInterview.update({
+      where: { id: analystInterviewId },
+      data: {
+        conclusion,
+        messages: messages
+          ? (messages as unknown as InputJsonValue)
+          : undefined,
+      },
+    });
+    return {
+      ...updatedInterview,
+      messages: updatedInterview.messages as unknown as Message[],
+    };
+  } catch (error) {
+    console.log("Failed to update interview", error);
+    throw error;
+  }
+}
+
 export type Analyst = AnalystPrisma;
 
 export async function fetchAnalysts() {

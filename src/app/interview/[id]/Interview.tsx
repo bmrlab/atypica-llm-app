@@ -3,7 +3,7 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import { useChat } from "@ai-sdk/react";
 import { ChatMessage } from "@/components/ChatMessage";
 import { useScrollToBottom } from "@/components/use-scroll-to-bottom";
-import { Analyst, Persona } from "@/data";
+import { Analyst, Persona, updateAnalystInterview } from "@/data";
 import { Markdown } from "@/components/markdown";
 import { AnalystInterview } from "@/data";
 import { Button } from "@/components/ui/button";
@@ -65,15 +65,8 @@ export function Interview({
           // 第一条消息带上创意方案
           // interviewer.messages.length === 0 ? { experimental_attachments: [{ name: "AUX 空调宣传方案.jpg", contentType: "image/jpeg", url: imageUrl }] } : {},
         );
-        await fetch("/api/chat/interview/save", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            messages: personaAgentRef.current?.messages,
-            analystInterviewId: analystInterview.id,
-          }),
+        await updateAnalystInterview(analystInterview.id, {
+          messages: personaAgentRef.current?.messages,
         });
       }
     },
