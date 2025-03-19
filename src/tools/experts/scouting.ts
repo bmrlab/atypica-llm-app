@@ -39,7 +39,10 @@ export const scoutTaskCreateTool = (userId: number) =>
       });
       return {
         chatId: userChat.id,
-        plainText: `scoutTask created with ${userChat.id}`,
+        plainText: JSON.stringify({
+          id: userChat.id,
+          title: userChat.title,
+        }),
       };
     },
   });

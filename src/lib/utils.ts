@@ -33,6 +33,16 @@ export function fixChatMessages(messages: Message[]) {
     fixed = fixed.slice(0, -1);
   }
 
+  if (
+    fixed.length > 1 &&
+    fixed[fixed.length - 1].role === "assistant" &&
+    !fixed[fixed.length - 1].parts?.length &&
+    !fixed[fixed.length - 1].content.trim()
+  ) {
+    // Bedrock 不支持最后一条空的 assistant 消息
+    fixed = fixed.slice(0, -1);
+  }
+
   return fixed;
 }
 

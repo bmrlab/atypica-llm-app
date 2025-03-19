@@ -28,7 +28,11 @@ async function saveAnalyst({
     });
     return {
       id: analyst.id,
-      plainText: `Saved analyst to DB with id ${analyst.id}`,
+      plainText: JSON.stringify({
+        id: analyst.id,
+        role: analyst.role,
+        topic: analyst.topic,
+      }),
     };
   } catch (error) {
     console.log("Error saving analyst:", error);
@@ -38,7 +42,7 @@ async function saveAnalyst({
 
 export const saveAnalystTool = (userId: number) =>
   tool({
-    description: "保存 Analyst",
+    description: "保存调研主题",
     parameters: z.object({
       role: z.string().describe("调研者的角色"),
       topic: z.string().describe("调研主题"),

@@ -3,6 +3,7 @@ import { ToolName } from "@/tools";
 import { useChat } from "@ai-sdk/react";
 import { useEffect, useMemo } from "react";
 import ToolArgs from "./ToolArgs";
+import { ToolReasoningThinking } from "./ToolReasoningThinking";
 import ToolScoutTaskChat from "./ToolScoutTaskChat";
 
 export function ToolConsole({ studyChat }: { studyChat: StudyUserChat }) {
@@ -40,9 +41,9 @@ export function ToolConsole({ studyChat }: { studyChat: StudyUserChat }) {
     return <ToolScoutTaskChat chatId={lastTool.args.chatId} />;
   }
 
-  if (lastTool.state === "call" || lastTool.state === "partial-call") {
-    return <ToolArgs toolName={lastTool.toolName} args={lastTool.args} />;
-  } else if (lastTool.state === "result") {
-    return <div>{JSON.stringify(lastTool)}</div>;
+  if (lastTool.toolName === ToolName.reasoningThinking) {
+    return <ToolReasoningThinking toolInvocation={lastTool} />;
   }
+
+  <ToolArgs toolInvocation={lastTool} />;
 }

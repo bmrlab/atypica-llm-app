@@ -1,18 +1,23 @@
+import { cn } from "@/lib/utils";
 import { ToolInvocation } from "ai";
+import { LoaderIcon } from "lucide-react";
 import { FC, HTMLAttributes } from "react";
 
 const ToolArgs: FC<
   HTMLAttributes<HTMLPreElement> & {
-    toolName: string;
-    args: ToolInvocation["args"];
+    toolInvocation: ToolInvocation;
   }
-> = ({ toolName, args, className }) => {
+> = ({ toolInvocation, className }) => {
+  const { toolName, args } = toolInvocation;
   return (
     <pre
-      className={`text-xs whitespace-pre-wrap bg-gray-50 border border-gray-100 rounded-lg p-2 ${className}`}
+      className={cn(
+        "text-xs whitespace-pre-wrap bg-gray-50 border border-gray-100 rounded-lg p-2 font-mono",
+        className,
+      )}
     >
-      <div className="ml-2 mt-1 font-bold">{toolName} exec args</div>
-      <table className="text-left mt-2">
+      <div className="ml-2 mt-1 mb-2 font-bold">{toolName} exec args</div>
+      <table className="text-left">
         <tbody>
           {Object.entries(args).map(([key, value]) => (
             <tr key={key}>
@@ -24,6 +29,14 @@ const ToolArgs: FC<
           ))}
         </tbody>
       </table>
+      <div className="ml-2 mt-4 mb-2 font-bold">result</div>
+      {toolInvocation.state === "result" ? (
+        <div className="text-xs whitespace-pre-wrap p-2">{toolInvocation.result.plainText}</div>
+      ) : (
+        <div className="p-2">
+          <LoaderIcon className="animate-spin" size={16} />
+        </div>
+      )}
     </pre>
   );
 };

@@ -6,8 +6,8 @@ import { StudyUserChat } from "@/data";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ChatBox } from "./ChatBox";
 import { HistoryDrawer } from "./HistoryDrawer";
+import { StudyChatBox } from "./StudyChatBox";
 import { ToolConsole } from "./ToolConsole/ToolConsole";
 
 function Header({ studyChat }: { studyChat: StudyUserChat }) {
@@ -44,7 +44,7 @@ export function StudyChat({ studyChat }: { studyChat: StudyUserChat }) {
     <div className="flex flex-rows items-stretch justify-between w-full h-dvh p-6 overflow-hidden">
       <div className="w-1/2 flex flex-col items-stretch justify-between gap-4">
         <Header studyChat={studyChat} />
-        <ChatBox studyChat={studyChat} />
+        <StudyChatBox studyChat={studyChat} />
       </div>
       <div className="w-1/2 flex flex-col items-stretch justify-between gap-4">
         <div

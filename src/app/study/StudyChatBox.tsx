@@ -1,11 +1,11 @@
 "use client";
-import { ChatMessage } from "@/components/ChatMessage";
 import { useScrollToBottom } from "@/components/use-scroll-to-bottom";
 import { createUserChat, StudyUserChat, updateUserChat } from "@/data";
 import { cn, fixChatMessages } from "@/lib/utils";
 import { Message, useChat } from "@ai-sdk/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { StatusDisplay } from "./StatusDisplay";
+import { StudyChatMessage } from "./StudyChatMessage";
 
 function popLastUserMessage(messages: Message[]) {
   if (messages.length > 0 && messages[messages.length - 1].role === "user") {
@@ -17,7 +17,7 @@ function popLastUserMessage(messages: Message[]) {
   }
 }
 
-export function ChatBox({ studyChat }: { studyChat: StudyUserChat }) {
+export function StudyChatBox({ studyChat }: { studyChat: StudyUserChat }) {
   const [chatId, setChatId] = useState<number>(studyChat.id);
 
   const { messages, setMessages, error, handleSubmit, input, setInput, status, stop, reload } =
@@ -101,18 +101,18 @@ export function ChatBox({ studyChat }: { studyChat: StudyUserChat }) {
     <>
       <div
         ref={messagesContainerRef}
-        className="flex-1 flex flex-col gap-6 w-full items-center overflow-y-scroll"
+        className="flex-1 flex flex-col pb-24 w-full items-center overflow-y-scroll"
       >
         {messages.map((message) => (
-          <ChatMessage
+          <StudyChatMessage
             key={message.id}
             role={message.role}
             content={message.content}
             parts={message.parts}
-          ></ChatMessage>
+          ></StudyChatMessage>
         ))}
         {error && (
-          <div className="flex justify-center items-center text-red-500 dark:text-red-400 text-sm">
+          <div className="flex justify-center items-center text-red-500 text-sm mt-6">
             {error.toString()}
           </div>
         )}

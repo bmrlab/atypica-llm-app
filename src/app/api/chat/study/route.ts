@@ -24,8 +24,8 @@ export async function POST(req: Request) {
     tools: {
       scoutTaskCreate: tools.scoutTaskCreate(userId),
       scoutTaskChat: tools.scoutTaskChat(),
-      // saveAnalyst: tools.saveAnalyst(userId),
-      // reasoningThinking: tools.reasoningThinking,
+      saveAnalyst: tools.saveAnalyst(userId),
+      reasoningThinking: tools.reasoningThinking,
       // xhsSearch: tools.xhsSearch,
       // xhsUserNotes: tools.xhsUserNotes,
       // xhsNoteComments: tools.xhsNoteComments,

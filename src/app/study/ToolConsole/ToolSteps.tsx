@@ -16,7 +16,7 @@ const PlainText = ({ children }: PropsWithChildren) => {
   );
 };
 
-export const ConsoleChatMessage = (message: {
+export const ToolSteps = (message: {
   nickname?: string;
   role: "assistant" | "user" | "system" | "data";
   content: string | ReactNode;

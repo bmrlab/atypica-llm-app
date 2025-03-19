@@ -44,7 +44,7 @@ const ToolInvocationMessage = ({ toolInvocation }: { toolInvocation: ToolInvocat
     return (
       <div>
         <ToolArgs toolName={toolName} args={args} />
-        <div className="text-sm text-zinc-800 my-4"> result</div>
+        <div className="text-sm text-zinc-800 my-4"> 执行结果</div>
         {renderResult()}
       </div>
     );
