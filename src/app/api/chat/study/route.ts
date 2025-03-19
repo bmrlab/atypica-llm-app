@@ -22,13 +22,14 @@ export async function POST(req: Request) {
     system: studySystem(),
     messages: fixChatMessages(messages),
     tools: {
+      scoutTaskCreate: tools.scoutTaskCreate(userId),
+      scoutTaskChat: tools.scoutTaskChat(),
       // saveAnalyst: tools.saveAnalyst(userId),
-      reasoningThinking: tools.reasoningThinking,
-      xhsSearch: tools.xhsSearch,
-      xhsUserNotes: tools.xhsUserNotes,
-      xhsNoteComments: tools.xhsNoteComments,
+      // reasoningThinking: tools.reasoningThinking,
+      // xhsSearch: tools.xhsSearch,
+      // xhsUserNotes: tools.xhsUserNotes,
+      // xhsNoteComments: tools.xhsNoteComments,
     },
-    maxSteps: 3,
     onError: async (error) => {
       console.log("Error occurred:", error);
     },

@@ -25,7 +25,6 @@ export async function POST(req: Request) {
       xhsNoteComments: tools.xhsNoteComments,
       savePersona: tools.savePersona(chatId),
     },
-    maxSteps: 3,
     onError: async (error) => {
       console.log("Error occurred:", error);
     },

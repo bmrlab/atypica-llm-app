@@ -33,7 +33,6 @@ export async function POST(req: Request) {
     tools: {
       xhsSearch: tools.xhsSearch,
     },
-    maxSteps: 2,
     onError: async (error) => {
       console.log("Error occurred:", error);
     },

@@ -1,4 +1,4 @@
-import { Message } from "ai";
+import { generateId, Message, StepResult, ToolSet } from "ai";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -34,4 +34,72 @@ export function fixChatMessages(messages: Message[]) {
   }
 
   return fixed;
+}
+
+export function streamStepsToUIMessage<T extends ToolSet>(
+  steps: StepResult<T>[],
+): Omit<Message, "role"> {
+  const parts: Message["parts"] = [];
+  const contents = [];
+  for (const step of steps) {
+    if (step.stepType === "initial") {
+      contents.push(step.text);
+      parts.push({ type: "text", text: step.text });
+    } else if (step.stepType === "continue") {
+      contents.push(step.text);
+      parts.push({ type: "text", text: step.text });
+    } else if (step.stepType === "tool-result") {
+      contents.push(step.text);
+      for (const toolResult of step.toolResults) {
+        parts.push({
+          type: "tool-invocation",
+          toolInvocation: {
+            state: "result",
+            toolName: toolResult.toolName,
+            args: toolResult.args,
+            result: toolResult.result,
+            toolCallId: toolResult.toolCallId,
+          },
+        });
+      }
+      parts.push({ type: "text", text: step.text });
+    }
+  }
+  return {
+    id: generateId(),
+    content: contents.join("\n"),
+    parts,
+  };
+}
+
+export function appendStreamStepToUIMessage<T extends ToolSet>(
+  message: Omit<Message, "role">,
+  step: StepResult<T>,
+) {
+  const parts: Message["parts"] = message.parts ?? [];
+  const contents = [message.content ?? ""];
+  if (step.stepType === "initial") {
+    contents.push(step.text);
+    parts.push({ type: "text", text: step.text });
+  } else if (step.stepType === "continue") {
+    contents.push(step.text);
+    parts.push({ type: "text", text: step.text });
+  } else if (step.stepType === "tool-result") {
+    contents.push(step.text);
+    for (const toolResult of step.toolResults) {
+      parts.push({
+        type: "tool-invocation",
+        toolInvocation: {
+          state: "result",
+          toolName: toolResult.toolName,
+          args: toolResult.args,
+          result: toolResult.result,
+          toolCallId: toolResult.toolCallId,
+        },
+      });
+    }
+    parts.push({ type: "text", text: step.text });
+  }
+  message.content = contents.join("\n");
+  message.parts = parts;
 }

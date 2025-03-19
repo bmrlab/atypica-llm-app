@@ -1,5 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
+import { ToolName } from "@/tools";
 import {
   ReasoningThinkingResultMessage,
   SaveAnalystToolResultMessage,
@@ -22,7 +23,10 @@ const ToolArgs: FC<
 > = ({ toolName, args, className }) => {
   return (
     <pre
-      className={`text-xs whitespace-pre-wrap bg-gray-50 border border-gray-100 rounded-lg p-2 ${className}`}
+      className={cn(
+        "text-xs whitespace-pre-wrap bg-gray-50 border border-gray-100 rounded-lg p-2 font-mono",
+        className,
+      )}
     >
       <div className="ml-2 mt-1 font-bold">{toolName} 执行参数</div>
       <table className="text-left mt-2">
@@ -54,19 +58,19 @@ const ToolInvocationMessage = ({ toolInvocation }: { toolInvocation: ToolInvocat
     const { toolName, args, result } = toolInvocation;
     const renderResult = () => {
       switch (toolName) {
-        case "xhsSearch":
+        case ToolName.xhsSearch:
           return <XHSSearchResultMessage result={result} />;
-        case "xhsUserNotes":
+        case ToolName.xhsUserNotes:
           return <XHSUserNotesResultMessage result={result} />;
-        case "xhsNoteComments":
+        case ToolName.xhsNoteComments:
           return <XHSNoteCommentsResultMessage result={result} />;
-        case "reasoningThinking":
+        case ToolName.reasoningThinking:
           return <ReasoningThinkingResultMessage result={result} />;
-        case "saveAnalyst":
+        case ToolName.saveAnalyst:
           return <SaveAnalystToolResultMessage result={result} />;
         default:
           return (
-            <pre className="text-xs whitespace-pre-wrap p-4 text-muted-foreground bg-gray-50 border border-gray-100 rounded-lg">
+            <pre className="text-xs whitespace-pre-wrap p-4 text-muted-foreground bg-gray-50 border border-gray-100 rounded-lg font-mono">
               {toolName} {JSON.stringify(result)}
             </pre>
           );

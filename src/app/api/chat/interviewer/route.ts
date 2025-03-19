@@ -35,7 +35,6 @@ export async function POST(req: Request) {
       reasoningThinking: tools.reasoningThinking,
       saveInterviewConclusion: tools.saveInterviewConclusion(analystInterviewId),
     },
-    maxSteps: 2,
     onError: async (error) => {
       console.log("Error occurred:", error);
     },

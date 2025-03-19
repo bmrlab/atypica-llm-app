@@ -1,10 +1,10 @@
 "use client";
+import { ChatMessage } from "@/components/ChatMessage";
 import { useScrollToBottom } from "@/components/use-scroll-to-bottom";
 import { createUserChat, StudyUserChat, updateUserChat } from "@/data";
 import { cn, fixChatMessages } from "@/lib/utils";
 import { Message, useChat } from "@ai-sdk/react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ChatMessage } from "./ChatMessage";
 import { StatusDisplay } from "./StatusDisplay";
 
 function popLastUserMessage(messages: Message[]) {
@@ -20,22 +20,21 @@ function popLastUserMessage(messages: Message[]) {
 export function ChatBox({ studyChat }: { studyChat: StudyUserChat }) {
   const [chatId, setChatId] = useState<number>(studyChat.id);
 
-  const { messages, setMessages, error, handleSubmit, input, setInput, status, stop, append } =
+  const { messages, setMessages, error, handleSubmit, input, setInput, status, stop, reload } =
     useChat({
       id: `userChat-${studyChat.id}`,
       maxSteps: 30,
       api: "/api/chat/study",
-      initialMessages: popLastUserMessage(studyChat.messages).messages,
       body: {
         chatId: chatId,
       },
-      onFinish: async (message, { finishReason }) => {
-        console.log(message, finishReason);
-      },
+      // onFinish: async (message, { finishReason }) => {
+      //   console.log(message, finishReason);
+      // },
     });
 
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const useChatRef = useRef({ append, stop, setMessages });
+  const useChatRef = useRef({ reload, stop, setMessages });
 
   // 监听最新的 message
   useEffect(() => {
@@ -53,16 +52,18 @@ export function ChatBox({ studyChat }: { studyChat: StudyUserChat }) {
   // 监听对话切换
   useEffect(() => {
     useChatRef.current.stop();
-    const { messages, lastUserMessage } = popLastUserMessage(studyChat.messages);
-    useChatRef.current.setMessages(messages);
     setChatId(studyChat.id);
-    // 如果最后一条消息是用户发的，立即开始 assistant 回复，因为不需要等用户再次输入
+    const { lastUserMessage } = popLastUserMessage(studyChat.messages);
+    useChatRef.current.setMessages(studyChat.messages);
     if (lastUserMessage) {
-      useChatRef.current.append({
-        role: "user",
-        content: lastUserMessage.content,
-      });
+      useChatRef.current.reload();
     }
+    // if (lastUserMessage) {
+    //   useChatRef.current.append({
+    //     role: "user",
+    //     content: lastUserMessage.content,
+    //   });
+    // }
     return () => {
       console.log("Cleaning up timeoutRef.current");
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
@@ -71,7 +72,7 @@ export function ChatBox({ studyChat }: { studyChat: StudyUserChat }) {
 
   const handleSubmitMessage = useCallback(
     async (event: React.FormEvent<HTMLFormElement>) => {
-      console.log("handleSubmitMessage", input, chatId); // 有时候第一次聊天会出现提交2条消息，这里打印debug下
+      // console.log("handleSubmitMessage", input, chatId); // 有时候第一次聊天会出现提交2条消息，这里打印debug下
       event.preventDefault();
       if (!input) return;
       if (!chatId) {

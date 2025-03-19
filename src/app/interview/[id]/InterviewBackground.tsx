@@ -1,13 +1,12 @@
 "use client";
-import { useCallback, useEffect, useState } from "react";
 import { ChatMessage } from "@/components/ChatMessage";
-import { useScrollToBottom } from "@/components/use-scroll-to-bottom";
-import { Analyst, fetchAnalystInterviewById, Persona } from "@/data";
-import { AnalystInterview } from "@/data";
-import { Button } from "@/components/ui/button";
 import { PointAlertDialog } from "@/components/PointAlertDialog";
-import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { useScrollToBottom } from "@/components/use-scroll-to-bottom";
+import { Analyst, AnalystInterview, fetchAnalystInterviewById, Persona } from "@/data";
 import { Message } from "ai";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 export function InterviewBackground({
   analystInterview: _analystInterview,
@@ -18,11 +17,8 @@ export function InterviewBackground({
   analyst: Analyst;
   persona: Persona;
 }) {
-  const [interview, setInterview] =
-    useState<AnalystInterview>(_analystInterview);
-  const [messages, setMessages] = useState<Message[]>(
-    _analystInterview.messages,
-  );
+  const [interview, setInterview] = useState<AnalystInterview>(_analystInterview);
+  const [messages, setMessages] = useState<Message[]>(_analystInterview.messages);
 
   const fetchUpdate = useCallback(async () => {
     try {
@@ -36,7 +32,7 @@ export function InterviewBackground({
 
   // 添加定时器效果
   useEffect(() => {
-    const intervalId: NodeJS.Timeout = setInterval(fetchUpdate, 5000);
+    const intervalId: NodeJS.Timeout = setInterval(fetchUpdate, 1000);
     return () => {
       if (intervalId) {
         clearInterval(intervalId);
@@ -59,8 +55,7 @@ export function InterviewBackground({
     await fetchUpdate();
   }, [fetchUpdate, analyst, persona, interview.id]);
 
-  const [messagesContainerRef, messagesEndRef] =
-    useScrollToBottom<HTMLDivElement>();
+  const [messagesContainerRef, messagesEndRef] = useScrollToBottom<HTMLDivElement>();
 
   const router = useRouter();
 
@@ -84,9 +79,7 @@ export function InterviewBackground({
           {messages.map((message) => (
             <ChatMessage
               key={`message-${message.id}`}
-              nickname={
-                message.role === "assistant" ? persona.name : analyst.role
-              }
+              nickname={message.role === "assistant" ? persona.name : analyst.role}
               role={message.role}
               content={message.content}
               parts={message.parts}

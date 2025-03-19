@@ -1,11 +1,12 @@
 import { Analyst, Persona } from "@/data";
 import openai from "@/lib/openai";
 import { prisma } from "@/lib/prisma";
+import { streamStepsToUIMessage } from "@/lib/utils";
 import { interviewerPrologue, interviewerSystem, personaAgentSystem } from "@/prompt";
 import tools from "@/tools";
 import { InputJsonValue } from "@prisma/client/runtime/library";
 import { waitUntil } from "@vercel/functions";
-import { generateId, Message, StepResult, streamText, ToolSet } from "ai";
+import { generateId, Message, streamText } from "ai";
 import { NextResponse } from "next/server";
 
 type ChatProps = {
@@ -15,40 +16,6 @@ type ChatProps = {
   analystInterviewId: number;
   interviewToken: string;
 };
-
-function generateTextToUIMessage<T extends ToolSet>(steps: StepResult<T>[]): Omit<Message, "role"> {
-  const parts: Message["parts"] = [];
-  const contents = [];
-  for (const step of steps) {
-    if (step.stepType === "initial") {
-      contents.push(step.text);
-      parts.push({ type: "text", text: step.text });
-    } else if (step.stepType === "continue") {
-      contents.push(step.text);
-      parts.push({ type: "text", text: step.text });
-    } else if (step.stepType === "tool-result") {
-      contents.push(step.text);
-      for (const toolResult of step.toolResults) {
-        parts.push({
-          type: "tool-invocation",
-          toolInvocation: {
-            state: "result",
-            toolName: toolResult.toolName,
-            args: toolResult.args,
-            result: toolResult.result,
-            toolCallId: toolResult.toolCallId,
-          },
-        });
-      }
-      parts.push({ type: "text", text: step.text });
-    }
-  }
-  return {
-    id: generateId(),
-    content: contents.join("\n"),
-    parts,
-  };
-}
 
 async function chatWithInterviewer({
   messages,
@@ -65,11 +32,10 @@ async function chatWithInterviewer({
         reasoningThinking: tools.reasoningThinking,
         saveInterviewConclusion: tools.saveInterviewConclusion(analystInterviewId, interviewToken),
       },
-      maxSteps: 2,
       onChunk: (chunk) =>
         console.log(`[${analystInterviewId}] Interviewer:`, JSON.stringify(chunk)),
       onFinish: ({ steps }) => {
-        const message = generateTextToUIMessage(steps);
+        const message = streamStepsToUIMessage(steps);
         resolve(message);
       },
       onError: (error) => {
@@ -97,10 +63,10 @@ async function chatWithPersona({
       tools: {
         xhsSearch: tools.xhsSearch,
       },
-      maxSteps: 2,
+      maxSteps: 1,
       onChunk: (chunk) => console.log(`[${analystInterviewId}] Persona:`, JSON.stringify(chunk)),
       onFinish: ({ steps }) => {
-        const message = generateTextToUIMessage(steps);
+        const message = streamStepsToUIMessage(steps);
         resolve(message);
       },
       onError: (error) => {
@@ -111,6 +77,33 @@ async function chatWithPersona({
     await response.consumeStream();
   });
   return result;
+}
+
+async function saveMessages({
+  messages,
+  analystInterviewId,
+  interviewToken,
+}: {
+  messages: Message[];
+  analystInterviewId: number;
+  interviewToken: string;
+}) {
+  try {
+    await prisma.analystInterview.update({
+      where: {
+        id: analystInterviewId,
+        interviewToken,
+      },
+      data: {
+        messages: messages as unknown as InputJsonValue,
+      },
+    });
+  } catch (error) {
+    console.log(
+      `Error saving messages with interview id ${analystInterviewId} and token ${interviewToken}`,
+      error,
+    );
+  }
 }
 
 async function backgroundRun({
@@ -149,6 +142,12 @@ async function backgroundRun({
       break;
     }
 
+    await saveMessages({
+      messages: personaAgent.messages,
+      analystInterviewId,
+      interviewToken,
+    });
+
     try {
       const message = await chatWithInterviewer({
         messages: interviewer.messages,
@@ -168,23 +167,11 @@ async function backgroundRun({
       break;
     }
 
-    try {
-      const messages = personaAgent.messages;
-      await prisma.analystInterview.update({
-        where: {
-          id: analystInterviewId,
-          interviewToken,
-        },
-        data: {
-          messages: messages as unknown as InputJsonValue,
-        },
-      });
-    } catch (error) {
-      console.log(
-        `Error saving messages with interview id ${analystInterviewId} and token ${interviewToken}`,
-        error,
-      );
-    }
+    await saveMessages({
+      messages: personaAgent.messages,
+      analystInterviewId,
+      interviewToken,
+    });
 
     if (interviewer.terminated) {
       try {
