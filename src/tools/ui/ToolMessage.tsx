@@ -7,18 +7,27 @@ import { SaveAnalystToolResult } from "../system/analyst";
 import { XHSNoteCommentsResult } from "../xhs/noteComments";
 import { XHSSearchResult } from "../xhs/search";
 import { XHSUserNotesResult } from "../xhs/userNotes";
-import { ImageCarousel } from "./ImageCarousel";
+// import { ImageCarousel } from "./ImageCarousel";
 
 export const XHSSearchResultMessage: FC<{ result: XHSSearchResult }> = ({ result: { notes } }) => {
   return (
-    <div className="flex flex-row gap-6 w-full overflow-x-scroll p-6 bg-gray-50 border border-gray-100 rounded-lg">
-      {/* 只挑选 10 条展示 */}
-      {notes.slice(0, 10).map((note) => (
-        <div key={note.id} className="flex flex-col items-center w-[180px]">
-          <ImageCarousel images={note.images_list} />
-          <div className="p-3">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="relative w-5 h-5">
+    <div className="flex flex-row gap-3 w-full overflow-x-scroll p-3 bg-gray-50 border border-gray-100 rounded-md">
+      {/* 只挑选 5 条展示 */}
+      {notes.slice(0, 5).map((note) => (
+        <div key={note.id} className="flex flex-col items-center w-[120px]">
+          {/* <ImageCarousel images={note.images_list} /> */}
+          <div className="relative w-[120px] h-[120px] rounded-lg overflow-hidden">
+            <Image
+              src={note.images_list[0]?.url}
+              alt="Note image"
+              fill
+              sizes="100%"
+              className="object-cover"
+            />
+          </div>
+          <div className="p-1">
+            <div className="flex items-center gap-1 mb-1">
+              <div className="relative w-4 h-4">
                 <Image
                   src={note.user.images}
                   alt="User Avatar"
@@ -29,12 +38,10 @@ export const XHSSearchResultMessage: FC<{ result: XHSSearchResult }> = ({ result
               </div>
               <span className="text-xs text-gray-600">{note.user.nickname}</span>
             </div>
-            <h3 className="font-medium text-sm line-clamp-1">{note.title}</h3>
+            <h3 className="font-medium text-xs line-clamp-1">{note.title}</h3>
             <p className="text-gray-600 text-xs mt-1 line-clamp-2">{note.desc}</p>
             {/* <div>{note.id}</div> */}
-            <div className="text-gray-600 text-xs">
-              <strong>评论数</strong>：{note.comments_count}
-            </div>
+            {/* <div className="text-gray-600 text-xs mt-1">评论数：{note.comments_count}</div> */}
           </div>
         </div>
       ))}
@@ -46,14 +53,23 @@ export const XHSUserNotesResultMessage: FC<{ result: XHSUserNotesResult }> = ({
   result: { notes },
 }) => {
   return (
-    <div className="flex flex-row gap-6 flex-wrap p-6 bg-gray-50 border border-gray-100 rounded-lg">
+    <div className="flex flex-row gap-3 w-full overflow-x-scroll p-3 bg-gray-50 border border-gray-100 rounded-md">
       {/* 只挑选 5 条展示 */}
       {notes.slice(0, 5).map((note) => (
-        <div key={note.id} className="flex flex-col items-center w-[180px]">
-          <ImageCarousel images={note.images_list} />
-          <div className="p-3">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="relative w-5 h-5">
+        <div key={note.id} className="flex flex-col items-center w-[120px]">
+          {/* <ImageCarousel images={note.images_list} /> */}
+          <div className="relative w-[120px] h-[120px] rounded-lg overflow-hidden">
+            <Image
+              src={note.images_list[0]?.url}
+              alt="Note image"
+              fill
+              sizes="100%"
+              className="object-cover"
+            />
+          </div>
+          <div className="p-1">
+            <div className="flex items-center gap-1 mb-1">
+              <div className="relative w-4 h-4">
                 <Image
                   src={note.user.images}
                   alt="User Avatar"
@@ -64,7 +80,7 @@ export const XHSUserNotesResultMessage: FC<{ result: XHSUserNotesResult }> = ({
               </div>
               <span className="text-xs text-gray-600">{note.user.nickname}</span>
             </div>
-            <h3 className="font-medium text-sm line-clamp-1">{note.title}</h3>
+            <h3 className="font-medium text-xs line-clamp-1">{note.title}</h3>
             <p className="text-gray-600 text-xs mt-1 line-clamp-2">{note.desc}</p>
           </div>
         </div>

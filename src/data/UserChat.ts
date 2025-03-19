@@ -11,6 +11,14 @@ export type UserChat = Omit<UserChatPrisma, "messages" | "kind"> & {
   messages: Message[];
 };
 
+export type ScoutUserChat = Omit<UserChat, "kind"> & {
+  kind: "scout";
+};
+
+export type StudyUserChat = Omit<UserChat, "kind"> & {
+  kind: "study";
+};
+
 export async function updateUserChat(chatId: number, messages: Message[]): Promise<UserChat> {
   if (messages.length < 2) {
     // AI 回复了再保存
@@ -34,10 +42,10 @@ export async function updateUserChat(chatId: number, messages: Message[]): Promi
   });
 }
 
-export async function createUserChat(
-  kind: UserChat["kind"],
+export async function createUserChat<TKind extends UserChat["kind"]>(
+  kind: TKind,
   message: Pick<Message, "role" | "content">,
-): Promise<UserChat> {
+): Promise<Omit<UserChat, "kind"> & { kind: TKind }> {
   return withAuth(async (user) => {
     try {
       const userChat = await prisma.userChat.create({
@@ -55,7 +63,7 @@ export async function createUserChat(
       });
       return {
         ...userChat,
-        kind: userChat.kind as UserChat["kind"],
+        kind: userChat.kind as TKind,
         messages: userChat.messages as unknown as Message[],
       };
     } catch (error) {
@@ -65,7 +73,13 @@ export async function createUserChat(
   });
 }
 
-export async function fetchUserChats(kind: UserChat["kind"]): Promise<UserChat[]> {
+export async function fetchUserChats<Tkind extends UserChat["kind"]>(
+  kind: Tkind,
+): Promise<
+  (Omit<UserChat, "kind"> & {
+    kind: Tkind;
+  })[]
+> {
   return withAuth(async (user) => {
     try {
       const userChats = await prisma.userChat.findMany({
@@ -80,7 +94,7 @@ export async function fetchUserChats(kind: UserChat["kind"]): Promise<UserChat[]
       return userChats.map((chat) => {
         return {
           ...chat,
-          kind: chat.kind as UserChat["kind"],
+          kind: chat.kind as Tkind,
           messages: chat.messages as unknown as Message[],
         };
       });
@@ -91,16 +105,23 @@ export async function fetchUserChats(kind: UserChat["kind"]): Promise<UserChat[]
   });
 }
 
-export async function fetchUserChatById(userChatId: number): Promise<UserChat> {
+export async function fetchUserChatById<Tkind extends UserChat["kind"]>(
+  userChatId: number,
+  kind: Tkind,
+): Promise<
+  Omit<UserChat, "kind"> & {
+    kind: Tkind;
+  }
+> {
   return withAuth(async () => {
     try {
       const userChat = await prisma.userChat.findUnique({
-        where: { id: userChatId },
+        where: { id: userChatId, kind },
       });
       if (!userChat) notFound();
       return {
         ...userChat,
-        kind: userChat.kind as UserChat["kind"],
+        kind: userChat.kind as Tkind,
         messages: userChat.messages as unknown as Message[],
       };
     } catch (error) {

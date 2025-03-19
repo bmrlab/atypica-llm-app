@@ -22,10 +22,10 @@ export default async function StudyPage({
     redirect("/auth/signin?callbackUrl=/study");
   }
 
-  const userChat = await fetchUserChatById(id);
+  const userChat = await fetchUserChatById(id, "study");
   if (userChat.userId !== session.user.id) {
     forbidden();
   }
 
-  return <StudyChat userChat={userChat} />;
+  return <StudyChat studyChat={userChat} />;
 }

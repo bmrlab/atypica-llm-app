@@ -2,15 +2,21 @@ import openai from "@/lib/openai";
 import { fixChatMessages } from "@/lib/utils";
 import { scoutSystem } from "@/prompt";
 import tools from "@/tools";
-import { streamText } from "ai";
+import { Message, streamText } from "ai";
 
 export async function POST(req: Request) {
-  const { messages, chatId } = await req.json();
+  const payloadAwaited = await req.json();
+  const messages = payloadAwaited["messages"] as Message[];
+  const chatId = parseInt(payloadAwaited["chatId"]);
+  const autoChat =
+    typeof payloadAwaited["autoChat"] === "boolean" ? payloadAwaited["autoChat"] : false;
 
   const result = streamText({
     // model: openai("o3-mini"),
     model: openai("claude-3-7-sonnet"),
-    system: scoutSystem(),
+    system: scoutSystem({
+      doNotStopUntilScouted: autoChat,
+    }),
     messages: fixChatMessages(messages),
     tools: {
       reasoningThinking: tools.reasoningThinking,

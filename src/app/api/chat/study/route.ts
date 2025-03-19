@@ -22,11 +22,11 @@ export async function POST(req: Request) {
     system: studySystem(),
     messages: fixChatMessages(messages),
     tools: {
-      saveAnalyst: tools.saveAnalyst(userId),
-      // reasoningThinking: tools.reasoningThinking,
-      // xhsSearch: tools.xhsSearch,
-      // xhsUserNotes: tools.xhsUserNotes,
-      // xhsNoteComments: tools.xhsNoteComments,
+      // saveAnalyst: tools.saveAnalyst(userId),
+      reasoningThinking: tools.reasoningThinking,
+      xhsSearch: tools.xhsSearch,
+      xhsUserNotes: tools.xhsUserNotes,
+      xhsNoteComments: tools.xhsNoteComments,
     },
     maxSteps: 3,
     onError: async (error) => {

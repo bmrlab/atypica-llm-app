@@ -16,7 +16,7 @@ export default async function PersonasPage({
   const userChatParam = (await searchParams)?.userChat;
   if (userChatParam) {
     const userChatId = parseInt(userChatParam);
-    const userChat = await fetchUserChatById(userChatId);
+    const userChat = await fetchUserChatById(userChatId, "scout");
     const personas = await fetchPersonas(userChatId);
     return <PersonasList personas={personas} userChat={userChat} />;
   } else {

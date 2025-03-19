@@ -1,8 +1,8 @@
 "use client";
 import { ChatMessage } from "@/components/ChatMessage";
 import { useScrollToBottom } from "@/components/use-scroll-to-bottom";
-import { createUserChat, updateUserChat, UserChat } from "@/data";
-import { fixChatMessages } from "@/lib/utils";
+import { createUserChat, StudyUserChat, updateUserChat } from "@/data";
+import { cn, fixChatMessages } from "@/lib/utils";
 import { Message, useChat } from "@ai-sdk/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { StatusDisplay } from "./StatusDisplay";
@@ -17,21 +17,27 @@ function popLastUserMessage(messages: Message[]) {
   }
 }
 
-export function StudyChatMessages({ userChat }: { userChat: UserChat }) {
-  const [chatId, setChatId] = useState<number>(userChat.id);
+export function ChatBox({ studyChat }: { studyChat: StudyUserChat }) {
+  const [chatId, setChatId] = useState<number>(studyChat.id);
 
   const { messages, setMessages, error, handleSubmit, input, setInput, status, stop, append } =
     useChat({
+      id: `userChat-${studyChat.id}`,
       maxSteps: 30,
       api: "/api/chat/study",
-      initialMessages: popLastUserMessage(userChat.messages).messages,
+      initialMessages: popLastUserMessage(studyChat.messages).messages,
       body: {
         chatId: chatId,
+      },
+      onFinish: async (message, { finishReason }) => {
+        console.log(message, finishReason);
       },
     });
 
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const useChatRef = useRef({ append, stop, setMessages });
 
+  // 监听最新的 message
   useEffect(() => {
     if (!chatId || messages.length < 2) return; // 有了 chatId 并且 AI 回复了再保存
     if (timeoutRef.current) {
@@ -44,14 +50,15 @@ export function StudyChatMessages({ userChat }: { userChat: UserChat }) {
     }, 5000);
   }, [chatId, messages]);
 
+  // 监听对话切换
   useEffect(() => {
-    stop();
-    const { messages, lastUserMessage } = popLastUserMessage(userChat.messages);
-    setMessages(messages);
-    setChatId(userChat.id);
+    useChatRef.current.stop();
+    const { messages, lastUserMessage } = popLastUserMessage(studyChat.messages);
+    useChatRef.current.setMessages(messages);
+    setChatId(studyChat.id);
     // 如果最后一条消息是用户发的，立即开始 assistant 回复，因为不需要等用户再次输入
     if (lastUserMessage) {
-      append({
+      useChatRef.current.append({
         role: "user",
         content: lastUserMessage.content,
       });
@@ -60,9 +67,8 @@ export function StudyChatMessages({ userChat }: { userChat: UserChat }) {
       console.log("Cleaning up timeoutRef.current");
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
-  }, [userChat, stop, setMessages, append]);
+  }, [studyChat]);
 
-  // const inputRef = useRef<HTMLTextAreaElement>(null);
   const handleSubmitMessage = useCallback(
     async (event: React.FormEvent<HTMLFormElement>) => {
       console.log("handleSubmitMessage", input, chatId); // 有时候第一次聊天会出现提交2条消息，这里打印debug下
@@ -86,8 +92,8 @@ export function StudyChatMessages({ userChat }: { userChat: UserChat }) {
     [handleSubmit, chatId, input],
   );
 
+  // const inputRef = useRef<HTMLTextAreaElement>(null);
   const [messagesContainerRef, messagesEndRef] = useScrollToBottom<HTMLDivElement>();
-
   const inputDisabled = status === "streaming" || status === "submitted";
 
   return (
@@ -117,7 +123,10 @@ export function StudyChatMessages({ userChat }: { userChat: UserChat }) {
       <form onSubmit={handleSubmitMessage}>
         <textarea
           // ref={inputRef}
-          className={`bg-zinc-100 rounded-md px-4 py-3.5 w-full outline-none text-sm text-zinc-800 ${inputDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
+          className={cn(
+            "block bg-zinc-100 rounded-md px-4 py-3.5 w-full outline-none text-sm text-zinc-800",
+            inputDisabled ? "opacity-50 cursor-not-allowed" : "",
+          )}
           placeholder="研究一切事物"
           rows={3}
           value={input}

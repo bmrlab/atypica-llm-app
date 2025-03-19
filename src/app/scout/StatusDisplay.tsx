@@ -23,9 +23,9 @@ export function StatusDisplay({
       case "error":
         return "出现错误，请重试";
       case "ready":
-        return "";
+        return "AI 已准备就绪";
       default:
-        return "";
+        return status;
     }
   };
 

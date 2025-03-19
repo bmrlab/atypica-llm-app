@@ -1,16 +1,16 @@
 "use client";
 import { ChatMessage } from "@/components/ChatMessage";
 import { useScrollToBottom } from "@/components/use-scroll-to-bottom";
-import { createUserChat, updateUserChat, UserChat } from "@/data";
+import { createUserChat, ScoutUserChat, updateUserChat } from "@/data";
 import { fixChatMessages } from "@/lib/utils";
 import { Message, useChat } from "@ai-sdk/react";
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { StatusDisplay } from "./StatusDisplay";
 
 function popLastUserMessage(messages: Message[]) {
   if (messages.length > 0 && messages[messages.length - 1].role === "user") {
-    // pop 会修改 messages，导致调用 popLastUserMessage 的 currentChat 产生 state 变化，会有问题
+    // pop 会修改 messages，导致调用 popLastUserMessage 的 scoutChat 产生 state 变化，会有问题
     // const lastUserMessage = messages.pop();
     return { messages: messages.slice(0, -1), lastUserMessage: messages[messages.length - 1] };
   } else {
@@ -18,26 +18,55 @@ function popLastUserMessage(messages: Message[]) {
   }
 }
 
-export function ScoutChatMessages({ currentChat }: { currentChat: UserChat | null }) {
-  const [chatId, setChatId] = useState<number | null>(currentChat?.id ?? null);
+export function ScoutChatMessages({
+  scoutChat,
+  autoChat = false,
+}: {
+  scoutChat: ScoutUserChat | null;
+  autoChat?: boolean;
+}) {
+  const [chatId, setChatId] = useState<number | null>(scoutChat?.id ?? null);
 
   // https://github.com/vercel/ai/blob/50555848a54e6bace3e22d175db58c04f04ea5a4/packages/react/src/use-chat.ts#L230
   // useChat 会监听 credentials,headers,body, 的变化，但是其他的不监听
   // onResponse 和 onFinish 也被 hook 保存状态了，所以他俩都监听不到 chatId 的变化，只能在下面 useEffect 里主动监听 messages
 
-  const { messages, setMessages, error, handleSubmit, input, setInput, status, stop, append } =
-    useChat({
-      maxSteps: 30,
-      api: "/api/chat/scout",
-      initialMessages: popLastUserMessage(currentChat?.messages ?? []).messages,
-      body: {
-        chatId: chatId,
-      },
-    });
+  const {
+    messages,
+    setMessages,
+    error,
+    handleSubmit,
+    input,
+    setInput,
+    status,
+    stop,
+    // append,
+    reload,
+  } = useChat({
+    maxSteps: 30,
+    api: "/api/chat/scout",
+    body: {
+      chatId: chatId,
+      autoChat: autoChat,
+    },
+  });
 
   // const inputRef = useRef<HTMLTextAreaElement>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const useChatRef = useRef({ reload, stop, setMessages });
 
+  const lastToolResult = useMemo(() => {
+    const lastMessage = messages[messages.length - 1];
+    if (lastMessage?.role === "assistant" && lastMessage?.parts) {
+      const lastPart = lastMessage.parts[lastMessage.parts.length - 1];
+      if (lastPart.type === "tool-invocation" && lastPart.toolInvocation.state === "result") {
+        return lastPart.toolInvocation;
+      }
+    }
+    return null;
+  }, [messages]);
+
+  // 监听最新的 message
   useEffect(() => {
     if (!chatId || messages.length < 2) return; // 有了 chatId 并且 AI 回复了再保存
     if (timeoutRef.current) {
@@ -52,20 +81,24 @@ export function ScoutChatMessages({ currentChat }: { currentChat: UserChat | nul
     }, 5000);
   }, [chatId, messages]);
 
+  // 监听对话切换
   useEffect(() => {
-    // 监听 currentChat?.id 切换对话
-    stop();
-    if (currentChat) {
-      const { messages, lastUserMessage } = popLastUserMessage(currentChat?.messages ?? []);
-      setMessages(messages);
-      setChatId(currentChat.id);
-      // 如果最后一条消息是用户发的，立即开始 assistant 回复，因为不需要等用户再次输入
+    useChatRef.current.stop();
+    if (scoutChat) {
+      setChatId(scoutChat.id);
+      const { lastUserMessage } = popLastUserMessage(scoutChat.messages);
+      useChatRef.current.setMessages(scoutChat.messages);
       if (lastUserMessage) {
-        append({
-          role: "user",
-          content: lastUserMessage.content,
-        });
+        useChatRef.current.reload();
       }
+      // 如果最后一条消息是用户发的，立即开始 assistant 回复，因为不需要等用户再次输入
+      // 这里现在有个问题，首次加载组件 useEffect 可能被触发两次，这样就莫名其妙 append 了两个 user message，
+      // if (lastUserMessage) {
+      //   useChatRef.current.append({
+      //     role: "user",
+      //     content: lastUserMessage.content,
+      //   });
+      // }
     } else {
       setMessages([]);
       setChatId(null);
@@ -75,7 +108,8 @@ export function ScoutChatMessages({ currentChat }: { currentChat: UserChat | nul
       console.log("Cleaning up timeoutRef.current");
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
-  }, [currentChat, stop, setMessages, append]);
+    // 只能监听 scoutChat, 其他的不要监听，不然就死循环了！
+  }, [scoutChat]);
 
   const handleSubmitMessage = useCallback(
     async (event: React.FormEvent<HTMLFormElement>) => {
@@ -105,28 +139,30 @@ export function ScoutChatMessages({ currentChat }: { currentChat: UserChat | nul
   const inputDisabled = status === "streaming" || status === "submitted";
 
   return (
-    <>
+    <div className="flex-1 overflow-hidden flex flex-col items-stretch justify-between gap-4">
       <div
         ref={messagesContainerRef}
         className="flex-1 flex flex-col gap-6 w-full items-center overflow-y-scroll"
       >
-        <div className="bg-muted/50 rounded-lg p-4 mt-4">
-          <div className="space-y-2 mr-2">
-            <div className="font-medium">💡 使用建议：</div>
-            <ul className="text-sm ml-4 list-disc space-y-1 text-muted-foreground">
-              <li>描述越具体，AI 找到的用户越准确</li>
-              <li>可以包含用户的兴趣、行为、消费习惯等特征</li>
-              <li>AI 会自动搜索，帮你总结最合适的目标用户画像</li>
-              <li>
-                结果会自动加入到
-                <Link href="/personas" className="text-blue-500 hover:underline mx-1">
-                  用户画像库
-                </Link>
-                以供后续分析调研
-              </li>
-            </ul>
+        {!messages.length && (
+          <div className="bg-muted/50 rounded-lg p-4 mt-4">
+            <div className="space-y-2 mr-2">
+              <div className="font-medium">💡 使用建议：</div>
+              <ul className="text-sm ml-4 list-disc space-y-1 text-muted-foreground">
+                <li>描述越具体，AI 找到的用户越准确</li>
+                <li>可以包含用户的兴趣、行为、消费习惯等特征</li>
+                <li>AI 会自动搜索，帮你总结最合适的目标用户画像</li>
+                <li>
+                  结果会自动加入到
+                  <Link href="/personas" className="text-blue-500 hover:underline mx-1">
+                    用户画像库
+                  </Link>
+                  以供后续分析调研
+                </li>
+              </ul>
+            </div>
           </div>
-        </div>
+        )}
         {/* 目前先只保留最后5条用于避免页面越来越卡 */}
         {messages.slice(-5).map((message) => (
           <ChatMessage
@@ -134,6 +170,7 @@ export function ScoutChatMessages({ currentChat }: { currentChat: UserChat | nul
             role={message.role}
             content={message.content}
             parts={message.parts}
+            environment={autoChat ? "console" : "chat"}
           ></ChatMessage>
         ))}
         {error && (
@@ -146,28 +183,30 @@ export function ScoutChatMessages({ currentChat }: { currentChat: UserChat | nul
 
       {chatId && <StatusDisplay chatId={chatId} status={status} messages={messages} />}
 
-      <form onSubmit={handleSubmitMessage}>
-        <textarea
-          // ref={inputRef}
-          className={`bg-zinc-100 rounded-md px-4 py-3.5 w-full outline-none text-sm text-zinc-800 ${inputDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
-          placeholder="描述你想找的用户特征，例如：帮我找3位经常分享手工巧克力、有试吃经验、对美食很有研究的博主"
-          rows={3}
-          value={input}
-          disabled={inputDisabled}
-          onChange={(event) => {
-            setInput(event.target.value);
-          }}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
-              e.preventDefault();
-              if (input.trim()) {
-                const form = e.currentTarget.form;
-                if (form) form.requestSubmit();
+      {!autoChat && (
+        <form onSubmit={handleSubmitMessage}>
+          <textarea
+            // ref={inputRef}
+            className={`bg-zinc-100 rounded-md px-4 py-3.5 w-full outline-none text-sm text-zinc-800 ${inputDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
+            placeholder="描述你想找的用户特征，例如：帮我找3位经常分享手工巧克力、有试吃经验、对美食很有研究的博主"
+            rows={3}
+            value={input}
+            disabled={inputDisabled}
+            onChange={(event) => {
+              setInput(event.target.value);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
+                e.preventDefault();
+                if (input.trim()) {
+                  const form = e.currentTarget.form;
+                  if (form) form.requestSubmit();
+                }
               }
-            }
-          }}
-        />
-      </form>
-    </>
+            }}
+          />
+        </form>
+      )}
+    </div>
   );
 }

@@ -7,7 +7,7 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
-import { fetchUserChats, UserChat } from "@/data";
+import { fetchUserChats, ScoutUserChat } from "@/data";
 import { fixChatMessages } from "@/lib/utils";
 import { HistoryIcon } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -15,9 +15,9 @@ import { useEffect, useState } from "react";
 export function ScoutChatHistory({
   onSelectChat,
 }: {
-  onSelectChat: (chat: UserChat | null) => void;
+  onSelectChat: (chat: ScoutUserChat | null) => void;
 }) {
-  const [chats, setChats] = useState<UserChat[]>([]);
+  const [chats, setChats] = useState<ScoutUserChat[]>([]);
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -36,7 +36,7 @@ export function ScoutChatHistory({
     return () => clearInterval(interval);
   }, []);
 
-  const handleSelectChat = (chat: UserChat | null) => {
+  const handleSelectChat = (chat: ScoutUserChat | null) => {
     onSelectChat(chat);
     setOpen(false); // Close drawer when a chat is selected
   };

@@ -1,6 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { UserChat } from "@/data";
+import { ScoutUserChat } from "@/data";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ScoutChatHistory } from "./ScoutChatHistory";
@@ -8,7 +8,7 @@ import { ScoutChatMessages } from "./ScoutChatMessages";
 
 export function ScoutChat() {
   const router = useRouter();
-  const [currentChat, setCurrentChat] = useState<UserChat | null>(null);
+  const [currentChat, setCurrentChat] = useState<ScoutUserChat | null>(null);
 
   return (
     <div className="flex flex-col items-stretch justify-between gap-4 max-w-5xl mx-auto h-dvh py-6">
@@ -25,7 +25,7 @@ export function ScoutChat() {
           <ScoutChatHistory onSelectChat={setCurrentChat} />
         </div>
       </div>
-      <ScoutChatMessages currentChat={currentChat} />
+      <ScoutChatMessages scoutChat={currentChat} />
     </div>
   );
 }
