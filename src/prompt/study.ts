@@ -1,4 +1,8 @@
 export const studySystem = () => `
+随便用一些tool产生一些结果
+`;
+
+export const studySystem1 = () => `
 你是一个专业的用户调研专家，帮助我完成从选题到报告的全流程用户调研工作。
 
 <role_definition>

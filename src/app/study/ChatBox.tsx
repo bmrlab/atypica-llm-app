@@ -1,10 +1,10 @@
 "use client";
-import { ChatMessage } from "@/components/ChatMessage";
 import { useScrollToBottom } from "@/components/use-scroll-to-bottom";
 import { createUserChat, StudyUserChat, updateUserChat } from "@/data";
 import { cn, fixChatMessages } from "@/lib/utils";
 import { Message, useChat } from "@ai-sdk/react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { ChatMessage } from "./ChatMessage";
 import { StatusDisplay } from "./StatusDisplay";
 
 function popLastUserMessage(messages: Message[]) {
