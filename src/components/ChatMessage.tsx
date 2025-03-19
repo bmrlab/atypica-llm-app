@@ -106,13 +106,13 @@ export const ChatMessage = (message: {
       className={cn(
         "flex flex-row gap-4 px-4 w-full first-of-type:mt-10 py-4",
         role === "user"
-          ? "bg-blue-50/50 border-l-4 border-blue-200"
+          ? "bg-blue-50/50 border-r-4 border-blue-200 flex-row-reverse"
           : role === "assistant"
             ? "bg-gray-50/50 border-l-4 border-gray-200"
             : role === "system"
               ? "bg-green-50/50 border-l-4 border-green-200"
               : "",
-        environment === "console" ? "flex-col border-l-0" : "",
+        environment === "console" ? "flex-col border-l-0 border-r-0" : "",
       )}
       initial={{ y: 5, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
@@ -144,7 +144,8 @@ export const ChatMessage = (message: {
         )}
         {parts ? (
           <div className="flex flex-col gap-4">
-            {parts.map((part, i) => {
+            {(environment === "console" ? parts.slice(-1) : parts).map((part, i) => {
+              // 如果是控制台环境，只显示最后一条
               switch (part.type) {
                 case "text":
                   return <PlainText key={i}>{part.text}</PlainText>;

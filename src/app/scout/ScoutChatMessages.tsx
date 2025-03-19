@@ -20,10 +20,10 @@ function popLastUserMessage(messages: Message[]) {
 
 export function ScoutChatMessages({
   scoutChat,
-  autoChat = false,
+  environment = "chat",
 }: {
   scoutChat: ScoutUserChat | null;
-  autoChat?: boolean;
+  environment?: "console" | "chat";
 }) {
   const [chatId, setChatId] = useState<number | null>(scoutChat?.id ?? null);
 
@@ -47,7 +47,7 @@ export function ScoutChatMessages({
     api: "/api/chat/scout",
     body: {
       chatId: chatId,
-      autoChat: autoChat,
+      autoChat: environment === "console",
     },
   });
 
@@ -163,14 +163,14 @@ export function ScoutChatMessages({
             </div>
           </div>
         )}
-        {/* 目前先只保留最后5条用于避免页面越来越卡 */}
-        {messages.slice(-5).map((message) => (
+        {(environment === "console" ? messages.slice(-1) : messages).map((message) => (
+          // 如果是控制台环境，只显示最后一条
           <ChatMessage
             key={message.id}
             role={message.role}
             content={message.content}
             parts={message.parts}
-            environment={autoChat ? "console" : "chat"}
+            environment={environment}
           ></ChatMessage>
         ))}
         {error && (
@@ -183,7 +183,7 @@ export function ScoutChatMessages({
 
       {chatId && <StatusDisplay chatId={chatId} status={status} messages={messages} />}
 
-      {!autoChat && (
+      {environment === "chat" && (
         <form onSubmit={handleSubmitMessage}>
           <textarea
             // ref={inputRef}

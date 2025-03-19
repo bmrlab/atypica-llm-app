@@ -35,7 +35,7 @@ ${question}
         system: "你是一个专业的顾问，需要逐步仔细思考这个问题。用较少的文字回复，不要超过300字。",
         messages: [{ role: "user", content: prompt }],
         // maxTokens: 500,
-        onChunk: (chunk) => console.log("[Reasoning]", JSON.stringify(chunk)),
+        // onChunk: (chunk) => console.log("[Reasoning]", JSON.stringify(chunk)),
         onFinish: (result) => {
           const reasoning = result.reasoning ?? "";
           const text = result.text ?? "";

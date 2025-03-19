@@ -36,7 +36,7 @@ export const XHSSearchResultMessage: FC<{ result: XHSSearchResult }> = ({ result
                   className="object-cover rounded-full"
                 />
               </div>
-              <span className="text-xs text-gray-600">{note.user.nickname}</span>
+              <div className="text-xs text-gray-600 line-clamp-1">{note.user.nickname}</div>
             </div>
             <h3 className="font-medium text-xs line-clamp-1">{note.title}</h3>
             <p className="text-gray-600 text-xs mt-1 line-clamp-2">{note.desc}</p>
@@ -78,7 +78,7 @@ export const XHSUserNotesResultMessage: FC<{ result: XHSUserNotesResult }> = ({
                   className="object-cover rounded-full"
                 />
               </div>
-              <span className="text-xs text-gray-600">{note.user.nickname}</span>
+              <div className="text-xs text-gray-600 line-clamp-1">{note.user.nickname}</div>
             </div>
             <h3 className="font-medium text-xs line-clamp-1">{note.title}</h3>
             <p className="text-gray-600 text-xs mt-1 line-clamp-2">{note.desc}</p>
@@ -93,11 +93,11 @@ export const XHSNoteCommentsResultMessage: FC<{
   result: XHSNoteCommentsResult;
 }> = ({ result: { comments } }) => {
   return (
-    <div className="p-6 bg-gray-50 border border-gray-100 rounded-lg">
+    <div className="p-3 bg-gray-50 border border-gray-100 rounded-md">
       {/* 只挑选 10 条展示 */}
       {comments.slice(0, 10).map((comment) => (
-        <div key={comment.id} className="flex items-start justify-start gap-3 mb-4">
-          <div className="relative mt-2 w-8 h-8 rounded-full overflow-hidden">
+        <div key={comment.id} className="flex items-start justify-start gap-3 mb-2">
+          <div className="relative mt-2 w-6 h-6 rounded-full overflow-hidden">
             <Image
               src={comment.user.images}
               alt="User Avatar"
@@ -106,9 +106,9 @@ export const XHSNoteCommentsResultMessage: FC<{
               fill
             />
           </div>
-          <div>
+          <div className="flex-1 overflow-hidden">
             <strong className="text-xs text-gray-600">{comment.user.nickname}</strong>
-            <p className="text-gray-600 text-xs mt-1 line-clamp-2">{comment.content}</p>
+            <p className="text-gray-600 text-xs line-clamp-2">{comment.content}</p>
           </div>
         </div>
       ))}

@@ -57,7 +57,7 @@ export function ToolConsole({ studyChat }: { studyChat: StudyUserChat }) {
           "border rounded-lg bg-white",
         )}
       >
-        {scoutChat && <ScoutChatMessages scoutChat={scoutChat} autoChat={true} />}
+        {scoutChat && <ScoutChatMessages scoutChat={scoutChat} environment="console" />}
       </div>
     </div>
   );
