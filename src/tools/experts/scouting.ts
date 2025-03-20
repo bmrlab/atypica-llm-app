@@ -107,7 +107,7 @@ async function scoutTaskChatStream({
         xhsNoteComments: tools.xhsNoteComments,
         savePersona: tools.savePersona(chatId),
       },
-      maxSteps: 10,
+      maxSteps: 30,
       onChunk: (chunk) => console.log(`[${chatId}] ScoutTaskChat:`, JSON.stringify(chunk)),
       onFinish: ({ steps }) => {
         const message = streamStepsToUIMessage(steps);
