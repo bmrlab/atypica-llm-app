@@ -39,7 +39,7 @@ const AnalystReport = ({ toolInvocation }: { toolInvocation: ToolInvocation }) =
     const ratio = Math.floor((containerWidth ? containerWidth / 1200 : 1) * 100);
     setRatio(ratio);
     setIframeHeight(containerHeight ? (containerHeight / ratio) * 100 : 1200);
-  }, []);
+  }, [containerRef.current]);
 
   return result ? (
     <div className="h-full relative pb-10">
