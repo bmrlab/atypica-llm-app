@@ -10,9 +10,8 @@ import {
 } from "@/tools/ui/ToolMessage";
 import { Message as MessageType, ToolInvocation } from "ai";
 import { motion } from "framer-motion";
-import { CpuIcon } from "lucide-react";
+import { BotIcon, CpuIcon, UserIcon } from "lucide-react";
 import { FC, HTMLAttributes, PropsWithChildren, ReactNode } from "react";
-import { BotIcon, UserIcon } from "./icons";
 import { Markdown } from "./markdown";
 
 const ToolArgs: FC<

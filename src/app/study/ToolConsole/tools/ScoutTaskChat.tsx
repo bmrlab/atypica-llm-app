@@ -32,7 +32,7 @@ const ScoutTaskChat = ({ toolInvocation }: { toolInvocation: ToolInvocation }) =
   }, [fetchUpdate]);
 
   return (
-    <div className="space-x-6 w-full">
+    <div className="space-y-6 w-full">
       {messages.map((message) => (
         <StreamSteps
           key={`message-${message.id}`}

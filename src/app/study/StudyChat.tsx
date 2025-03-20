@@ -1,9 +1,9 @@
 "use client";
-import { HomeIcon } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { useScrollToBottom } from "@/components/use-scroll-to-bottom";
 import { StudyUserChat } from "@/data";
 import { cn } from "@/lib/utils";
+import { HomeIcon } from "lucide-react";
 import Link from "next/link";
 import { StudyChatBox } from "./StudyChatBox";
 import { ToolConsole } from "./ToolConsole/ToolConsole";
