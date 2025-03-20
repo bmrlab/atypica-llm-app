@@ -5,6 +5,7 @@ import { useChat } from "@ai-sdk/react";
 import { ToolInvocation } from "ai";
 import { LoaderIcon } from "lucide-react";
 import { useMemo } from "react";
+import { useStudyContext } from "../hooks";
 import AnalystReport from "./tools/AnalystReport";
 import InterviewChat from "./tools/InterviewChat";
 import ReasoningThinking from "./tools/ReasoningThinking";
@@ -50,6 +51,8 @@ export function ToolConsole({ studyChat }: { studyChat: StudyUserChat }) {
     api: "/api/chat/study",
   });
 
+  const { viewToolInvocation } = useStudyContext();
+
   const lastTool = useMemo(() => {
     // 从后往前找到最后一个 tool result
     for (let i = messages.length - 1; i >= 0; i--) {
@@ -68,16 +71,26 @@ export function ToolConsole({ studyChat }: { studyChat: StudyUserChat }) {
     return null;
   }, [messages]);
 
-  switch (lastTool?.toolName) {
+  const activeTool = useMemo(() => {
+    if (viewToolInvocation) {
+      return viewToolInvocation;
+    }
+    if (lastTool) {
+      return lastTool;
+    }
+    return null;
+  }, [viewToolInvocation, lastTool]);
+
+  switch (activeTool?.toolName) {
     case ToolName.scoutTaskChat:
-      return <ScoutTaskChat toolInvocation={lastTool} />;
+      return <ScoutTaskChat toolInvocation={activeTool} />;
     case ToolName.interview:
-      return <InterviewChat toolInvocation={lastTool} />;
+      return <InterviewChat toolInvocation={activeTool} />;
     case ToolName.reasoningThinking:
-      return <ReasoningThinking toolInvocation={lastTool} />;
+      return <ReasoningThinking toolInvocation={activeTool} />;
     case ToolName.analystReport:
-      return <AnalystReport toolInvocation={lastTool} />;
+      return <AnalystReport toolInvocation={activeTool} />;
     default:
-      return lastTool ? <FallbackToolDisplay toolInvocation={lastTool} /> : null;
+      return activeTool ? <FallbackToolDisplay toolInvocation={activeTool} /> : null;
   }
 }
