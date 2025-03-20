@@ -1,7 +1,7 @@
 {
-  "name": "Atypica LLM",
+  "name": "Atypica LLM - 为「主观世界」建模",
   "short_name": "Atypica",
-  "description": "AI 驱动的用户研究平台",
+  "description": "",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",

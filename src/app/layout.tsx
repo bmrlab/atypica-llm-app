@@ -27,37 +27,32 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: {
-    default: "Atypica LLM - AI 驱动的用户研究平台",
+    default: "Atypica LLM - 为「主观世界」建模",
     template: "%s | Atypica LLM",
   },
-  description: "通过 AI 驱动的深度访谈，发现用户真实需求，构建立体用户画像，为产品决策提供支持",
-  keywords: ["用户研究", "用户画像", "AI访谈", "市场调研", "用户洞察", "消费者行为", "产品决策"],
+  description: "",
+  keywords: [],
   authors: [{ name: "Tezign" }],
   category: "technology",
   openGraph: {
-    title: "Atypica LLM - AI 驱动的用户研究平台",
-    description: "通过 AI 驱动的深度访谈，发现用户真实需求，构建立体用户画像，为产品决策提供支持",
+    title: "Atypica LLM - 为「主观世界」建模",
+    description: "",
     type: "website",
     locale: "zh_CN",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Atypica LLM - AI 驱动的用户研究平台",
-    description: "通过 AI 驱动的深度访谈，发现用户真实需求，构建立体用户画像，为产品决策提供支持",
+    title: "Atypica LLM - 为「主观世界」建模",
+    description: "",
   },
   robots: {
     index: true,
     follow: true,
   },
   icons: {
-    icon: [
-      { url: "/atypica.png" },
-      { url: "/atypica.png", sizes: "16x16", type: "image/png" },
-      { url: "/atypica.png", sizes: "32x32", type: "image/png" },
-      { url: "/atypica.png", sizes: "48x48", type: "image/png" },
-    ],
-    shortcut: ["/atypica.png"],
-    apple: [{ url: "/atypica.png" }, { url: "/atypica.png", sizes: "180x180", type: "image/png" }],
+    icon: "/atypica.png",
+    shortcut: "/atypica.png",
+    apple: { url: "/atypica.png", sizes: "180x180", type: "image/png" },
   },
   manifest: "/manifest.json",
 };

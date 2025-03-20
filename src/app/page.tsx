@@ -2,10 +2,37 @@
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { createUserChat } from "@/data";
-import { ArrowRightIcon, SendIcon } from "lucide-react";
+import { ArrowRightIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+
+export default function Home() {
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-background to-accent/20">
+      <div className="max-w-6xl mx-auto py-12 sm:py-24 space-y-12 sm:space-y-24">
+        {/* Hero Section */}
+        <div className="text-center space-y-6">
+          <h1 className="text-4xl sm:text-6xl font-normal leading-tight tracking-wide bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent animate-in fade-in slide-in-from-bottom-4 duration-1000">
+            Atypica LLM
+          </h1>
+          <p className="text-base sm:text-2xl font-light text-muted-foreground max-w-3xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom-6 duration-1000">
+            为「主观世界」建模
+          </p>
+        </div>
+
+        {/* Features Section */}
+        <div className="mt-8 animate-in fade-in slide-in-from-bottom-8 duration-1000">
+          <InputSection />
+        </div>
+
+        <div className="hidden">
+          <FeatureSection />
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function InputSection() {
   const [input, setInput] = useState("");
@@ -29,50 +56,33 @@ function InputSection() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto px-4">
-      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-xl border-2 border-primary/20 hover:border-primary/40 transition-all duration-300 overflow-hidden">
-        <form onSubmit={handleSubmit} className="p-4 sm:p-6">
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 text-primary font-medium mb-2">
-              <SendIcon className="h-5 w-5" />
-              <h3 className="text-lg">输入您要研究的市场或产品</h3>
-            </div>
-
-            <Textarea
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder=""
-              className="min-h-32 text-base resize-none focus-visible:ring-primary"
-              disabled={isLoading}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
-                  e.preventDefault();
-                  if (input.trim()) {
-                    const form = e.currentTarget.form;
-                    if (form) form.requestSubmit();
-                  }
-                }
-              }}
-            />
-
-            <div className="flex justify-end">
-              <Button
-                type="submit"
-                variant="default"
-                size="lg"
-                disabled={isLoading || !input.trim()}
-                className="group relative overflow-hidden"
-              >
-                <span className="relative z-10 flex items-center gap-2">
-                  🔍 开始
-                  <ArrowRightIcon className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                </span>
-                <span className="absolute inset-0 bg-gradient-to-r from-primary to-primary-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
-              </Button>
-            </div>
-          </div>
-        </form>
-      </div>
+    <div className="max-w-xl mx-auto">
+      <form onSubmit={handleSubmit} className="relative">
+        <Textarea
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          placeholder="你在想什么"
+          className="min-h-32 resize-none focus-visible:ring-primary rounded-3xl p-5"
+          disabled={isLoading}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
+              e.preventDefault();
+              if (input.trim()) {
+                const form = e.currentTarget.form;
+                if (form) form.requestSubmit();
+              }
+            }
+          }}
+        />
+        <Button
+          type="submit"
+          variant="secondary"
+          disabled={isLoading || !input.trim()}
+          className="rounded-full size-9 absolute right-4 bottom-4"
+        >
+          <ArrowRightIcon className="h-4 w-4 text-gray-400" />
+        </Button>
+      </form>
     </div>
   );
 }
@@ -138,33 +148,6 @@ function FeatureSection() {
           </div>
         </div>
       </Link>
-    </div>
-  );
-}
-
-export default function Home() {
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-accent/20">
-      <div className="max-w-6xl mx-auto py-12 sm:py-24 space-y-12 sm:space-y-24">
-        {/* Hero Section */}
-        <div className="text-center space-y-6">
-          <h1 className="text-4xl sm:text-6xl font-bold leading-tight tracking-tight bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent animate-in fade-in slide-in-from-bottom-4 duration-1000">
-            Atypica LLM
-          </h1>
-          <p className="text-base sm:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom-6 duration-1000">
-            为「主观世界」建模
-          </p>
-        </div>
-
-        {/* Features Section */}
-        <div className="mt-8 animate-in fade-in slide-in-from-bottom-8 duration-1000">
-          <InputSection />
-        </div>
-
-        <div className="hidden">
-          <FeatureSection />
-        </div>
-      </div>
     </div>
   );
 }
