@@ -1,22 +1,48 @@
-import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
-import { forbidden, redirect } from "next/navigation";
-import { streamText } from "ai";
-import { prisma } from "@/lib/prisma";
 import openai from "@/lib/openai";
+import { prisma } from "@/lib/prisma";
 import { reportHTMLPrologue, reportHTMLSystem } from "@/prompt";
+import { streamText } from "ai";
+import { getServerSession } from "next-auth/next";
+import { forbidden, redirect } from "next/navigation";
 
-export async function GET(
-  req: Request,
-  { params }: { params: Promise<{ id: string }> },
-) {
+const listenScript = (redirect: string) => `
+<script>
+  // 创建一个标志来判断流是否完成
+  window.streamComplete = false;
+  // 使用 MutationObserver 监听 DOM 变化
+  const observer = new MutationObserver((mutations) => {
+    // 检查是否发现了流结束标记
+    if (document.getElementById('stream-complete') && !window.streamComplete) {
+      window.streamComplete = true;
+      // 延迟一小段时间后重定向，让用户有机会看到完整内容
+      setTimeout(() => {
+        window.location.href = '${redirect}';
+      }, 2000);
+    }
+  });
+  // 开始观察文档变化
+  observer.observe(document.documentElement, { childList: true, subtree: true });
+</script>
+`;
+
+const redirectNote = () => `
+<div id="stream-complete" style="display:none;"></div>
+<div style="text-align:center; padding: 20px; margin-top: 30px;">
+  <p>报告生成完毕，即将跳转到报告页面...</p>
+</div>
+`;
+
+export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const url = new URL(req.url);
+  const searchParams = Object.fromEntries(url.searchParams.entries());
+  const regenerate = searchParams.regenerate == "1" ? true : false;
   const analystId = parseInt((await params).id);
 
   const session = await getServerSession(authOptions);
   if (!session?.user) {
     redirect(`/auth/signin?callbackUrl=/analyst/${analystId}/live`);
   }
-
   const userAnalyst = await prisma.userAnalyst.findUnique({
     where: { userId_analystId: { userId: session.user.id, analystId } },
   });
@@ -29,17 +55,17 @@ export async function GET(
     where: { id: analystId },
     include: {
       interviews: {
-        where: {
-          conclusion: {
-            not: "",
-          },
-        },
+        where: { conclusion: { not: "" } },
       },
     },
   });
 
   if (!analyst) {
     return new Response("Analyst not found", { status: 404 });
+  }
+
+  if (analyst.report && !regenerate) {
+    redirect(`/analyst/${analystId}/html`);
   }
 
   const result = streamText({
@@ -65,12 +91,14 @@ export async function GET(
 
   const readable = new ReadableStream({
     async start(controller) {
+      controller.enqueue(listenScript(`/analyst/${analystId}/html`));
       try {
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
           controller.enqueue(value);
         }
+        controller.enqueue(redirectNote());
         controller.close();
       } catch (error) {
         controller.error(error);

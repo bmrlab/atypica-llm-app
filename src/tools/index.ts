@@ -1,5 +1,6 @@
 import { interviewTool } from "./experts/interview";
 import { reasoningThinkingTool } from "./experts/reasoning";
+import { analystReportTool } from "./experts/report";
 import { scoutTaskChatTool, scoutTaskCreateTool } from "./experts/scouting";
 import { saveAnalystTool } from "./system/saveAnalyst";
 import { saveInterviewConclusionTool } from "./system/saveInterviewConclusion";
@@ -13,6 +14,7 @@ const tools = {
   scoutTaskChat: scoutTaskChatTool,
   scoutTaskCreate: scoutTaskCreateTool,
   interview: interviewTool,
+  analystReport: analystReportTool,
 
   xhsSearch: xhsSearchTool,
   xhsUserNotes: xhsUserNotesTool,
@@ -28,6 +30,7 @@ export enum ToolName {
   scoutTaskChat = "scoutTaskChat",
   scoutTaskCreate = "scoutTaskCreate",
   interview = "interview",
+  analystReport = "analystReport",
   xhsSearch = "xhsSearch",
   xhsUserNotes = "xhsUserNotes",
   xhsNoteComments = "xhsNoteComments",

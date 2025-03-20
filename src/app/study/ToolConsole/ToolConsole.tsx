@@ -5,6 +5,7 @@ import { useChat } from "@ai-sdk/react";
 import { ToolInvocation } from "ai";
 import { LoaderIcon } from "lucide-react";
 import { useMemo } from "react";
+import AnalystReport from "./tools/AnalystReport";
 import InterviewChat from "./tools/InterviewChat";
 import ReasoningThinking from "./tools/ReasoningThinking";
 import ScoutTaskChat from "./tools/ScoutTaskChat";
@@ -74,6 +75,8 @@ export function ToolConsole({ studyChat }: { studyChat: StudyUserChat }) {
       return <InterviewChat toolInvocation={lastTool} />;
     case ToolName.reasoningThinking:
       return <ReasoningThinking toolInvocation={lastTool} />;
+    case ToolName.analystReport:
+      return <AnalystReport toolInvocation={lastTool} />;
     default:
       return lastTool ? <FallbackToolDisplay toolInvocation={lastTool} /> : null;
   }
