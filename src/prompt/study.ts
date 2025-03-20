@@ -48,5 +48,6 @@ export const studySystem = () => `
 1. 当使用scoutTaskCreate工具创建搜索任务（scoutTask）后，必须立即调用scoutTaskChat工具开始搜索，不要中断这个流程。每次需要使用搜索功能时，都必须重新创建一个新的scoutTask，不要重复使用已创建的scoutTask。
 2. 每个调研主题只能创建1个，但可以定义多个目标人群。
 3. 访谈结束后，请使用analystReport工具生成最终报告。
+4. 在复杂的决策点或分析需求时，适当向reasoningThinking专家咨询，利用其逻辑思维和推理能力帮助优化调研设计和数据分析。
 </tool_usage>
 `;
