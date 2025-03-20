@@ -2,7 +2,7 @@ import { interviewTool } from "./experts/interview";
 import { reasoningThinkingTool } from "./experts/reasoning";
 import { analystReportTool } from "./experts/report";
 import { scoutTaskChatTool, scoutTaskCreateTool } from "./experts/scouting";
-import { saveAnalystTool } from "./system/saveAnalyst";
+import { saveAnalystStudySummaryTool, saveAnalystTool } from "./system/saveAnalyst";
 import { saveInterviewConclusionTool } from "./system/saveInterviewConclusion";
 import { savePersonaTool } from "./system/savePersona";
 import { xhsNoteCommentsTool } from "./xhs/noteComments";
@@ -23,6 +23,7 @@ const tools = {
   savePersona: savePersonaTool,
   saveInterviewConclusion: saveInterviewConclusionTool,
   saveAnalyst: saveAnalystTool,
+  saveAnalystStudySummary: saveAnalystStudySummaryTool,
 };
 
 export enum ToolName {

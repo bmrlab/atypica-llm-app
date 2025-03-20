@@ -53,7 +53,7 @@ export function StudyChat({ studyChat }: { studyChat: StudyUserChat }) {
         >
           <div className="ml-1 text-lg font-medium font-mono">Atypica LLM Console</div>
           <div
-            className="p-4 flex-1 overflow-auto border rounded-lg bg-white font-mono"
+            className="p-4 flex-1 overflow-auto border rounded-lg bg-white"
             ref={messagesContainerRef}
           >
             <ToolConsole studyChat={studyChat} />

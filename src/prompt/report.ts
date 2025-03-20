@@ -88,6 +88,12 @@ ${analyst.topic}
 
 ${analyst.interviews.map((interview) => `<conclusion>\n${interview.conclusion}\n</conclusion>`).join("\n\n")}
 
+以下是调研专家的结论，供参考：
+
+<studySummary>
+${analyst.studySummary}
+</studySummary>
+
 请在报告中引用访谈中的用户原话，这些引用应该：
 - 能够支持你的分析结论
 - 展示用户的真实情感和态度

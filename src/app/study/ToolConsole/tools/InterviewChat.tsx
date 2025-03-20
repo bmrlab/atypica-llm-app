@@ -9,7 +9,9 @@ const InterviewChat = ({ toolInvocation }: { toolInvocation: ToolInvocation }) =
   const analystId = toolInvocation.args.analystId as number;
   const personaId = toolInvocation.args.personaId as number;
 
+  const [interviewToken, setInterviewToken] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
+  const [conclusion, setConclusion] = useState<string | null>(null);
   const [persona, setPersona] = useState<Persona>();
   const [analyst, setAnalyst] = useState<Analyst>();
 
@@ -20,6 +22,8 @@ const InterviewChat = ({ toolInvocation }: { toolInvocation: ToolInvocation }) =
       setMessages(fixChatMessages(interview.messages));
       setPersona(interview.persona);
       setAnalyst(interview.analyst);
+      setInterviewToken(interview.interviewToken);
+      setConclusion(interview.conclusion);
     } catch (error) {
       console.log("Error fetching userChat:", error);
     }
@@ -27,7 +31,7 @@ const InterviewChat = ({ toolInvocation }: { toolInvocation: ToolInvocation }) =
 
   // 添加定时器效果
   useEffect(() => {
-    const intervalId: NodeJS.Timeout = setInterval(fetchUpdate, 1000);
+    const intervalId: NodeJS.Timeout = setInterval(fetchUpdate, 5000);
     return () => {
       if (intervalId) {
         clearInterval(intervalId);
@@ -49,10 +53,26 @@ const InterviewChat = ({ toolInvocation }: { toolInvocation: ToolInvocation }) =
             parts={message.parts}
           ></StreamSteps>
         ))}
+        {interviewToken && messages.length === 0 ? (
+          <StreamSteps
+            key="message-start"
+            nickname="系统"
+            role="system"
+            content="访谈启动中 .."
+          ></StreamSteps>
+        ) : null}
+        {!interviewToken && conclusion ? (
+          <StreamSteps
+            key="message-conclusion"
+            nickname="调研结论"
+            role="system"
+            content={conclusion}
+          ></StreamSteps>
+        ) : null}
         <div ref={messagesEndRef} />
       </div>
       {toolInvocation.state !== "result" && (
-        <div className="w-full flex py-4 gap-px items-center justify-start text-zinc-500 text-sm">
+        <div className="w-full flex py-4 gap-px items-center justify-start text-zinc-500 text-xs font-mono">
           <span className="mr-2">Interviewing with user </span>
           <span className="animate-bounce">✨ </span>
           {/* <span className="animate-bounce">·</span> */}

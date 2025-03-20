@@ -24,6 +24,7 @@ export async function POST(req: Request) {
     tools: {
       scoutTaskCreate: tools.scoutTaskCreate(userId),
       scoutTaskChat: tools.scoutTaskChat(),
+      saveAnalystStudySummary: tools.saveAnalystStudySummary(userId),
       saveAnalyst: tools.saveAnalyst(userId),
       interview: tools.interview,
       analystReport: tools.analystReport,
@@ -32,6 +33,7 @@ export async function POST(req: Request) {
       // xhsUserNotes: tools.xhsUserNotes,
       // xhsNoteComments: tools.xhsNoteComments,
     },
+    maxSteps: 3,
     onError: async (error) => {
       console.log("Error occurred:", error);
     },

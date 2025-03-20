@@ -5,6 +5,9 @@ import { PlainTextToolResult } from "../utils";
 
 export interface SaveAnalystToolResult extends PlainTextToolResult {
   personaId: number;
+  name: string;
+  tags: string[];
+  prompt: string;
   plainText: string;
 }
 
@@ -17,7 +20,7 @@ export const savePersonaTool = (userChatId: number) =>
         .describe("名字，不要包含姓氏，使用网名，名字前添加一个贴合人物特征的emoji表情符号"),
       source: z.string().describe("数据来源"),
       tags: z.array(z.string()).describe("相关标签"),
-      userids: z.array(z.string()).describe("该人设典型的用户 ID 列表"),
+      // userids: z.array(z.string()).describe("该人设典型的用户 ID 列表"),
       personaPrompt: z.string().describe("生成的 persona prompt 内容"),
     }),
     experimental_toToolResultContent: (result: PlainTextToolResult) => {
@@ -27,7 +30,7 @@ export const savePersonaTool = (userChatId: number) =>
       name,
       source,
       tags,
-      userids,
+      // userids,
       personaPrompt,
     }): Promise<SaveAnalystToolResult> => {
       const persona = await prisma.persona.create({
@@ -35,18 +38,21 @@ export const savePersonaTool = (userChatId: number) =>
           name,
           source,
           tags,
-          samples: userids.map((id) => `https://www.xiaohongshu.com/user/profile/${id}`),
+          // samples: userids.map((id) => `https://www.xiaohongshu.com/user/profile/${id}`),
+          samples: [],
           prompt: personaPrompt,
           userChatId,
         },
       });
-      return {
+      const result = {
         personaId: persona.id,
-        plainText: JSON.stringify({
-          personaId: persona.id,
-          name: persona.name,
-          tags: persona.tags as string[],
-        }),
+        name: persona.name,
+        tags: persona.tags as string[],
+        prompt: persona.prompt,
+      };
+      return {
+        ...result,
+        plainText: JSON.stringify(result),
       };
     },
   });

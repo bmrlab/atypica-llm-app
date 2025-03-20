@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { AnalystReportResult } from "@/tools/experts/report";
 import { ToolInvocation } from "ai";
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 const AnalystReport = ({ toolInvocation }: { toolInvocation: ToolInvocation }) => {
   const result = useMemo(() => {
@@ -14,20 +14,28 @@ const AnalystReport = ({ toolInvocation }: { toolInvocation: ToolInvocation }) =
   }, [toolInvocation]);
 
   const [hasReport, setHasReport] = useState(false);
-  useEffect(() => {
+  const checkReport = useCallback(async () => {
     if (!result?.analystId) {
       return;
     }
-    const checkReport = async () => {
-      try {
-        const analyst = await fetchAnalystById(result.analystId);
-        setHasReport(!!analyst.report);
-      } catch (error) {
-        console.log("Error fetching analyst:", error);
-      }
+    try {
+      const analyst = await fetchAnalystById(result.analystId);
+      setHasReport(!!analyst.report);
+    } catch (error) {
+      console.log("Error fetching analyst:", error);
+    }
+  }, [result?.analystId]);
+
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+    const poll = async () => {
+      await checkReport();
+      timeoutId = setTimeout(poll, 5000);
     };
-    const intervalId = setInterval(checkReport, 5000);
-    return () => clearInterval(intervalId);
+    poll();
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+    };
   }, [result?.analystId]);
 
   const containerRef = useRef<HTMLDivElement>(null);

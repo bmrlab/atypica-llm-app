@@ -38,3 +38,41 @@ export const saveAnalystTool = (userId: number) =>
       };
     },
   });
+
+export interface SaveAnalystStudySummaryTool extends PlainTextToolResult {
+  analystId: number;
+  studySummary: string;
+  plainText: string;
+}
+
+export const saveAnalystStudySummaryTool = (userId: number) =>
+  tool({
+    description: "保存调研专家的研究总结",
+    parameters: z.object({
+      analystId: z.number().describe("调研主题的 ID"),
+      studySummary: z.string().describe("调研专家的研究总结"),
+    }),
+    experimental_toToolResultContent: (result: PlainTextToolResult) => {
+      return [{ type: "text", text: result.plainText }];
+    },
+    execute: async ({ analystId, studySummary }): Promise<SaveAnalystStudySummaryTool> => {
+      const analyst = await prisma.analyst.update({
+        where: { id: analystId },
+        data: { studySummary },
+      });
+      await prisma.userAnalyst.create({
+        data: {
+          userId: userId,
+          analystId: analyst.id,
+        },
+      });
+      return {
+        analystId: analyst.id,
+        studySummary: analyst.studySummary,
+        plainText: JSON.stringify({
+          analystId: analyst.id,
+          studySummary: analyst.studySummary,
+        }),
+      };
+    },
+  });

@@ -33,7 +33,7 @@ const ScoutTaskChat = ({ toolInvocation }: { toolInvocation: ToolInvocation }) =
 
   return (
     <div className="space-x-6 w-full">
-      {messages.slice(-1).map((message) => (
+      {messages.map((message) => (
         <StreamSteps
           key={`message-${message.id}`}
           role={message.role}
@@ -42,7 +42,7 @@ const ScoutTaskChat = ({ toolInvocation }: { toolInvocation: ToolInvocation }) =
         ></StreamSteps>
       ))}
       {toolInvocation.state !== "result" && (
-        <div className="w-full flex py-4 gap-px items-center justify-start text-zinc-500 text-sm">
+        <div className="w-full flex py-4 gap-px items-center justify-start text-zinc-500 text-xs font-mono">
           <span className="mr-2">Looking for target users </span>
           <span className="animate-bounce">✨ </span>
           {/* <span className="animate-bounce">·</span> */}

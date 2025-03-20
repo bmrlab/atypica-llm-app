@@ -37,7 +37,8 @@ export const analystReportTool = tool({
       return {
         analystId: analyst.id,
         url: `/analyst/${analyst.id}/live`,
-        plainText: `Report for analyst ${analyst.id} is being generated`,
+        plainText: `Report for analyst ${analyst.id} is generated`,
+        // 文本是一样的，都叫 generated，不然 study agent 会认为 report 还在生成中，会重复发起生成
       };
     }
   },

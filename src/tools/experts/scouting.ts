@@ -138,6 +138,7 @@ async function scoutTaskChatStream({
     id: persona.id,
     name: persona.name,
     tags: persona.tags as string[],
+    prompt: persona.prompt,
   }));
 
   return {

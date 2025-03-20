@@ -7,7 +7,6 @@ import tools from "@/tools";
 import { PlainTextToolResult } from "@/tools/utils";
 import { InputJsonValue } from "@prisma/client/runtime/library";
 import { generateId, Message, streamText, tool } from "ai";
-import { NextResponse } from "next/server";
 import { z } from "zod";
 
 export interface InterviewResult extends PlainTextToolResult {
@@ -49,10 +48,18 @@ export const interviewTool = tool({
         },
         analystInterviewId: interview.id,
       });
+      const updatedInterview = await prisma.analystInterview.findUniqueOrThrow({
+        where: { id: interview.id },
+      });
+      await new Promise((resolve) => {
+        // 等 5s, 确保前端可以把 conclusion 显示出来
+        setTimeout(() => resolve(null), 5000);
+      });
       return {
         plainText: JSON.stringify({
           analystId,
           personaId,
+          conclusion: updatedInterview.conclusion,
           result: "访谈结束",
         }),
       };
@@ -88,10 +95,10 @@ async function chatWithInterviewer({
       system: interviewerSystem(analyst),
       messages,
       tools: {
-        // reasoningThinking: tools.reasoningThinking,
+        reasoningThinking: tools.reasoningThinking,
         saveInterviewConclusion: tools.saveInterviewConclusion(analystInterviewId, interviewToken),
       },
-      maxSteps: 1,
+      maxSteps: 3,
       onChunk: (chunk) =>
         console.log(`[${analystInterviewId}] Interviewer:`, JSON.stringify(chunk)),
       onFinish: ({ steps }) => {
@@ -121,9 +128,9 @@ async function chatWithPersona({
       system: personaAgentSystem(persona),
       messages,
       tools: {
-        // xhsSearch: tools.xhsSearch,
+        xhsSearch: tools.xhsSearch,
       },
-      maxSteps: 1,
+      maxSteps: 3,
       onChunk: (chunk) => console.log(`[${analystInterviewId}] Persona:`, JSON.stringify(chunk)),
       onFinish: ({ steps }) => {
         const message = streamStepsToUIMessage(steps);
@@ -304,6 +311,4 @@ async function startInterview({
     stop = true;
     resolve(null);
   });
-
-  return NextResponse.json({ message: "POST request received" });
 }

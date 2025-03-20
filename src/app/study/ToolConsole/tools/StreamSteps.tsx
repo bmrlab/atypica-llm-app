@@ -63,7 +63,7 @@ const StreamStep = ({ toolInvocation }: { toolInvocation: ToolInvocation }) => {
                 return <SaveAnalystToolResultMessage result={toolInvocation.result} />;
               default:
                 return (
-                  <pre className="text-xs whitespace-pre-wrap p-4 text-muted-foreground bg-gray-50 border border-gray-100 rounded-lg">
+                  <pre className="text-xs font-mono whitespace-pre-wrap p-4 text-muted-foreground bg-gray-50 border border-gray-100 rounded-lg">
                     {toolInvocation.result.plainText ?? "-"}
                   </pre>
                 );

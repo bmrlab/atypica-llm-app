@@ -128,7 +128,7 @@ export function StudyChatBox({ studyChat }: { studyChat: StudyUserChat }) {
             "block bg-zinc-100 rounded-md px-4 py-3.5 w-full outline-none text-sm text-zinc-800",
             inputDisabled ? "opacity-50 cursor-not-allowed" : "",
           )}
-          placeholder="研究一切事物"
+          placeholder="提出后续问题或回复"
           rows={3}
           value={input}
           disabled={inputDisabled}
