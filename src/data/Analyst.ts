@@ -1,7 +1,7 @@
 "use server";
 import { prisma } from "@/lib/prisma";
-import { forbidden, notFound } from "next/navigation";
 import { Analyst as AnalystPrisma } from "@prisma/client";
+import { forbidden, notFound } from "next/navigation";
 import withAuth from "./withAuth";
 
 export type Analyst = AnalystPrisma;
@@ -53,7 +53,7 @@ export async function createAnalyst({
     try {
       const analyst = await prisma.analyst.create({
         // Empty report for new analysts
-        data: { role, topic, report: "" },
+        data: { role, topic, report: "", studySummary: "" },
       });
       await prisma.userAnalyst.create({
         data: {

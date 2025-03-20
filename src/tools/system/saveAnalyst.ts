@@ -20,7 +20,7 @@ export const saveAnalystTool = (userId: number) =>
     },
     execute: async ({ role, topic }): Promise<SaveAnalystToolResult> => {
       const analyst = await prisma.analyst.create({
-        data: { role, topic, report: "" },
+        data: { role, topic, report: "", studySummary: "" },
       });
       await prisma.userAnalyst.create({
         data: {
@@ -62,7 +62,7 @@ export const saveAnalystStudySummaryTool = () =>
       });
       return {
         analystId: analyst.id,
-        studySummary: analyst.studySummary!,
+        studySummary: analyst.studySummary,
         plainText: JSON.stringify({
           analystId: analyst.id,
           studySummary: analyst.studySummary,

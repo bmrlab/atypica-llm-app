@@ -42,11 +42,11 @@ model Persona {
 }
 
 model Analyst {
-  id           Int     @id @default(autoincrement())
-  role         String  @db.VarChar(255)
-  topic        String  @db.Text
-  report       String  @db.Text
-  studySummary String? @db.Text
+  id           Int    @id @default(autoincrement())
+  role         String @db.VarChar(255)
+  topic        String @db.Text
+  report       String @db.Text
+  studySummary String @db.Text
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

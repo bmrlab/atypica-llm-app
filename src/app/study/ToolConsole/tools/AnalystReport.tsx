@@ -36,7 +36,7 @@ const AnalystReport = ({ toolInvocation }: { toolInvocation: ToolInvocation }) =
     return () => {
       if (timeoutId) clearTimeout(timeoutId);
     };
-  }, [result?.analystId]);
+  }, [checkReport]);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const [ratio, setRatio] = useState(100);
@@ -47,6 +47,7 @@ const AnalystReport = ({ toolInvocation }: { toolInvocation: ToolInvocation }) =
     const ratio = Math.floor((containerWidth ? containerWidth / 1200 : 1) * 100);
     setRatio(ratio);
     setIframeHeight(containerHeight ? (containerHeight / ratio) * 100 : 1200);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [containerRef.current]);
 
   return result ? (
