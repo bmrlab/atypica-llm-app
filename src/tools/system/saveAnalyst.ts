@@ -45,7 +45,7 @@ export interface SaveAnalystStudySummaryTool extends PlainTextToolResult {
   plainText: string;
 }
 
-export const saveAnalystStudySummaryTool = (userId: number) =>
+export const saveAnalystStudySummaryTool = () =>
   tool({
     description: "保存调研专家的研究总结",
     parameters: z.object({
@@ -60,15 +60,9 @@ export const saveAnalystStudySummaryTool = (userId: number) =>
         where: { id: analystId },
         data: { studySummary },
       });
-      await prisma.userAnalyst.create({
-        data: {
-          userId: userId,
-          analystId: analyst.id,
-        },
-      });
       return {
         analystId: analyst.id,
-        studySummary: analyst.studySummary,
+        studySummary: analyst.studySummary!,
         plainText: JSON.stringify({
           analystId: analyst.id,
           studySummary: analyst.studySummary,

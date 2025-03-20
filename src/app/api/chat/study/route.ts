@@ -24,7 +24,7 @@ export async function POST(req: Request) {
     tools: {
       scoutTaskCreate: tools.scoutTaskCreate(userId),
       scoutTaskChat: tools.scoutTaskChat(),
-      saveAnalystStudySummary: tools.saveAnalystStudySummary(userId),
+      saveAnalystStudySummary: tools.saveAnalystStudySummary(),
       saveAnalyst: tools.saveAnalyst(userId),
       interview: tools.interview,
       analystReport: tools.analystReport,
