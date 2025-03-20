@@ -5,7 +5,6 @@ import { useScrollToBottom } from "@/components/use-scroll-to-bottom";
 import { StudyUserChat } from "@/data";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { HistoryDrawer } from "./HistoryDrawer";
 import { StudyChatBox } from "./StudyChatBox";
 import { ToolConsole } from "./ToolConsole/ToolConsole";
 
@@ -25,13 +24,14 @@ function Header({ studyChat }: { studyChat: StudyUserChat }) {
       <h1 className="sm:text-lg font-medium px-18 text-center truncate">
         {studyChat?.title || "研究"}
       </h1>
-      <div className="absolute right-0 top-1/2 -translate-y-1/2">
+      {/* 数据量太大，不知道生产总是 HTTP2 error 是不是这个原因，先禁用 */}
+      {/* <div className="absolute right-0 top-1/2 -translate-y-1/2">
         <HistoryDrawer
           onSelectChat={(studyChat) => {
             window.location.replace(`/study?id=${studyChat.id}`);
           }}
         />
-      </div>
+      </div> */}
     </div>
   );
 }
