@@ -101,7 +101,7 @@ async function scoutTaskChatStream({
       }),
       messages: fixChatMessages(messages as unknown as Message[]),
       tools: {
-        // reasoningThinking: tools.reasoningThinking,
+        reasoningThinking: tools.reasoningThinking,
         xhsSearch: tools.xhsSearch,
         xhsUserNotes: tools.xhsUserNotes,
         xhsNoteComments: tools.xhsNoteComments,

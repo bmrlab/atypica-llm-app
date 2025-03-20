@@ -41,7 +41,7 @@ function InputSection() {
             <Textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="例如：短视频创作者使用AI工具的习惯和需求"
+              placeholder=""
               className="min-h-32 text-base resize-none focus-visible:ring-primary"
               disabled={isLoading}
               onKeyDown={(e) => {
@@ -152,7 +152,7 @@ export default function Home() {
             Atypica LLM
           </h1>
           <p className="text-base sm:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom-6 duration-1000">
-            发现独特的用户群体，洞察真实的市场需求
+            为「主观世界」建模
           </p>
         </div>
 
