@@ -1,6 +1,6 @@
 import openai from "@/lib/openai";
 import { prisma } from "@/lib/prisma";
-import { appendStreamStepToUIMessage, streamStepsToUIMessage } from "@/lib/utils";
+import { appendStreamStepToUIMessage, fixChatMessages, streamStepsToUIMessage } from "@/lib/utils";
 import { scoutSystem } from "@/prompt";
 import { PlainTextToolResult } from "@/tools/utils";
 import { InputJsonValue } from "@prisma/client/runtime/library";
@@ -66,6 +66,9 @@ async function scoutTaskChatStream(chatId: number): Promise<ScoutTaskChatResult>
     where: { id: chatId },
   });
 
+  // 可能有异常的保存数据，取下来修复一下
+  const initialMessages = fixChatMessages(userChat.messages as unknown as Message[]);
+
   const saveToolMessages = (
     (chatId: number, initialMessages: Message[]) => async (message: Omit<Message, "role">) => {
       const messages: Message[] = [...initialMessages, { role: "assistant", ...message }];
@@ -76,7 +79,7 @@ async function scoutTaskChatStream(chatId: number): Promise<ScoutTaskChatResult>
         },
       });
     }
-  )(userChat.id, userChat.messages as unknown as Message[]);
+  )(userChat.id, initialMessages);
 
   await new Promise<Omit<Message, "role">>(async (resolve, reject) => {
     const message: Omit<Message, "role"> = {
@@ -89,7 +92,7 @@ async function scoutTaskChatStream(chatId: number): Promise<ScoutTaskChatResult>
       system: scoutSystem({
         doNotStopUntilScouted: true,
       }),
-      messages: userChat.messages as unknown as Message[],
+      messages: fixChatMessages(userChat.messages as unknown as Message[]),
       tools: {
         reasoningThinking: tools.reasoningThinking,
         xhsSearch: tools.xhsSearch,
@@ -105,7 +108,9 @@ async function scoutTaskChatStream(chatId: number): Promise<ScoutTaskChatResult>
       },
       onStepFinish: (step) => {
         appendStreamStepToUIMessage(message, step);
-        saveToolMessages(message);
+        if (message.parts?.length && message.content.trim()) {
+          saveToolMessages(message);
+        }
       },
       onError: (error) => {
         console.log(error);

@@ -71,7 +71,7 @@ const ToolInvocationMessage = ({ toolInvocation }: { toolInvocation: ToolInvocat
         default:
           return (
             <pre className="text-xs whitespace-pre-wrap p-4 text-muted-foreground bg-gray-50 border border-gray-100 rounded-lg font-mono">
-              {toolName} {JSON.stringify(result)}
+              {result.plainText ?? "-"}
             </pre>
           );
       }
@@ -79,7 +79,7 @@ const ToolInvocationMessage = ({ toolInvocation }: { toolInvocation: ToolInvocat
     return (
       <div>
         <ToolArgs toolName={toolName} args={args} />
-        <div className="text-sm text-zinc-800 my-4">执行结果：</div>
+        <div className="text-sm text-zinc-800 my-4">执行结果</div>
         {renderResult()}
       </div>
     );

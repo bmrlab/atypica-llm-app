@@ -1,11 +1,12 @@
 "use server";
 import { prisma } from "@/lib/prisma";
-import { forbidden, notFound } from "next/navigation";
 import { AnalystInterview as AnalystInterviewPrisma } from "@prisma/client";
-import { Message } from "ai";
 import { InputJsonValue } from "@prisma/client/runtime/library";
-import withAuth from "./withAuth";
+import { Message } from "ai";
+import { forbidden, notFound } from "next/navigation";
+import { Analyst } from "./Analyst";
 import { Persona } from "./Persona";
+import withAuth from "./withAuth";
 
 export type AnalystInterview = Omit<AnalystInterviewPrisma, "messages"> & {
   messages: Message[];
@@ -42,9 +43,55 @@ export async function fetchAnalystInterviews(
   });
 }
 
-export async function fetchAnalystInterviewById(
-  interviewId: number,
-): Promise<AnalystInterview> {
+export async function fetchInterviewByAnalystAndPersona({
+  analystId,
+  personaId,
+}: {
+  analystId: number;
+  personaId: number;
+}): Promise<
+  AnalystInterview & {
+    persona: Persona & {
+      tags: string[];
+    };
+    analyst: Analyst;
+  }
+> {
+  return withAuth(async (user) => {
+    try {
+      const interview = await prisma.analystInterview.findUniqueOrThrow({
+        where: {
+          analystId_personaId: { analystId, personaId },
+        },
+        include: {
+          persona: true,
+          analyst: true,
+        },
+      });
+      if (!interview) notFound();
+      const userAnalyst = await prisma.userAnalyst.findUnique({
+        where: {
+          userId_analystId: { userId: user.id, analystId: interview.analystId },
+        },
+      });
+      if (!userAnalyst) forbidden();
+      const { messages } = interview;
+      return {
+        ...interview,
+        persona: {
+          ...interview.persona,
+          tags: interview.persona.tags as string[],
+        },
+        messages: messages as unknown as Message[],
+      };
+    } catch (error) {
+      console.log("Error fetching analyst interview", error);
+      throw error;
+    }
+  });
+}
+
+export async function fetchAnalystInterviewById(interviewId: number): Promise<AnalystInterview> {
   return withAuth(async (user) => {
     try {
       const interview = await prisma.analystInterview.findUnique({
@@ -125,9 +172,7 @@ export async function updateAnalystInterview(
       where: { id: analystInterviewId },
       data: {
         conclusion,
-        messages: messages
-          ? (messages as unknown as InputJsonValue)
-          : undefined,
+        messages: messages ? (messages as unknown as InputJsonValue) : undefined,
       },
     });
     return {

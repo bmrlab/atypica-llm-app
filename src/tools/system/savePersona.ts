@@ -3,41 +3,9 @@ import { tool } from "ai";
 import { z } from "zod";
 import { PlainTextToolResult } from "../utils";
 
-async function savePersona({
-  name,
-  source,
-  tags,
-  userids,
-  personaPrompt,
-  userChatId,
-}: {
-  name: string;
-  source: string;
-  tags: string[];
-  userids: string[];
-  personaPrompt: string;
-  userChatId: number;
-}) {
-  try {
-    const persona = await prisma.persona.create({
-      data: {
-        name,
-        source,
-        tags,
-        samples: userids.map((id) => `https://www.xiaohongshu.com/user/profile/${id}`),
-        prompt: personaPrompt,
-        userChatId,
-      },
-    });
-
-    return {
-      id: persona.id,
-      plainText: `Saved persona prompt to DB with id ${persona.id}`,
-    };
-  } catch (error) {
-    console.log("Error saving persona:", error);
-    throw error;
-  }
+export interface SaveAnalystToolResult extends PlainTextToolResult {
+  personaId: number;
+  plainText: string;
 }
 
 export const savePersonaTool = (userChatId: number) =>
@@ -55,15 +23,30 @@ export const savePersonaTool = (userChatId: number) =>
     experimental_toToolResultContent: (result: PlainTextToolResult) => {
       return [{ type: "text", text: result.plainText }];
     },
-    execute: async ({ name, source, tags, userids, personaPrompt }) => {
-      const result = await savePersona({
-        name,
-        source,
-        tags,
-        userids,
-        personaPrompt,
-        userChatId,
+    execute: async ({
+      name,
+      source,
+      tags,
+      userids,
+      personaPrompt,
+    }): Promise<SaveAnalystToolResult> => {
+      const persona = await prisma.persona.create({
+        data: {
+          name,
+          source,
+          tags,
+          samples: userids.map((id) => `https://www.xiaohongshu.com/user/profile/${id}`),
+          prompt: personaPrompt,
+          userChatId,
+        },
       });
-      return result;
+      return {
+        personaId: persona.id,
+        plainText: JSON.stringify({
+          personaId: persona.id,
+          name: persona.name,
+          tags: persona.tags as string[],
+        }),
+      };
     },
   });

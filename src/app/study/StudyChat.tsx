@@ -5,13 +5,11 @@ import { useScrollToBottom } from "@/components/use-scroll-to-bottom";
 import { StudyUserChat } from "@/data";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { HistoryDrawer } from "./HistoryDrawer";
 import { StudyChatBox } from "./StudyChatBox";
 import { ToolConsole } from "./ToolConsole/ToolConsole";
 
 function Header({ studyChat }: { studyChat: StudyUserChat }) {
-  const router = useRouter();
   return (
     <div className="relative w-full">
       <div className="absolute left-0 top-1/2 -translate-y-1/2">

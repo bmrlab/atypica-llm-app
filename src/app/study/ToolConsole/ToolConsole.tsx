@@ -1,10 +1,46 @@
 import { StudyUserChat } from "@/data";
+import { cn } from "@/lib/utils";
 import { ToolName } from "@/tools";
 import { useChat } from "@ai-sdk/react";
-import { useEffect, useMemo } from "react";
-import ToolArgs from "./ToolArgs";
-import { ToolReasoningThinking } from "./ToolReasoningThinking";
-import ToolScoutTaskChat from "./ToolScoutTaskChat";
+import { ToolInvocation } from "ai";
+import { LoaderIcon } from "lucide-react";
+import { useMemo } from "react";
+import InterviewChat from "./tools/InterviewChat";
+import ReasoningThinking from "./tools/ReasoningThinking";
+import ScoutTaskChat from "./tools/ScoutTaskChat";
+
+const FallbackToolDisplay = ({ toolInvocation }: { toolInvocation: ToolInvocation }) => {
+  const { toolName, args } = toolInvocation;
+  return (
+    <pre
+      className={cn(
+        "text-xs whitespace-pre-wrap bg-gray-50 border border-gray-100 rounded-lg p-2 font-mono",
+      )}
+    >
+      <div className="ml-2 mt-1 mb-2 font-bold">{toolName} exec args</div>
+      <table className="text-left">
+        <tbody>
+          {Object.entries(args).map(([key, value]) => (
+            <tr key={key}>
+              <td className="p-2 align-top">{key}:</td>
+              <td className="p-2 whitespace-pre-wrap">
+                {typeof value === "object" ? JSON.stringify(value, null, 2) : value?.toString()}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <div className="ml-2 mt-4 mb-2 font-bold">result</div>
+      {toolInvocation.state === "result" ? (
+        <div className="text-xs whitespace-pre-wrap p-2">{toolInvocation.result.plainText}</div>
+      ) : (
+        <div className="p-2">
+          <LoaderIcon className="animate-spin" size={16} />
+        </div>
+      )}
+    </pre>
+  );
+};
 
 export function ToolConsole({ studyChat }: { studyChat: StudyUserChat }) {
   const { messages } = useChat({
@@ -22,7 +58,8 @@ export function ToolConsole({ studyChat }: { studyChat: StudyUserChat }) {
           const part = message.parts[j];
           if (part.type === "tool-invocation") {
             // && part.toolInvocation.state === "result") {
-            return part.toolInvocation;
+            // 用 ... 复制一个出来，防止被 messages 内部修改覆盖
+            return { ...part.toolInvocation };
           }
         }
       }
@@ -30,20 +67,14 @@ export function ToolConsole({ studyChat }: { studyChat: StudyUserChat }) {
     return null;
   }, [messages]);
 
-  // 监听最新的 tool result
-  useEffect(() => {
-    //
-  }, [lastTool?.toolCallId]);
-
-  if (!lastTool) return <></>;
-
-  if (lastTool.toolName === ToolName.scoutTaskChat) {
-    return <ToolScoutTaskChat chatId={lastTool.args.chatId} />;
+  switch (lastTool?.toolName) {
+    case ToolName.scoutTaskChat:
+      return <ScoutTaskChat toolInvocation={lastTool} />;
+    case ToolName.interview:
+      return <InterviewChat toolInvocation={lastTool} />;
+    case ToolName.reasoningThinking:
+      return <ReasoningThinking toolInvocation={lastTool} />;
+    default:
+      return lastTool ? <FallbackToolDisplay toolInvocation={lastTool} /> : null;
   }
-
-  if (lastTool.toolName === ToolName.reasoningThinking) {
-    return <ToolReasoningThinking toolInvocation={lastTool} />;
-  }
-
-  <ToolArgs toolInvocation={lastTool} />;
 }

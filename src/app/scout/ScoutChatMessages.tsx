@@ -5,7 +5,7 @@ import { createUserChat, ScoutUserChat, updateUserChat } from "@/data";
 import { fixChatMessages } from "@/lib/utils";
 import { Message, useChat } from "@ai-sdk/react";
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { StatusDisplay } from "./StatusDisplay";
 
 function popLastUserMessage(messages: Message[]) {
@@ -55,17 +55,6 @@ export function ScoutChatMessages({
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const useChatRef = useRef({ reload, stop, setMessages });
 
-  const lastToolResult = useMemo(() => {
-    const lastMessage = messages[messages.length - 1];
-    if (lastMessage?.role === "assistant" && lastMessage?.parts) {
-      const lastPart = lastMessage.parts[lastMessage.parts.length - 1];
-      if (lastPart.type === "tool-invocation" && lastPart.toolInvocation.state === "result") {
-        return lastPart.toolInvocation;
-      }
-    }
-    return null;
-  }, [messages]);
-
   // 监听最新的 message
   useEffect(() => {
     if (!chatId || messages.length < 2) return; // 有了 chatId 并且 AI 回复了再保存
@@ -109,6 +98,7 @@ export function ScoutChatMessages({
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
     // 只能监听 scoutChat, 其他的不要监听，不然就死循环了！
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scoutChat]);
 
   const handleSubmitMessage = useCallback(

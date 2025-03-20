@@ -4,7 +4,7 @@ import { ToolInvocation } from "ai";
 import { BotIcon } from "lucide-react";
 import { FC } from "react";
 
-export const ToolReasoningThinking: FC<{
+const ReasoningThinking: FC<{
   toolInvocation: ToolInvocation;
 }> = ({ toolInvocation }) => {
   return (
@@ -27,3 +27,5 @@ export const ToolReasoningThinking: FC<{
     </div>
   );
 };
+
+export default ReasoningThinking;

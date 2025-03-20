@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { FC } from "react";
 import { ReasoningThinkingResult } from "../experts/reasoning";
-import { SaveAnalystToolResult } from "../system/analyst";
+import { SaveAnalystToolResult } from "../system/saveAnalyst";
 import { XHSNoteCommentsResult } from "../xhs/noteComments";
 import { XHSSearchResult } from "../xhs/search";
 import { XHSUserNotesResult } from "../xhs/userNotes";
@@ -129,11 +129,11 @@ export const ReasoningThinkingResultMessage: FC<{
 
 export const SaveAnalystToolResultMessage: FC<{
   result: SaveAnalystToolResult;
-}> = ({ result: { id } }) => {
+}> = ({ result: { analystId } }) => {
   return (
     <div className="p-3 bg-gray-50 border border-gray-100 rounded-lg text-xs">
       🎉 保存成功！
-      <Link href={`/analyst/${id}`} target="_blank" className="text-blue-500">
+      <Link href={`/analyst/${analystId}`} target="_blank" className="text-blue-500">
         点击查看研究主题
       </Link>
       <span className="ml-4 text-muted-foreground">这个功能还在开发中...</span>
