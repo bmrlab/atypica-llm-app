@@ -91,6 +91,7 @@ async function chatWithInterviewer({
         // reasoningThinking: tools.reasoningThinking,
         saveInterviewConclusion: tools.saveInterviewConclusion(analystInterviewId, interviewToken),
       },
+      maxSteps: 1,
       onChunk: (chunk) =>
         console.log(`[${analystInterviewId}] Interviewer:`, JSON.stringify(chunk)),
       onFinish: ({ steps }) => {

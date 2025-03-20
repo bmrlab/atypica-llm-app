@@ -33,9 +33,8 @@ export const scoutTaskCreateTool = (userId: number) =>
     },
     execute: async ({ description }) => {
       const title = description.substring(0, 50);
-      const message = { id: generateId(), role: "user", content: description };
       const userChat = await prisma.userChat.create({
-        data: { userId, title, kind: "scout", messages: [message] },
+        data: { userId, title, kind: "scout", messages: [] },
       });
       return {
         chatId: userChat.id,
@@ -52,23 +51,31 @@ export const scoutTaskChatTool = () =>
     description: "开始执行用户画像搜索任务",
     parameters: z.object({
       chatId: z.number().describe("用户画像搜索任务 (scoutTask) 的 chatId"),
+      description: z.string().describe('用户画像搜索需求描述，用"帮我寻找"开头'),
     }),
     experimental_toToolResultContent: (result: PlainTextToolResult) => {
       return [{ type: "text", text: result.plainText }];
     },
-    execute: async ({ chatId }) => {
-      return await scoutTaskChatStream(chatId);
+    execute: async ({ chatId, description }) => {
+      const userChat = await prisma.userChat.findFirstOrThrow({
+        where: { id: chatId },
+      });
+      let messages = fixChatMessages(userChat.messages as unknown as Message[]);
+      if (messages.length > 1 && messages[messages.length - 1].role === "user") {
+        messages = messages.slice(0, -1);
+      }
+      messages.push({ id: generateId(), role: "user", content: description });
+      return await scoutTaskChatStream({ chatId, messages });
     },
   });
 
-async function scoutTaskChatStream(chatId: number): Promise<ScoutTaskChatResult> {
-  const userChat = await prisma.userChat.findUniqueOrThrow({
-    where: { id: chatId },
-  });
-
-  // 可能有异常的保存数据，取下来修复一下
-  const initialMessages = fixChatMessages(userChat.messages as unknown as Message[]);
-
+async function scoutTaskChatStream({
+  chatId,
+  messages,
+}: {
+  chatId: number;
+  messages: Message[];
+}): Promise<ScoutTaskChatResult> {
   const saveToolMessages = (
     (chatId: number, initialMessages: Message[]) => async (message: Omit<Message, "role">) => {
       const messages: Message[] = [...initialMessages, { role: "assistant", ...message }];
@@ -79,7 +86,7 @@ async function scoutTaskChatStream(chatId: number): Promise<ScoutTaskChatResult>
         },
       });
     }
-  )(userChat.id, initialMessages);
+  )(chatId, messages);
 
   await new Promise<Omit<Message, "role">>(async (resolve, reject) => {
     const message: Omit<Message, "role"> = {
@@ -92,7 +99,7 @@ async function scoutTaskChatStream(chatId: number): Promise<ScoutTaskChatResult>
       system: scoutSystem({
         doNotStopUntilScouted: true,
       }),
-      messages: fixChatMessages(userChat.messages as unknown as Message[]),
+      messages: fixChatMessages(messages as unknown as Message[]),
       tools: {
         reasoningThinking: tools.reasoningThinking,
         xhsSearch: tools.xhsSearch,
@@ -100,7 +107,7 @@ async function scoutTaskChatStream(chatId: number): Promise<ScoutTaskChatResult>
         xhsNoteComments: tools.xhsNoteComments,
         savePersona: tools.savePersona(chatId),
       },
-      maxSteps: 30,
+      maxSteps: 10,
       onChunk: (chunk) => console.log(`[${chatId}] ScoutTaskChat:`, JSON.stringify(chunk)),
       onFinish: ({ steps }) => {
         const message = streamStepsToUIMessage(steps);
