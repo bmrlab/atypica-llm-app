@@ -20,11 +20,14 @@ const ScoutTaskChat = ({ toolInvocation }: { toolInvocation: ToolInvocation }) =
 
   // 添加定时器效果
   useEffect(() => {
-    const intervalId: NodeJS.Timeout = setInterval(fetchUpdate, 1000);
+    let timeoutId: NodeJS.Timeout;
+    const poll = async () => {
+      await fetchUpdate();
+      timeoutId = setTimeout(poll, 5000);
+    };
+    poll();
     return () => {
-      if (intervalId) {
-        clearInterval(intervalId);
-      }
+      if (timeoutId) clearTimeout(timeoutId);
     };
   }, [fetchUpdate]);
 
