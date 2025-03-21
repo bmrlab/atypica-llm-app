@@ -43,13 +43,6 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
   if (!session?.user) {
     redirect(`/auth/signin?callbackUrl=/analyst/${analystId}/live`);
   }
-  const userAnalyst = await prisma.userAnalyst.findUnique({
-    where: { userId_analystId: { userId: session.user.id, analystId } },
-  });
-  if (!userAnalyst) {
-    // return new Response("Analyst not belong to user", { status: 403 });
-    forbidden();
-  }
 
   const analyst = await prisma.analyst.findUnique({
     where: { id: analystId },
@@ -66,6 +59,15 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
 
   if (analyst.report && !regenerate) {
     redirect(`/analyst/${analystId}/html`);
+  }
+
+  // @AUTHTODO: 读取 Live Report, 如果已经生成，就公开可读，如果还没生成，则需要权限
+  const userAnalyst = await prisma.userAnalyst.findUnique({
+    where: { userId_analystId: { userId: session.user.id, analystId } },
+  });
+  if (!userAnalyst) {
+    // return new Response("Analyst not belong to user", { status: 403 });
+    forbidden();
   }
 
   const result = streamText({
