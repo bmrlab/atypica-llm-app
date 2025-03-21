@@ -26,6 +26,7 @@ export async function updateUserChat(chatId: number, messages: Message[]): Promi
   }
   return withAuth(async () => {
     try {
+      // @AUTHTODO: 现在更新 UserChat 没有判断权限
       const userChat = await prisma.userChat.update({
         where: { id: chatId },
         data: { messages: messages as unknown as InputJsonValue },
@@ -115,6 +116,7 @@ export async function fetchUserChatById<Tkind extends UserChat["kind"]>(
 > {
   return withAuth(async () => {
     try {
+      // @AUTHTODO: 现在读取 UserChat 没有判断权限
       const userChat = await prisma.userChat.findUnique({
         where: { id: userChatId, kind },
       });
