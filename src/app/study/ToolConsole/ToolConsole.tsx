@@ -1,11 +1,9 @@
-import { StudyUserChat } from "@/data";
 import { cn } from "@/lib/utils";
 import { ToolName } from "@/tools";
-import { useChat } from "@ai-sdk/react";
 import { ToolInvocation } from "ai";
 import { LoaderIcon } from "lucide-react";
 import { useMemo } from "react";
-import { useStudyContext } from "../hooks";
+import { useStudyContext } from "../hooks/StudyContext";
 import AnalystReport from "./tools/AnalystReport";
 import InterviewChat from "./tools/InterviewChat";
 import ReasoningThinking from "./tools/ReasoningThinking";
@@ -44,42 +42,12 @@ const FallbackToolDisplay = ({ toolInvocation }: { toolInvocation: ToolInvocatio
   );
 };
 
-export function ToolConsole({ studyChat }: { studyChat: StudyUserChat }) {
-  const { messages } = useChat({
-    // id 和 api 一起设置才能让 useChat 在组件之间共享状态
-    id: `userChat-${studyChat.id}`,
-    api: "/api/chat/study",
-  });
-
-  const { viewToolInvocation } = useStudyContext();
-
-  const lastTool = useMemo(() => {
-    // 从后往前找到最后一个 tool result
-    for (let i = messages.length - 1; i >= 0; i--) {
-      const message = messages[i];
-      if (message.parts) {
-        for (let j = message.parts.length - 1; j >= 0; j--) {
-          const part = message.parts[j];
-          if (part.type === "tool-invocation") {
-            // && part.toolInvocation.state === "result") {
-            // 用 ... 复制一个出来，防止被 messages 内部修改覆盖
-            return { ...part.toolInvocation };
-          }
-        }
-      }
-    }
-    return null;
-  }, [messages]);
+export function ToolConsole() {
+  const { viewToolInvocation, lastToolInvocation } = useStudyContext();
 
   const activeTool = useMemo(() => {
-    if (viewToolInvocation) {
-      return viewToolInvocation;
-    }
-    if (lastTool) {
-      return lastTool;
-    }
-    return null;
-  }, [viewToolInvocation, lastTool]);
+    return viewToolInvocation || lastToolInvocation || null;
+  }, [viewToolInvocation, lastToolInvocation]);
 
   switch (activeTool?.toolName) {
     case ToolName.scoutTaskChat:

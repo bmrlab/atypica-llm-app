@@ -4,8 +4,8 @@ import { createUserChat, StudyUserChat, updateUserChat } from "@/data";
 import { cn, fixChatMessages } from "@/lib/utils";
 import { Message, useChat } from "@ai-sdk/react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { SingleMessage } from "./SingleMessage";
 import { StatusDisplay } from "./StatusDisplay";
-import { StudyChatMessage } from "./StudyChatMessage";
 
 function popLastUserMessage(messages: Message[]) {
   if (messages.length > 0 && messages[messages.length - 1].role === "user") {
@@ -17,18 +17,12 @@ function popLastUserMessage(messages: Message[]) {
   }
 }
 
-export function StudyChatBox({
-  studyChat,
-  readOnly,
-}: {
-  studyChat: StudyUserChat;
-  readOnly: boolean;
-}) {
+export function ChatBox({ studyChat, readOnly }: { studyChat: StudyUserChat; readOnly: boolean }) {
   const [chatId, setChatId] = useState<number>(studyChat.id);
 
   const { messages, setMessages, error, handleSubmit, input, setInput, status, stop, reload } =
     useChat({
-      id: `userChat-${studyChat.id}`,
+      // id: `userChat-${studyChat.id}`,  // 和 ToolConsole 不再使用 messages 通信，使用 context 通信
       maxSteps: 30,
       api: "/api/chat/study",
       body: {
@@ -110,12 +104,12 @@ export function StudyChatBox({
         className="flex-1 flex flex-col pb-24 w-full items-center overflow-y-scroll"
       >
         {messages.map((message) => (
-          <StudyChatMessage
+          <SingleMessage
             key={message.id}
             role={message.role}
             content={message.content}
             parts={message.parts}
-          ></StudyChatMessage>
+          ></SingleMessage>
         ))}
         {error && (
           <div className="flex justify-center items-center text-red-500 text-sm mt-6">

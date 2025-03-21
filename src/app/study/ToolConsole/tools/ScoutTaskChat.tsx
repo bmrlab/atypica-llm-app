@@ -1,7 +1,10 @@
 import { fetchUserChatById } from "@/data";
 import { fixChatMessages } from "@/lib/utils";
+import { ToolName } from "@/tools";
 import { Message, ToolInvocation } from "ai";
 import { useCallback, useEffect, useState } from "react";
+import { useStudyContext } from "../../hooks/StudyContext";
+import { consoleStreamWaitTime, useProgressiveMessages } from "../../hooks/useProgressiveMessages";
 import { StreamSteps } from "./StreamSteps";
 
 const ScoutTaskChat = ({ toolInvocation }: { toolInvocation: ToolInvocation }) => {
@@ -18,8 +21,20 @@ const ScoutTaskChat = ({ toolInvocation }: { toolInvocation: ToolInvocation }) =
     }
   }, [chatId]);
 
+  const { replay } = useStudyContext();
+  const { partialMessages: messagesDisplay } = useProgressiveMessages({
+    messages: messages,
+    enabled: replay,
+    fixedDuration: consoleStreamWaitTime(ToolName.scoutTaskChat),
+  });
+
   // 添加定时器效果
   useEffect(() => {
+    if (replay) {
+      // 如果是 replay 就只取一次
+      fetchUpdate();
+      return;
+    }
     let timeoutId: NodeJS.Timeout;
     const poll = async () => {
       await fetchUpdate();
@@ -29,11 +44,11 @@ const ScoutTaskChat = ({ toolInvocation }: { toolInvocation: ToolInvocation }) =
     return () => {
       if (timeoutId) clearTimeout(timeoutId);
     };
-  }, [fetchUpdate]);
+  }, [fetchUpdate, replay]);
 
   return (
     <div className="space-y-6 w-full">
-      {messages.map((message) => (
+      {messagesDisplay.map((message) => (
         <StreamSteps
           key={`message-${message.id}`}
           role={message.role}

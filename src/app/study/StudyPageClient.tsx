@@ -6,9 +6,10 @@ import { cn } from "@/lib/utils";
 import { ChevronDown, ChevronUp, EyeIcon, EyeOffIcon, HomeIcon } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-import { StudyChatBox } from "./StudyChatBox";
+import { ChatBox } from "./ChatBox";
+import { ChatReplay } from "./ChatReplay";
+import { StudyProvider, useStudyContext } from "./hooks/StudyContext";
 import { ToolConsole } from "./ToolConsole/ToolConsole";
-import { StudyProvider, useStudyContext } from "./hooks";
 
 function Header({ studyChat }: { studyChat: StudyUserChat }) {
   return (
@@ -46,17 +47,19 @@ const FollowButton = () => {
   );
 };
 
-export function StudyChat({
+export function StudyPageClient({
   studyChat,
   readOnly,
+  replay,
 }: {
   studyChat: StudyUserChat;
   readOnly: boolean;
+  replay: boolean;
 }) {
   const [messagesContainerRef, messagesEndRef] = useScrollToBottom<HTMLDivElement>();
   const [consoleOpen, setConsoleOpen] = useState(false);
   return (
-    <StudyProvider>
+    <StudyProvider replay={replay}>
       <div
         className={cn(
           "relative",
@@ -71,7 +74,11 @@ export function StudyChat({
           )}
         >
           <Header studyChat={studyChat} />
-          <StudyChatBox studyChat={studyChat} readOnly={readOnly} />
+          {replay ? (
+            <ChatReplay studyChat={studyChat} />
+          ) : (
+            <ChatBox studyChat={studyChat} readOnly={readOnly} />
+          )}
         </div>
         <div
           className={cn(
@@ -110,7 +117,7 @@ export function StudyChat({
               )}
               ref={messagesContainerRef}
             >
-              <ToolConsole studyChat={studyChat} />
+              <ToolConsole />
               <div ref={messagesEndRef} />
             </div>
           </div>

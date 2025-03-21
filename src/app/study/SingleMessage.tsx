@@ -5,12 +5,17 @@ import { cn } from "@/lib/utils";
 import { Message as MessageType, ToolInvocation } from "ai";
 import { motion } from "framer-motion";
 import { BotIcon, ChevronRight, EyeIcon, LoaderIcon } from "lucide-react";
-import { PropsWithChildren, ReactNode } from "react";
-import { useStudyContext } from "./hooks";
+import { PropsWithChildren, ReactNode, useEffect } from "react";
+import { useStudyContext } from "./hooks/StudyContext";
 
 const ToolInvocationMessage = ({ toolInvocation }: { toolInvocation: ToolInvocation }) => {
   const { toolName, args } = toolInvocation;
-  const { setViewToolInvocation } = useStudyContext();
+  const { setViewToolInvocation, setLastToolInvocation } = useStudyContext();
+
+  useEffect(() => {
+    setLastToolInvocation(toolInvocation);
+  }, [toolInvocation, setLastToolInvocation]);
+
   return (
     <pre className="text-xs whitespace-pre-wrap bg-gray-50 border border-gray-100 rounded-lg p-2 font-mono">
       <Collapsible className="w-full">
@@ -63,7 +68,7 @@ const PlainText = ({ children }: PropsWithChildren) => {
   );
 };
 
-export const StudyChatMessage = (message: {
+export const SingleMessage = (message: {
   nickname?: string;
   role: "assistant" | "user" | "system" | "data";
   content: string | ReactNode;
@@ -83,8 +88,9 @@ export const StudyChatMessage = (message: {
   ) : (
     <motion.div
       className={cn("flex flex-row gap-2 w-full")}
-      initial={{ y: 5, opacity: 0 }}
+      initial={{ y: 15, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
     >
       <>
         <BotIcon size={24} />

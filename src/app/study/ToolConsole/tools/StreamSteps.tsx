@@ -86,8 +86,9 @@ export const StreamSteps = (message: {
   return (
     <motion.div
       className={cn("flex flex-col gap-4 w-full")}
-      initial={{ y: 5, opacity: 0 }}
+      initial={{ y: 15, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
     >
       <div className={cn("flex flex-row gap-2 justify-start items-center flex-shrink-0")}>
         {role === "user" ? (

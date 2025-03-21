@@ -1,8 +1,11 @@
 import { useScrollToBottom } from "@/components/use-scroll-to-bottom";
 import { Analyst, fetchInterviewByAnalystAndPersona, Persona } from "@/data";
 import { fixChatMessages } from "@/lib/utils";
+import { ToolName } from "@/tools";
 import { Message, ToolInvocation } from "ai";
 import { useCallback, useEffect, useState } from "react";
+import { useStudyContext } from "../../hooks/StudyContext";
+import { consoleStreamWaitTime, useProgressiveMessages } from "../../hooks/useProgressiveMessages";
 import { StreamSteps } from "./StreamSteps";
 
 const InterviewChat = ({ toolInvocation }: { toolInvocation: ToolInvocation }) => {
@@ -29,8 +32,20 @@ const InterviewChat = ({ toolInvocation }: { toolInvocation: ToolInvocation }) =
     }
   }, [analystId, personaId]);
 
+  const { replay } = useStudyContext();
+  const { partialMessages: messagesDisplay } = useProgressiveMessages({
+    messages: messages,
+    enabled: replay,
+    fixedDuration: consoleStreamWaitTime(ToolName.interview),
+  });
+
   // 添加定时器效果
   useEffect(() => {
+    if (replay) {
+      // 如果是 replay 就只取一次
+      fetchUpdate();
+      return;
+    }
     let timeoutId: NodeJS.Timeout;
     const poll = async () => {
       await fetchUpdate();
@@ -40,14 +55,14 @@ const InterviewChat = ({ toolInvocation }: { toolInvocation: ToolInvocation }) =
     return () => {
       if (timeoutId) clearTimeout(timeoutId);
     };
-  }, [fetchUpdate]);
+  }, [fetchUpdate, replay]);
 
   const [messagesContainerRef, messagesEndRef] = useScrollToBottom<HTMLDivElement>();
 
   return (
     <div className="flex flex-col gap-2 items-stretch justify-start w-full h-full overflow-hidden">
       <div ref={messagesContainerRef} className="flex-1 space-y-6 w-full overflow-y-scroll">
-        {messages.map((message) => (
+        {messagesDisplay.map((message) => (
           <StreamSteps
             key={`message-${message.id}`}
             nickname={message.role === "assistant" ? persona?.name : analyst?.role}
@@ -56,7 +71,7 @@ const InterviewChat = ({ toolInvocation }: { toolInvocation: ToolInvocation }) =
             parts={message.parts}
           ></StreamSteps>
         ))}
-        {interviewToken && messages.length === 0 ? (
+        {interviewToken && messagesDisplay.length === 0 ? (
           <StreamSteps
             key="message-start"
             nickname="系统"
@@ -64,7 +79,9 @@ const InterviewChat = ({ toolInvocation }: { toolInvocation: ToolInvocation }) =
             content="访谈启动中 .."
           ></StreamSteps>
         ) : null}
-        {!interviewToken && conclusion ? (
+        {!interviewToken &&
+        conclusion &&
+        (!replay || messagesDisplay.length === messages.length) ? (
           <StreamSteps
             key="message-conclusion"
             nickname="调研结论"
