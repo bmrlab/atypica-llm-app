@@ -1,5 +1,4 @@
 import { AuthProvider } from "@/components/AuthProvider";
-import Navigation from "@/components/Navigation";
 import { Toaster } from "@/components/ui/sonner";
 import UserMenu from "@/components/UserMenu";
 import { GoogleAnalytics } from "@next/third-parties/google";
@@ -64,12 +63,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased px-3 sm:px-24`}>
-        <AuthProvider>
-          <Navigation />
-          <UserMenu />
-          {children}
-        </AuthProvider>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <AuthProvider>{children}</AuthProvider>
         <Toaster />
       </body>
       {process.env.NODE_ENV === "production" && <GoogleAnalytics gaId="G-EJTF0VJKQP" />}

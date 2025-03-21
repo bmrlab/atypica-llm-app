@@ -12,7 +12,7 @@ import { fixChatMessages } from "@/lib/utils";
 import { HistoryIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 
-export function HistoryDrawer({ onSelectChat }: { onSelectChat: (chat: UserChat) => void }) {
+export function StudyHistoryDrawer() {
   const [chats, setChats] = useState<UserChat[]>([]);
   const [open, setOpen] = useState(false);
 
@@ -32,16 +32,16 @@ export function HistoryDrawer({ onSelectChat }: { onSelectChat: (chat: UserChat)
     return () => clearInterval(interval);
   }, []);
 
-  const handleSelectChat = (chat: UserChat) => {
-    onSelectChat(chat);
+  const handleSelectChat = (userChat: UserChat) => {
+    window.location.replace(`/study?id=${userChat.id}`);
     setOpen(false); // Close drawer when a chat is selected
   };
 
   return (
     <Drawer direction="left" open={open} onOpenChange={setOpen} modal={true}>
       <DrawerTrigger asChild>
-        <Button variant="ghost" size="icon">
-          <HistoryIcon className="h-5 w-5" />
+        <Button variant="ghost" className="size-8">
+          <HistoryIcon className="size-4" />
         </Button>
       </DrawerTrigger>
       <DrawerContent className="w-[280px] mr-0 ml-auto">

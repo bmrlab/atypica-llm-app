@@ -10,7 +10,7 @@ import {
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 
-function LoginOrLogout() {
+export default function UserMenu() {
   const { data: session } = useSession();
 
   if (!session) {
@@ -21,6 +21,7 @@ function LoginOrLogout() {
     );
   }
 
+  const userEmail = session.user?.email || "";
   const userInitial = session.user?.email?.charAt(0) || "?";
 
   return (
@@ -32,16 +33,9 @@ function LoginOrLogout() {
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
+        <DropdownMenuItem>{userEmail}</DropdownMenuItem>
         <DropdownMenuItem onClick={() => signOut({ callbackUrl: "/" })}>退出登录</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
-  );
-}
-
-export default function UserMenu() {
-  return (
-    <div className="fixed right-0 top-0 sm:mx-2 2xl:mx-6 mt-2 2xl:mt-6 hidden sm:block">
-      <LoginOrLogout />
-    </div>
   );
 }

@@ -26,13 +26,6 @@ function Header({ studyChat }: { studyChat: StudyUserChat }) {
       <h1 className="sm:text-lg font-medium px-18 text-center truncate">
         {studyChat?.title || "研究"}
       </h1>
-      {/* <div className="absolute right-0 top-1/2 -translate-y-1/2">
-        <HistoryDrawer
-          onSelectChat={(studyChat) => {
-            window.location.replace(`/study?id=${studyChat.id}`);
-          }}
-        />
-      </div> */}
     </div>
   );
 }
@@ -68,7 +61,7 @@ export function StudyChat({
         className={cn(
           "relative",
           "flex flex-rows items-stretch justify-between w-full h-dvh overflow-hidden",
-          "p-6 max-lg:px-0",
+          "p-6 max-lg:p-3",
         )}
       >
         <div
