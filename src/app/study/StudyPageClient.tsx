@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useScrollToBottom } from "@/components/use-scroll-to-bottom";
 import { StudyUserChat } from "@/data";
 import { cn } from "@/lib/utils";
-import { ChevronDown, ChevronUp, EyeIcon, EyeOffIcon, HomeIcon } from "lucide-react";
+import { ChevronDown, ChevronUp, EyeIcon, EyeOffIcon, HomeIcon, RotateCcwIcon } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { ChatBox } from "./ChatBox";
@@ -15,9 +15,6 @@ function Header({ studyChat }: { studyChat: StudyUserChat }) {
   return (
     <div className="relative w-full">
       <div className="absolute left-0 top-1/2 -translate-y-1/2">
-        {/* <Button variant="ghost" size="sm" onClick={() => router.back()}>
-          ← 返回
-        </Button> */}
         <Button asChild variant="ghost" size="sm">
           <Link href="/">
             <HomeIcon size={16} /> 首页
@@ -25,8 +22,15 @@ function Header({ studyChat }: { studyChat: StudyUserChat }) {
         </Button>
       </div>
       <h1 className="sm:text-lg font-medium px-18 text-center truncate">
-        {studyChat?.title || "研究"}
+        {studyChat.title || "研究"}
       </h1>
+      <div className="absolute right-0 top-1/2 -translate-y-1/2">
+        <Button asChild variant="ghost" size="sm">
+          <Link href={`study?id=${studyChat.id}&replay=1`} target="_blank">
+            <RotateCcwIcon size={16} /> Replay
+          </Link>
+        </Button>
+      </div>
     </div>
   );
 }

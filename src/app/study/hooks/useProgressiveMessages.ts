@@ -4,8 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 
 export const consoleStreamWaitTime = (name?: ToolName) => {
   const vals = {
-    [ToolName.interview]: 10 * 1000,
-    [ToolName.scoutTaskChat]: 10 * 1000,
+    [ToolName.interview]: 15 * 1000,
+    [ToolName.scoutTaskChat]: 30 * 1000,
   } as Record<ToolName, number>;
   return name && vals[name] ? vals[name] : 1000;
 };
@@ -73,11 +73,12 @@ export function useProgressiveMessages({
       (!parts && partIndex >= 1) || // 没有 part 的统一算 1 个
       (parts && partIndex >= parts.length)
     ) {
-      const waitTime = fixedWaitTime ?? 1000;
-      timer = setTimeout(() => {
-        setMessageIndex((prev) => prev + 1);
-        setPartIndex(0);
-      }, waitTime);
+      setMessageIndex((prev) => prev + 1);
+      setPartIndex(0);
+      // message forward 不需要等，只等 step
+      // const waitTime = fixedWaitTime ?? 1000;
+      // timer = setTimeout(() => {
+      // }, waitTime);
     } else {
       let waitTime = 100;
       if (fixedWaitTime) {
