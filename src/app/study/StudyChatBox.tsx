@@ -17,7 +17,13 @@ function popLastUserMessage(messages: Message[]) {
   }
 }
 
-export function StudyChatBox({ studyChat }: { studyChat: StudyUserChat }) {
+export function StudyChatBox({
+  studyChat,
+  readOnly,
+}: {
+  studyChat: StudyUserChat;
+  readOnly: boolean;
+}) {
   const [chatId, setChatId] = useState<number>(studyChat.id);
 
   const { messages, setMessages, error, handleSubmit, input, setInput, status, stop, reload } =
@@ -95,7 +101,7 @@ export function StudyChatBox({ studyChat }: { studyChat: StudyUserChat }) {
 
   // const inputRef = useRef<HTMLTextAreaElement>(null);
   const [messagesContainerRef, messagesEndRef] = useScrollToBottom<HTMLDivElement>();
-  const inputDisabled = status === "streaming" || status === "submitted";
+  const inputDisabled = readOnly || status === "streaming" || status === "submitted";
 
   return (
     <>

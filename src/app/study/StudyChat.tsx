@@ -52,14 +52,20 @@ const FollowButton = () => {
   );
 };
 
-export function StudyChat({ studyChat }: { studyChat: StudyUserChat }) {
+export function StudyChat({
+  studyChat,
+  readOnly,
+}: {
+  studyChat: StudyUserChat;
+  readOnly: boolean;
+}) {
   const [messagesContainerRef, messagesEndRef] = useScrollToBottom<HTMLDivElement>();
   return (
     <StudyProvider>
       <div className="flex flex-rows items-stretch justify-between w-full h-dvh p-6 overflow-hidden">
         <div className="w-1/2 flex flex-col items-stretch justify-between gap-4">
           <Header studyChat={studyChat} />
-          <StudyChatBox studyChat={studyChat} />
+          <StudyChatBox studyChat={studyChat} readOnly={readOnly} />
         </div>
         <div className="w-1/2 flex flex-col items-stretch justify-between gap-4">
           <div
