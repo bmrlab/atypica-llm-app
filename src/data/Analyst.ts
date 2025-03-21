@@ -1,7 +1,7 @@
 "use server";
 import { prisma } from "@/lib/prisma";
 import { Analyst as AnalystPrisma } from "@prisma/client";
-import { forbidden, notFound } from "next/navigation";
+import { notFound } from "next/navigation";
 import withAuth from "./withAuth";
 
 export type Analyst = AnalystPrisma;
@@ -27,12 +27,13 @@ export async function fetchAnalysts() {
 }
 
 export async function fetchAnalystById(analystId: number): Promise<Analyst> {
-  return withAuth(async (user) => {
+  return withAuth(async () => {
     try {
-      const userAnalyst = await prisma.userAnalyst.findUnique({
-        where: { userId_analystId: { userId: user.id, analystId } },
-      });
-      if (!userAnalyst) forbidden();
+      // @AUTHTODO: 读取 Analyst 暂时不需要 user 有 Analyst 权限
+      // const userAnalyst = await prisma.userAnalyst.findUnique({
+      //   where: { userId_analystId: { userId: user.id, analystId } },
+      // });
+      // if (!userAnalyst) forbidden();
       const analyst = await prisma.analyst.findUnique({
         where: { id: analystId },
       });
@@ -55,6 +56,7 @@ export async function createAnalyst({
         // Empty report for new analysts
         data: { role, topic, report: "", studySummary: "" },
       });
+      // @AUTHTODO: 创建 Analyst 依然需要 user 有 Analyst 权限
       await prisma.userAnalyst.create({
         data: {
           userId: user.id,
@@ -73,12 +75,13 @@ export async function updateAnalyst(
   analystId: number,
   { role, topic, report }: Partial<Pick<Analyst, "role" | "topic" | "report">>,
 ): Promise<Analyst> {
-  return withAuth(async (user) => {
+  return withAuth(async () => {
     try {
-      const userAnalyst = await prisma.userAnalyst.findUnique({
-        where: { userId_analystId: { userId: user.id, analystId } },
-      });
-      if (!userAnalyst) forbidden();
+      // @AUTHTODO: 读取 Analyst 暂时不需要 user 有 Analyst 权限
+      // const userAnalyst = await prisma.userAnalyst.findUnique({
+      //   where: { userId_analystId: { userId: user.id, analystId } },
+      // });
+      // if (!userAnalyst) forbidden();
       const data: Partial<Pick<Analyst, "role" | "topic" | "report">> = {};
       if (typeof role !== "undefined") data.role = role;
       if (typeof topic !== "undefined") data.topic = topic;
