@@ -1,13 +1,13 @@
 "use client";
-import { signOut, useSession } from "next-auth/react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
+import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 
 function LoginOrLogout() {
@@ -32,9 +32,7 @@ function LoginOrLogout() {
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => signOut({ callbackUrl: "/" })}>
-          退出登录
-        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => signOut({ callbackUrl: "/" })}>退出登录</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
@@ -42,7 +40,7 @@ function LoginOrLogout() {
 
 export default function UserMenu() {
   return (
-    <div className="fixed right-0 top-0 h-screen sm:mx-2 2xl:mx-6 mt-2 2xl:mt-6 hidden sm:block">
+    <div className="fixed right-0 top-0 sm:mx-2 2xl:mx-6 mt-2 2xl:mt-6 hidden sm:block">
       <LoginOrLogout />
     </div>
   );
