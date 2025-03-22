@@ -1,16 +1,15 @@
 "use client";
-import { ActionConfirmDialog } from "@/components/ActionConfirmDialog";
 import { Button } from "@/components/ui/button";
 import { useScrollToBottom } from "@/components/use-scroll-to-bottom";
-import { setUserChatToken, StudyUserChat } from "@/data";
+import { StudyUserChat } from "@/data";
 import { cn } from "@/lib/utils";
-import { ChevronDown, ChevronUp, EyeIcon, EyeOffIcon, HomeIcon, RotateCcwIcon } from "lucide-react";
+import { ChevronDown, ChevronUp, EyeIcon, EyeOffIcon, HomeIcon } from "lucide-react";
 import Link from "next/link";
-import { useCallback, useState } from "react";
-import { toast } from "sonner";
+import { useState } from "react";
 import { ChatBox } from "./ChatBox";
 import { ChatReplay } from "./ChatReplay";
 import { StudyProvider, useStudyContext } from "./hooks/StudyContext";
+import { ShareReplayButton } from "./ShareReplayButton";
 import { ToolConsole } from "./ToolConsole/ToolConsole";
 
 function Header({ studyChat }: { studyChat: StudyUserChat }) {
@@ -24,7 +23,7 @@ function Header({ studyChat }: { studyChat: StudyUserChat }) {
           </Link>
         </Button>
       </div>
-      <h1 className="sm:text-lg font-medium px-18 text-center truncate">
+      <h1 className="sm:text-lg font-medium px-24 text-center truncate">
         {studyChat.title || "研究"}
       </h1>
       {!replay ? (
@@ -51,36 +50,6 @@ const FollowButton = () => {
     </Button>
   );
 };
-
-function ShareReplayButton({ studyChat }: { studyChat: StudyUserChat }) {
-  const [isLoading, setIsLoading] = useState(false);
-  const handleShareReplay = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const chatWithToken = await setUserChatToken(studyChat.id, "study");
-      if (chatWithToken.token) {
-        const shareUrl = `${window.location.origin}/study/${chatWithToken.token}/share?replay=1`;
-        window.open(shareUrl, "_blank");
-      }
-    } catch (error) {
-      console.error("Failed to create share link:", error);
-      toast.error("创建分享链接失败，请稍后再试");
-    } finally {
-      setIsLoading(false);
-    }
-  }, [studyChat]);
-  return (
-    <ActionConfirmDialog
-      title="生成回放链接"
-      description="将生成分享链接，其他人可以通过该链接直接访问这个会话的回放。要继续吗？"
-      onConfirm={() => handleShareReplay()}
-    >
-      <Button variant="ghost" size="sm" disabled={isLoading}>
-        <RotateCcwIcon size={16} /> {isLoading ? "生成中..." : "分享回放"}
-      </Button>
-    </ActionConfirmDialog>
-  );
-}
 
 export function StudyPageClient({
   studyChat,
