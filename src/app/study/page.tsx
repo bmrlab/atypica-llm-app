@@ -2,7 +2,22 @@ import { fetchUserChatById } from "@/data";
 import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth/next";
 import { redirect } from "next/navigation";
+import { Metadata } from "next/types";
 import { StudyPageClient } from "./StudyPageClient";
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ id?: string; replay?: string }>;
+}): Promise<Metadata> {
+  const id = (await searchParams).id;
+  if (!id) {
+    return {};
+  }
+  const chatId = parseInt(id);
+  const userChat = await fetchUserChatById(chatId, "study");
+  return userChat.title ? { title: userChat.title } : {};
+}
 
 export const dynamic = "force-dynamic";
 
