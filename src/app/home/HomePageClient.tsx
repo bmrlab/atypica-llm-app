@@ -6,8 +6,8 @@ export default function HomePageClient({ anonymous }: { anonymous: boolean }) {
   return (
     <div className="min-h-screen max-w-6xl mx-auto py-12 sm:py-24 space-y-12 sm:space-y-24">
       <div className="text-center space-y-6">
-        <h1 className="text-4xl sm:text-6xl font-normal leading-tight tracking-wide bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent animate-in fade-in slide-in-from-bottom-4 duration-1000">
-          Atypica LLM
+        <h1 className="text-4xl sm:text-6xl font-mono font-light leading-tight tracking-wide bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent animate-in fade-in slide-in-from-bottom-4 duration-1000">
+          atypica.LLM
         </h1>
         <p className="text-base sm:text-2xl font-light text-muted-foreground max-w-3xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom-6 duration-1000">
           为「主观世界」建模

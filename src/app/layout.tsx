@@ -26,22 +26,22 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: {
-    default: "Atypica LLM - 为「主观世界」建模",
-    template: "%s | Atypica LLM",
+    default: "atypica.LLM - 为「主观世界」建模",
+    template: "%s | atypica.LLM",
   },
   description: "",
   keywords: [],
   authors: [{ name: "Tezign" }],
   category: "technology",
   openGraph: {
-    title: "Atypica LLM - 为「主观世界」建模",
+    title: "atypica.LLM - 为「主观世界」建模",
     description: "",
     type: "website",
     locale: "zh_CN",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Atypica LLM - 为「主观世界」建模",
+    title: "atypica.LLM - 为「主观世界」建模",
     description: "",
   },
   robots: {

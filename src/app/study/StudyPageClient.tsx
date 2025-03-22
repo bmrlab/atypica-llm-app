@@ -106,7 +106,7 @@ export function StudyPageClient({
             </div>
             <div className="w-full flex flex-row items-center justify-start gap-4">
               <div className="ml-1 text-lg font-medium font-mono leading-tight">
-                Atypica LLM Console
+                atypica.LLM Console
               </div>
               <div className="ml-auto"></div>
               <FollowButton />

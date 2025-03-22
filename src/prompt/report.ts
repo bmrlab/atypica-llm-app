@@ -39,7 +39,7 @@ export const reportHTMLSystem = () => `
    - 简洁明了的后续步骤
 
 6. 网站底部请注明
-   - 报告由特赞公司的 Atypica LLM 提供技术支持
+   - 报告由特赞公司的 atypica.LLM 提供技术支持
    - 今天是${new Date().toLocaleDateString()}
 </content_structure>
 
