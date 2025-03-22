@@ -1,0 +1,20 @@
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- 黑色背景 -->
+  <rect width="200" height="200" fill="#000000"/>
+
+  <!-- 更现代的字母"a"设计 -->
+  <path d="M40 140V80C40 55 60 35 85 35C110 35 130 55 130 80V140" stroke="white" stroke-width="15" stroke-linecap="round"/>
+
+  <!-- 中线 -->
+  <path d="M40 95H130" stroke="white" stroke-width="15" stroke-linecap="round"/>
+
+  <!-- 大脑神经网络风格的点和连线，代表AI和LLM -->
+  <circle cx="155" cy="60" r="8" fill="white"/>
+  <circle cx="170" cy="100" r="8" fill="white"/>
+  <circle cx="155" cy="140" r="8" fill="white"/>
+
+  <!-- 连接线 -->
+  <path d="M130 80L155 60" stroke="white" stroke-width="4" stroke-linecap="round"/>
+  <path d="M130 95L170 100" stroke="white" stroke-width="4" stroke-linecap="round"/>
+  <path d="M130 140L155 140" stroke="white" stroke-width="4" stroke-linecap="round"/>
+</svg>
