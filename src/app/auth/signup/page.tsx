@@ -1,9 +1,9 @@
 "use client";
-import { useState } from "react";
-import { signIn } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { signIn } from "next-auth/react";
 import Link from "next/link";
+import { useState } from "react";
 
 export default function SignUpPage() {
   const [email, setEmail] = useState("");
@@ -54,15 +54,11 @@ export default function SignUpPage() {
           <p className="text-gray-500">创建您的账户</p>
         </div>
         <form onSubmit={onSubmit} className="space-y-4">
-          {error && (
-            <div className="rounded-lg bg-red-50 p-4 text-sm text-red-500">
-              {error}
-            </div>
-          )}
+          {error && <div className="rounded-lg bg-red-50 p-4 text-sm text-red-500">{error}</div>}
           <div className="space-y-2">
             <Input
               id="email"
-              placeholder="您的邮箱地址"
+              placeholder="您的 @tezign.com 邮箱地址"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}

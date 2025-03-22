@@ -18,7 +18,7 @@ export default async function StudyPage({
   const chatId = parseInt(id);
 
   const session = await getServerSession(authOptions);
-  if (!session?.user) {
+  if (!session?.user && replay !== "1") {
     redirect("/auth/signin?callbackUrl=/study");
   }
 
@@ -31,7 +31,7 @@ export default async function StudyPage({
   return (
     <StudyPageClient
       studyChat={userChat}
-      readOnly={userChat.userId !== session.user.id}
+      readOnly={replay === "1" || userChat.userId !== session?.user?.id}
       replay={replay === "1"}
     />
   );

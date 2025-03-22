@@ -24,11 +24,13 @@ export async function updateUserChat(chatId: number, messages: Message[]): Promi
     // AI 回复了再保存
     throw new Error("No messages provided");
   }
-  return withAuth(async () => {
+  return withAuth(async (user) => {
     try {
-      // @AUTHTODO: 现在更新 UserChat 没有判断权限
       const userChat = await prisma.userChat.update({
-        where: { id: chatId },
+        where: {
+          id: chatId,
+          userId: user.id,
+        },
         data: { messages: messages as unknown as InputJsonValue },
       });
       return {
@@ -37,7 +39,7 @@ export async function updateUserChat(chatId: number, messages: Message[]): Promi
         messages: userChat.messages as unknown as Message[],
       };
     } catch (error) {
-      console.log("Error creating user scout chat:", error);
+      console.log("Error updating user scout chat:", error);
       throw error;
     }
   });
@@ -114,21 +116,21 @@ export async function fetchUserChatById<Tkind extends UserChat["kind"]>(
     kind: Tkind;
   }
 > {
-  return withAuth(async () => {
-    try {
-      // @AUTHTODO: 现在读取 UserChat 没有判断权限
-      const userChat = await prisma.userChat.findUnique({
-        where: { id: userChatId, kind },
-      });
-      if (!userChat) notFound();
-      return {
-        ...userChat,
-        kind: userChat.kind as Tkind,
-        messages: userChat.messages as unknown as Message[],
-      };
-    } catch (error) {
-      console.log("Error fetching user scout chat:", error);
-      throw error;
-    }
-  });
+  // @AUTHTODO: 现在读取 UserChat 没有判断权限
+  // return withAuth(async () => {
+  try {
+    const userChat = await prisma.userChat.findUnique({
+      where: { id: userChatId, kind },
+    });
+    if (!userChat) notFound();
+    return {
+      ...userChat,
+      kind: userChat.kind as Tkind,
+      messages: userChat.messages as unknown as Message[],
+    };
+  } catch (error) {
+    console.log("Error fetching user scout chat:", error);
+    throw error;
+  }
+  // });
 }

@@ -5,6 +5,12 @@ import { NextResponse } from "next/server";
 export async function POST(req: Request) {
   try {
     const { email, password } = await req.json();
+    
+    // Validate that the email domain is tezign.com
+    if (!email.endsWith('@tezign.com')) {
+      return NextResponse.json({ error: "Only tezign.com email addresses are allowed to register" }, { status: 403 });
+    }
+    
     const exists = await prisma.user.findUnique({
       where: { email },
     });

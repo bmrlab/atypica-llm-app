@@ -58,39 +58,39 @@ export async function fetchInterviewByAnalystAndPersona({
     analyst: Analyst;
   }
 > {
-  return withAuth(async () => {
-    try {
-      const interview = await prisma.analystInterview.findUniqueOrThrow({
-        where: {
-          analystId_personaId: { analystId, personaId },
-        },
-        include: {
-          persona: true,
-          analyst: true,
-        },
-      });
-      if (!interview) notFound();
-      // @AUTHTODO: 读取 AnalystInterview 暂时不需要 user 有 Analyst 权限
-      // const userAnalyst = await prisma.userAnalyst.findUnique({
-      //   where: {
-      //     userId_analystId: { userId: user.id, analystId: interview.analystId },
-      //   },
-      // });
-      // if (!userAnalyst) forbidden();
-      const { messages } = interview;
-      return {
-        ...interview,
-        persona: {
-          ...interview.persona,
-          tags: interview.persona.tags as string[],
-        },
-        messages: messages as unknown as Message[],
-      };
-    } catch (error) {
-      console.log("Error fetching analyst interview", error);
-      throw error;
-    }
-  });
+  // @AUTHTODO: 读取 AnalystInterview 暂时不需要 user 有 Analyst 权限
+  // return withAuth(async () => {
+  try {
+    const interview = await prisma.analystInterview.findUniqueOrThrow({
+      where: {
+        analystId_personaId: { analystId, personaId },
+      },
+      include: {
+        persona: true,
+        analyst: true,
+      },
+    });
+    if (!interview) notFound();
+    // const userAnalyst = await prisma.userAnalyst.findUnique({
+    //   where: {
+    //     userId_analystId: { userId: user.id, analystId: interview.analystId },
+    //   },
+    // });
+    // if (!userAnalyst) forbidden();
+    const { messages } = interview;
+    return {
+      ...interview,
+      persona: {
+        ...interview.persona,
+        tags: interview.persona.tags as string[],
+      },
+      messages: messages as unknown as Message[],
+    };
+  } catch (error) {
+    console.log("Error fetching analyst interview", error);
+    throw error;
+  }
+  // });
 }
 
 export async function fetchAnalystInterviewById(interviewId: number): Promise<AnalystInterview> {

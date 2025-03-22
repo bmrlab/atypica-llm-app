@@ -27,23 +27,23 @@ export async function fetchAnalysts() {
 }
 
 export async function fetchAnalystById(analystId: number): Promise<Analyst> {
-  return withAuth(async () => {
-    try {
-      // @AUTHTODO: 读取 Analyst 暂时不需要 user 有 Analyst 权限
-      // const userAnalyst = await prisma.userAnalyst.findUnique({
-      //   where: { userId_analystId: { userId: user.id, analystId } },
-      // });
-      // if (!userAnalyst) forbidden();
-      const analyst = await prisma.analyst.findUnique({
-        where: { id: analystId },
-      });
-      if (!analyst) notFound();
-      return { ...analyst };
-    } catch (error) {
-      console.log("Error fetching analyst:", error);
-      throw error;
-    }
-  });
+  // @AUTHTODO: 读取 Analyst 暂时不需要 user 有 Analyst 权限
+  // return withAuth(async () => {
+  try {
+    // const userAnalyst = await prisma.userAnalyst.findUnique({
+    //   where: { userId_analystId: { userId: user.id, analystId } },
+    // });
+    // if (!userAnalyst) forbidden();
+    const analyst = await prisma.analyst.findUnique({
+      where: { id: analystId },
+    });
+    if (!analyst) notFound();
+    return { ...analyst };
+  } catch (error) {
+    console.log("Error fetching analyst:", error);
+    throw error;
+  }
+  // });
 }
 
 export async function createAnalyst({
@@ -75,25 +75,25 @@ export async function updateAnalyst(
   analystId: number,
   { role, topic, report }: Partial<Pick<Analyst, "role" | "topic" | "report">>,
 ): Promise<Analyst> {
-  return withAuth(async () => {
-    try {
-      // @AUTHTODO: 读取 Analyst 暂时不需要 user 有 Analyst 权限
-      // const userAnalyst = await prisma.userAnalyst.findUnique({
-      //   where: { userId_analystId: { userId: user.id, analystId } },
-      // });
-      // if (!userAnalyst) forbidden();
-      const data: Partial<Pick<Analyst, "role" | "topic" | "report">> = {};
-      if (typeof role !== "undefined") data.role = role;
-      if (typeof topic !== "undefined") data.topic = topic;
-      if (typeof report !== "undefined") data.report = report;
-      const analyst = await prisma.analyst.update({
-        where: { id: analystId },
-        data,
-      });
-      return analyst;
-    } catch (error) {
-      console.log("Error updating analyst:", error);
-      throw error;
-    }
-  });
+  // @AUTHTODO: 读取 Analyst 暂时不需要 user 有 Analyst 权限
+  // return withAuth(async () => {
+  try {
+    // const userAnalyst = await prisma.userAnalyst.findUnique({
+    //   where: { userId_analystId: { userId: user.id, analystId } },
+    // });
+    // if (!userAnalyst) forbidden();
+    const data: Partial<Pick<Analyst, "role" | "topic" | "report">> = {};
+    if (typeof role !== "undefined") data.role = role;
+    if (typeof topic !== "undefined") data.topic = topic;
+    if (typeof report !== "undefined") data.report = report;
+    const analyst = await prisma.analyst.update({
+      where: { id: analystId },
+      data,
+    });
+    return analyst;
+  } catch (error) {
+    console.log("Error updating analyst:", error);
+    throw error;
+  }
+  // });
 }

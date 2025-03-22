@@ -39,11 +39,6 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
   const regenerate = searchParams.regenerate == "1" ? true : false;
   const analystId = parseInt((await params).id);
 
-  const session = await getServerSession(authOptions);
-  if (!session?.user) {
-    redirect(`/auth/signin?callbackUrl=/analyst/${analystId}/live`);
-  }
-
   const analyst = await prisma.analyst.findUnique({
     where: { id: analystId },
     include: {
@@ -59,6 +54,12 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
 
   if (analyst.report && !regenerate) {
     redirect(`/analyst/${analystId}/html`);
+  }
+
+  // 只有没生成过报告的，才判断权限
+  const session = await getServerSession(authOptions);
+  if (!session?.user) {
+    redirect(`/auth/signin?callbackUrl=/analyst/${analystId}/live`);
   }
 
   // @AUTHTODO: 读取 Live Report, 如果已经生成，就公开可读，如果还没生成，则需要权限
