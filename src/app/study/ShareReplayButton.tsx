@@ -64,12 +64,12 @@ export function ShareReplayButton({ studyChat }: { studyChat: StudyUserChat }) {
           "将生成回放分享链接，其他人可以通过该链接直接访问这个会话的回放。要继续吗？"}
         {isLoading && "正在生成回放分享链接，请稍候..."}
         {shareUrl && (
-          <div className="mt-3 space-y-3">
+          <div className="mt-3 space-y-3 overflow-hidden">
             <p className="text-sm text-muted-foreground mb-2">
               回放分享链接已生成，其他人可以通过此链接访问会话回放：
             </p>
             <div className="flex items-center gap-2 mt-1">
-              <div className="bg-muted p-2 rounded-md text-xs overflow-hidden text-ellipsis flex-1">
+              <div className="bg-muted p-2 rounded-md text-xs flex-1 overflow-hidden break-words">
                 {shareUrl}
               </div>
               <Button size="sm" variant="outline" onClick={handleCopyUrl} className="shrink-0">
