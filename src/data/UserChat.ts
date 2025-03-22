@@ -1,5 +1,6 @@
 "use server";
 import { prisma } from "@/lib/prisma";
+import { generateToken } from "@/lib/utils";
 import { UserChat as UserChatPrisma } from "@prisma/client";
 import { InputJsonValue } from "@prisma/client/runtime/library";
 import { generateId, Message } from "ai";
@@ -133,4 +134,58 @@ export async function fetchUserChatById<Tkind extends UserChat["kind"]>(
     throw error;
   }
   // });
+}
+
+export async function fetchUserChatByToken<Tkind extends UserChat["kind"]>(
+  token: string,
+  kind: Tkind,
+): Promise<
+  Omit<UserChat, "kind"> & {
+    kind: Tkind;
+  }
+> {
+  try {
+    const userChat = await prisma.userChat.findUnique({
+      where: { token, kind },
+    });
+    if (!userChat) notFound();
+    return {
+      ...userChat,
+      kind: userChat.kind as Tkind,
+      messages: userChat.messages as unknown as Message[],
+    };
+  } catch (error) {
+    console.log("Error fetching user scout chat:", error);
+    throw error;
+  }
+}
+
+export async function setUserChatToken<Tkind extends UserChat["kind"]>(
+  userChatId: number,
+  kind: Tkind,
+): Promise<
+  Omit<UserChat, "kind"> & {
+    kind: Tkind;
+  }
+> {
+  return withAuth(async () => {
+    try {
+      await prisma.userChat.updateMany({
+        where: { id: userChatId, token: null, kind },
+        data: { token: generateToken() },
+      });
+      const userChat = await prisma.userChat.findUnique({
+        where: { id: userChatId, kind },
+      });
+      if (!userChat) notFound();
+      return {
+        ...userChat,
+        kind: userChat.kind as Tkind,
+        messages: userChat.messages as unknown as Message[],
+      };
+    } catch (error) {
+      console.log("Error setting user chat token:", error);
+      throw error;
+    }
+  });
 }

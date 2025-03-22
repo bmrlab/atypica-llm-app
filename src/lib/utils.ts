@@ -113,3 +113,11 @@ export function appendStreamStepToUIMessage<T extends ToolSet>(
   message.content = contents.join("\n");
   message.parts = parts;
 }
+
+export const generateToken = (length = 16) =>
+  Array(length)
+    .fill(0)
+    .map(
+      () => "abcdefghijkmnpqrstuvwxyzACDEFGHJKLMNPQRTUVWXY346792"[Math.floor(Math.random() * 51)],
+    )
+    .join("");

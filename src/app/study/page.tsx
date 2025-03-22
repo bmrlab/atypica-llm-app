@@ -1,7 +1,7 @@
 import { fetchUserChatById } from "@/data";
 import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth/next";
-import { redirect } from "next/navigation";
+import { forbidden, notFound, redirect } from "next/navigation";
 import { Metadata } from "next/types";
 import { StudyPageClient } from "./StudyPageClient";
 
@@ -31,23 +31,22 @@ export default async function StudyPage({
     redirect("/");
   }
   const chatId = parseInt(id);
-
-  const session = await getServerSession(authOptions);
-  if (!session?.user && replay !== "1") {
-    redirect("/auth/signin?callbackUrl=/study");
+  const userChat = await fetchUserChatById(chatId, "study");
+  if (replay === "1") {
+    if (userChat.token) {
+      redirect(`/study/${userChat.token}/share?replay=1`);
+    } else {
+      notFound();
+    }
   }
 
-  const userChat = await fetchUserChatById(chatId, "study");
-  // @AUTHTODO: 读取 Analyst 暂时不需要 user 有 Analyst 权限，不过前端要限制只读
-  // if (userChat.userId !== session.user.id) {
-  //   forbidden();
-  // }
+  const session = await getServerSession(authOptions);
+  if (!session?.user) {
+    redirect("/auth/signin?callbackUrl=/study");
+  }
+  if (userChat.userId !== session.user.id) {
+    forbidden();
+  }
 
-  return (
-    <StudyPageClient
-      studyChat={userChat}
-      readOnly={replay === "1" || userChat.userId !== session?.user?.id}
-      replay={replay === "1"}
-    />
-  );
+  return <StudyPageClient studyChat={userChat} readOnly={false} replay={false} />;
 }
