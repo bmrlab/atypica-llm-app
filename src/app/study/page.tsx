@@ -1,14 +1,14 @@
 import { fetchUserChatById } from "@/data";
 import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth/next";
-import { forbidden, notFound, redirect } from "next/navigation";
+import { forbidden, redirect } from "next/navigation";
 import { Metadata } from "next/types";
 import { StudyPageClient } from "./StudyPageClient";
 
 export async function generateMetadata({
   searchParams,
 }: {
-  searchParams: Promise<{ id?: string; replay?: string }>;
+  searchParams: Promise<{ id?: string }>;
 }): Promise<Metadata> {
   const id = (await searchParams).id;
   if (!id) {
@@ -24,21 +24,14 @@ export const dynamic = "force-dynamic";
 export default async function StudyPage({
   searchParams,
 }: {
-  searchParams: Promise<{ id?: string; replay?: string }>;
+  searchParams: Promise<{ id?: string }>;
 }) {
-  const { id, replay } = await searchParams;
+  const { id } = await searchParams;
   if (!id) {
     redirect("/");
   }
   const chatId = parseInt(id);
   const userChat = await fetchUserChatById(chatId, "study");
-  if (replay === "1") {
-    if (userChat.token) {
-      redirect(`/study/${userChat.token}/share?replay=1`);
-    } else {
-      notFound();
-    }
-  }
 
   const session = await getServerSession(authOptions);
   if (!session?.user) {
