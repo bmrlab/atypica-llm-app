@@ -66,5 +66,28 @@
       "waitMessage": "Generating research report, please do not close this window. You will be notified when the generation is complete.",
       "viewReport": "View Report"
     }
+  },
+  "PersonasPage": {
+    "backButton": "Back",
+    "title": "User Personas",
+    "guide": {
+      "title": "Tips",
+      "tip1": {
+        "1": "In the",
+        "2": "🔍 User Discovery",
+        "3": "page, AI can help you find more potential target users"
+      },
+      "tip2": {
+        "1": "Each user persona can be used in",
+        "2": "🎯 Deep Interviews",
+        "3": "to help you better understand user needs"
+      },
+      "tip3": "Click on a user card to view complete persona information"
+    },
+    "searchResult": "User personas found through search",
+    "source": "Source",
+    "personaDialog": {
+      "source": "Source"
+    }
   }
 }

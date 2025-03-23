@@ -1,15 +1,15 @@
 "use client";
 import { Persona, UserChat } from "@/data";
 
-import { useState } from "react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
-  CardDescription,
-  CardContent,
-  CardFooter,
 } from "@/components/ui/card";
 import {
   Dialog,
@@ -19,10 +19,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { XIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function PersonasList({
   personas,
@@ -31,6 +32,7 @@ export default function PersonasList({
   personas: Persona[];
   userChat?: UserChat;
 }) {
+  const t = useTranslations("PersonasPage");
   const router = useRouter();
   const [selectedPersona, setSelectedPersona] = useState<Persona | null>(null);
 
@@ -39,60 +41,45 @@ export default function PersonasList({
       <div className="w-full flex flex-col space-y-8">
         <div className="relative w-full mb-4 sm:mb-8">
           <div className="absolute left-0 top-1/2 -translate-y-1/2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => router.back()}
-              className="mb-4"
-            >
-              ← 返回
+            <Button variant="ghost" size="sm" onClick={() => router.back()} className="mb-4">
+              ← {t("backButton")}
             </Button>
           </div>
-          <h1 className="sm:text-lg font-medium px-18 text-center truncate">
-            用户画像
-          </h1>
+          <h1 className="sm:text-lg font-medium px-18 text-center truncate">{t("title")}</h1>
         </div>
 
         <div className="mb-8">
           <div className="bg-muted/50 rounded-lg p-6">
-            <div className="font-medium mb-2">💡 小贴士</div>
+            <div className="font-medium mb-2">💡 {t("guide.title")}</div>
             <ul className="text-sm ml-4 list-disc space-y-1 text-muted-foreground">
               <li>
-                在
-                <Link
-                  href="/scout"
-                  className="text-blue-500 hover:underline mx-1"
-                >
-                  🔍 用户发现
+                {t("guide.tip1.1")}
+                <Link href="/scout" className="text-blue-500 hover:underline mx-1">
+                  {t("guide.tip1.2")}
                 </Link>
-                页面，AI 可以帮你找到更多潜在的目标用户
+                {t("guide.tip1.3")}
               </li>
               <li>
-                每个用户画像都可以在
-                <Link
-                  href="/analyst"
-                  className="text-blue-500 hover:underline mx-1"
-                >
-                  🎯 深度访谈
+                {t("guide.tip2.1")}
+                <Link href="/analyst" className="text-blue-500 hover:underline mx-1">
+                  {t("guide.tip2.2")}
                 </Link>
-                中使用，帮助你更好地理解用户需求
+                {t("guide.tip2.3")}
               </li>
-              <li>点击用户卡片可以查看完整的用户画像信息</li>
+              <li>{t("guide.tip3")}</li>
             </ul>
           </div>
         </div>
 
         {userChat && (
           <div className="flex items-center justify-start gap-3">
-            <div className="flex items-center justify-center size-8 rounded-md border">
-              🔍
-            </div>
+            <div className="flex items-center justify-center size-8 rounded-md border">🔍</div>
             <p className="text-sm text-muted-foreground">
-              通过搜索「
+              {t("searchResult")}「
               <span className="truncate inline-block align-bottom max-w-[20ch]">
                 {userChat.title}
               </span>
-              」找到的用户画像
+              」
             </p>
             <Button
               variant="ghost"
@@ -114,11 +101,9 @@ export default function PersonasList({
               onClick={() => setSelectedPersona(persona)}
             >
               <CardHeader>
-                <CardTitle className="text-lg line-clamp-1">
-                  {persona.name}
-                </CardTitle>
+                <CardTitle className="text-lg line-clamp-1">{persona.name}</CardTitle>
                 <CardDescription className="text-xs text-muted-foreground">
-                  来源：{persona.source}
+                  {t("source")}：{persona.source}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -137,21 +122,16 @@ export default function PersonasList({
           ))}
         </div>
 
-        <Dialog
-          open={!!selectedPersona}
-          onOpenChange={() => setSelectedPersona(null)}
-        >
+        <Dialog open={!!selectedPersona} onOpenChange={() => setSelectedPersona(null)}>
           <DialogContent className="sm:max-w-2xl">
             <DialogHeader>
               <DialogTitle>{selectedPersona?.name}</DialogTitle>
               <DialogDescription className="text-xs text-muted-foreground">
-                来源：{selectedPersona?.source}
+                {t("personaDialog.source")}：{selectedPersona?.source}
               </DialogDescription>
             </DialogHeader>
             <div className="bg-muted/50 rounded-lg p-4 max-h-[60vh] overflow-y-auto">
-              <pre className="text-sm whitespace-pre-wrap font-mono">
-                {selectedPersona?.prompt}
-              </pre>
+              <pre className="text-sm whitespace-pre-wrap font-mono">{selectedPersona?.prompt}</pre>
             </div>
             <DialogFooter>
               <div className="flex flex-wrap gap-2">
