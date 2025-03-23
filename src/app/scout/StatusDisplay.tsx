@@ -1,5 +1,6 @@
 "use client";
 import { Message } from "ai";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useMemo } from "react";
 
@@ -12,18 +13,20 @@ export function StatusDisplay({
   status: string;
   messages: Message[];
 }) {
+  const t = useTranslations("ScoutPage.status");
+
   const getStatusMessage = (status: string) => {
     switch (status) {
       case "streaming":
-        return "AI 正在思考中...";
+        return t("thinking");
       case "submitted":
-        return "正在处理您的请求...";
+        return t("processing");
       case "complete":
-        return "处理完成 ✨";
+        return t("complete");
       case "error":
-        return "出现错误，请重试";
+        return t("error");
       case "ready":
-        return "AI 已准备就绪";
+        return t("ready");
       default:
         return status;
     }
@@ -69,7 +72,7 @@ export function StatusDisplay({
           target="_blank"
           className="text-blue-500 hover:underline mx-1"
         >
-          🔍 查看此次搜索找到的画像
+          {t("viewPersonas")}
         </Link>
       )}
     </div>

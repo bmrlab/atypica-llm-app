@@ -4,6 +4,7 @@ import { useScrollToBottom } from "@/components/use-scroll-to-bottom";
 import { createUserChat, ScoutUserChat, updateUserChat } from "@/data";
 import { fixChatMessages } from "@/lib/utils";
 import { Message, useChat } from "@ai-sdk/react";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { StatusDisplay } from "./StatusDisplay";
@@ -25,6 +26,7 @@ export function ScoutChatMessages({
   scoutChat: ScoutUserChat | null;
   environment?: "console" | "chat";
 }) {
+  const t = useTranslations("ScoutPage");
   const [chatId, setChatId] = useState<number | null>(scoutChat?.id ?? null);
 
   // https://github.com/vercel/ai/blob/50555848a54e6bace3e22d175db58c04f04ea5a4/packages/react/src/use-chat.ts#L230
@@ -137,17 +139,17 @@ export function ScoutChatMessages({
         {!messages.length && (
           <div className="bg-muted/50 rounded-lg p-4 mt-4">
             <div className="space-y-2 mr-2">
-              <div className="font-medium">💡 使用建议：</div>
+              <div className="font-medium">💡 {t("hints.title")}</div>
               <ul className="text-sm ml-4 list-disc space-y-1 text-muted-foreground">
-                <li>描述越具体，AI 找到的用户越准确</li>
-                <li>可以包含用户的兴趣、行为、消费习惯等特征</li>
-                <li>AI 会自动搜索，帮你总结最合适的目标用户画像</li>
+                <li>{t("hints.tip1")}</li>
+                <li>{t("hints.tip2")}</li>
+                <li>{t("hints.tip3")}</li>
                 <li>
-                  结果会自动加入到
+                  {t("hints.tip4")}
                   <Link href="/personas" className="text-blue-500 hover:underline mx-1">
-                    用户画像库
+                    {t("hints.tip4Link")}
                   </Link>
-                  以供后续分析调研
+                  {t("hints.tip4End")}
                 </li>
               </ul>
             </div>
@@ -178,7 +180,7 @@ export function ScoutChatMessages({
           <textarea
             // ref={inputRef}
             className={`bg-zinc-100 rounded-md px-4 py-3.5 w-full outline-none text-sm text-zinc-800 ${inputDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
-            placeholder="描述你想找的用户特征，例如：帮我找3位经常分享手工巧克力、有试吃经验、对美食很有研究的博主"
+            placeholder={t("inputPlaceholder")}
             rows={3}
             value={input}
             disabled={inputDisabled}

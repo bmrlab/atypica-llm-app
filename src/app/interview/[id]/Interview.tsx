@@ -8,6 +8,7 @@ import { Markdown } from "@/components/markdown";
 import { AnalystInterview } from "@/data";
 import { Button } from "@/components/ui/button";
 import { interviewerPrologue } from "@/prompt";
+import { useTranslations } from "next-intl";
 // import imageUrl from "./image";
 
 export function Interview({
@@ -19,6 +20,7 @@ export function Interview({
   analyst: Analyst;
   persona: Persona;
 }) {
+  const t = useTranslations("InterviewPage");
   const [stop, setStop] = useState<"initial" | "talking" | "terminated">(
     "initial",
   );
@@ -125,7 +127,7 @@ export function Interview({
           {personaAgent.messages.map((message) => (
             <ChatMessage
               key={`message-${message.id}`}
-              nickname={message.role === "assistant" ? "用户" : "品牌"}
+              nickname={message.role === "assistant" ? t("user") : t("brand")}
               role={message.role}
               content={message.content}
               parts={message.parts}
@@ -140,7 +142,7 @@ export function Interview({
               .map((interviewerMessage) => (
                 <ChatMessage
                   key={`pending-${interviewerMessage.id}`}
-                  nickname={"品牌正在准备问题"}
+                  nickname={t("brandPreparingQuestion")}
                   role={interviewerMessage.role}
                   content={interviewerMessage.content}
                   parts={interviewerMessage.parts}
@@ -161,14 +163,14 @@ export function Interview({
         <div className="flex justify-center items-center">
           {stop === "initial" ? (
             personaAgent.messages.length === 0 ? (
-              <Button onClick={startConversation}>开始会话</Button>
+              <Button onClick={startConversation}>{t("startChat")}</Button>
             ) : (
-              <Button onClick={restartConversation}>重新开始会话</Button>
+              <Button onClick={restartConversation}>{t("restartChat")}</Button>
             )
           ) : stop === "talking" ? (
-            <Button onClick={stopConversation}>结束会话</Button>
+            <Button onClick={stopConversation}>{t("endChat")}</Button>
           ) : (
-            <div>会话结束</div>
+            <div>{t("chatEnded")}</div>
           )}
         </div>
       </div>

@@ -128,5 +128,47 @@
       "cancel": "Cancel",
       "confirm": "Confirm"
     }
+  },
+  "InterviewPage": {
+    "backButton": "Back",
+    "interviewTitle": "{role} interviews {persona}",
+    "startInterview": "Start Interview",
+    "interviewInProgress": "Interview in progress",
+    "interviewCompleted": "Interview completed",
+    "startChat": "Start Chat",
+    "restartChat": "Restart Chat",
+    "endChat": "End Chat",
+    "chatEnded": "Chat ended",
+    "user": "User",
+    "brand": "Brand",
+    "brandPreparingQuestion": "Brand preparing question",
+    "researchConclusion": "Research Conclusion"
+  },
+  "ScoutPage": {
+    "backButton": "Back",
+    "title": "Find Target Users",
+    "HistoryDrawer": {
+      "title": "Chat History",
+      "newChat": "New Chat",
+      "unnamedChat": "Unnamed Chat"
+    },
+    "hints": {
+      "title": "Usage Tips:",
+      "tip1": "More specific descriptions lead to more accurate user matches",
+      "tip2": "Include users' interests, behaviors, consumption habits, etc.",
+      "tip3": "AI will automatically search and summarize the most suitable target user personas",
+      "tip4": "Results will automatically be added to the",
+      "tip4Link": "User Persona Library",
+      "tip4End": "for subsequent analysis and research"
+    },
+    "inputPlaceholder": "Describe the user characteristics you're looking for, e.g.: Help me find 3 bloggers who frequently share handmade chocolates, have tasting experience, and are knowledgeable about food",
+    "status": {
+      "thinking": "AI is thinking...",
+      "processing": "Processing your request...",
+      "complete": "Processing complete ✨",
+      "error": "An error occurred, please try again",
+      "ready": "AI is ready",
+      "viewPersonas": "🔍 View personas found in this search"
+    }
   }
 }

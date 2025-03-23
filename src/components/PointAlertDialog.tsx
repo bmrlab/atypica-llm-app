@@ -28,9 +28,7 @@ export function PointAlertDialog({ points, children, onConfirm, onCancel }: Poin
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>{t("confirmOperation")}</AlertDialogTitle>
-          <AlertDialogDescription>
-            {t("pointConsumption").replace("{points}", points.toString())}
-          </AlertDialogDescription>
+          <AlertDialogDescription>{t("pointConsumption", { points })}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel onClick={onCancel}>{t("cancel")}</AlertDialogCancel>

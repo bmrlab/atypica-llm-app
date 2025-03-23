@@ -10,6 +10,7 @@ import {
 import { fetchUserChats, ScoutUserChat } from "@/data";
 import { fixChatMessages } from "@/lib/utils";
 import { HistoryIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
 export function ScoutChatHistory({
@@ -17,6 +18,7 @@ export function ScoutChatHistory({
 }: {
   onSelectChat: (chat: ScoutUserChat | null) => void;
 }) {
+  const t = useTranslations("ScoutPage.HistoryDrawer");
   const [chats, setChats] = useState<ScoutUserChat[]>([]);
   const [open, setOpen] = useState(false);
 
@@ -50,14 +52,14 @@ export function ScoutChatHistory({
       </DrawerTrigger>
       <DrawerContent className="w-[280px] mr-0 ml-auto">
         <DrawerHeader>
-          <DrawerTitle className="text-center">历史对话</DrawerTitle>
+          <DrawerTitle className="text-center">{t("title")}</DrawerTitle>
         </DrawerHeader>
         <div className="p-4 space-y-2">
           <div
             className="px-3 py-2 text-sm text-zinc-500 hover:bg-zinc-100 rounded cursor-pointer"
             onClick={() => handleSelectChat(null)}
           >
-            新对话
+            {t("newChat")}
           </div>
           {chats.map((chat) => (
             <div
@@ -70,7 +72,7 @@ export function ScoutChatHistory({
               }
               className="px-3 py-2 text-sm truncate text-zinc-500 hover:bg-zinc-100 rounded cursor-pointer"
             >
-              {chat.title || "未命名对话"}
+              {chat.title || t("unnamedChat")}
             </div>
           ))}
         </div>

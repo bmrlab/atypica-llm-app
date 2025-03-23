@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useScrollToBottom } from "@/components/use-scroll-to-bottom";
 import { Analyst, AnalystInterview, fetchAnalystInterviewById, Persona } from "@/data";
 import { Message } from "ai";
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
@@ -17,6 +18,7 @@ export function InterviewBackground({
   analyst: Analyst;
   persona: Persona;
 }) {
+  const t = useTranslations("InterviewPage");
   const [interview, setInterview] = useState<AnalystInterview>(_analystInterview);
   const [messages, setMessages] = useState<Message[]>(_analystInterview.messages);
 
@@ -64,11 +66,11 @@ export function InterviewBackground({
       <div className="relative w-full mb-4">
         <div className="absolute left-0 top-1/2 -translate-y-1/2">
           <Button variant="ghost" size="sm" onClick={() => router.back()}>
-            ← 返回
+            ← {t("backButton")}
           </Button>
         </div>
         <h1 className="sm:text-lg font-medium px-18 text-center truncate">
-          {analyst.role}访谈{persona.name}
+          {t("interviewTitle", { role: analyst.role, persona: persona.name })}
         </h1>
       </div>
       <div className="flex-1 overflow-hidden flex flex-col justify-between gap-4 w-full">
@@ -96,7 +98,7 @@ export function InterviewBackground({
           {!interview.interviewToken && interview.conclusion ? (
             <ChatMessage
               key="message-conclusion"
-              nickname="调研结论"
+              nickname={t("researchConclusion")}
               role="system"
               content={interview.conclusion}
             ></ChatMessage>
@@ -108,19 +110,16 @@ export function InterviewBackground({
           {!interview.interviewToken && !interview.conclusion ? (
             <PointAlertDialog points={5} onConfirm={startBackgroundChat}>
               <Button size="sm" className="px-10">
-                开始访谈
+                {t("startInterview")}
               </Button>
             </PointAlertDialog>
           ) : interview.interviewToken ? (
             <div className="flex flex-col items-center gap-2">
-              <div className="text-sm text-gray-500">访谈进行中</div>
+              <div className="text-sm text-gray-500">{t("interviewInProgress")}</div>
             </div>
           ) : (
             <div className="flex flex-col items-center gap-2">
-              <div className="text-sm text-gray-500">访谈已结束</div>
-              {/* <Button size="sm" onClick={() => startBackgroundChat()}>
-                重新开始
-              </Button> */}
+              <div className="text-sm text-gray-500">{t("interviewCompleted")}</div>
             </div>
           )}
         </div>
