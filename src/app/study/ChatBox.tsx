@@ -128,7 +128,7 @@ export function ChatBox({ studyChat, readOnly }: { studyChat: StudyUserChat; rea
             "block bg-zinc-100 rounded-md px-4 py-3.5 w-full outline-none text-sm text-zinc-800",
             inputDisabled ? "opacity-50 cursor-not-allowed" : "",
           )}
-          placeholder="提出后续问题或回复"
+          placeholder="Ask a follow-up question or reply"
           rows={3}
           value={input}
           disabled={inputDisabled}

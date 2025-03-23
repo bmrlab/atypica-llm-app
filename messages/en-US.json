@@ -129,6 +129,47 @@
       "confirm": "Confirm"
     }
   },
+  "StudyPage": {
+    "home": "Home",
+    "research": "Research",
+    "ShareReplayButton": {
+      "generating": "Generating...",
+      "shareReplay": "Share Replay",
+      "title": "Generate Replay Share Link",
+      "description": "This will generate a replay share link. Others can access a replay of this conversation through this link. Do you want to continue?",
+      "generatingMessage": "Generating replay share link, please wait...",
+      "successMessage": "Replay share link has been generated. Others can access the conversation replay through this link:",
+      "copyButton": "Copy",
+      "openInstructions": "You can also click the \"Open\" button below to view in a new tab.",
+      "closeButton": "Close",
+      "cancelButton": "Cancel",
+      "confirmButton": "Confirm",
+      "openButton": "Open",
+      "errorMessage": "Failed to create replay share link, please try again later",
+      "copySuccess": "Link copied to clipboard"
+    },
+    "ChatBox": {
+      "placeholder": "Ask a follow-up question or reply"
+    },
+    "StatusDisplay": {
+      "thinking": "AI is thinking...",
+      "processing": "Processing your request...",
+      "complete": "Processing complete ✨",
+      "error": "An error occurred, please try again",
+      "ready": "AI is ready"
+    },
+    "ToolConsole": {
+      "autoFollow": "Auto Follow",
+      "manualSelect": "Manual Select",
+      "shareReport": "Share Report",
+      "deepThinking": "Deep Thinking",
+      "executionResult": "Execution Result",
+      "interviewStarting": "Interview starting..",
+      "researchConclusion": "Research Conclusion",
+      "researchTopic": "Research Topic",
+      "interviewing": "Interviewing with user"
+    }
+  },
   "InterviewPage": {
     "backButton": "Back",
     "interviewTitle": "{role} interviews {persona}",

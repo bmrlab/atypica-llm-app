@@ -101,7 +101,6 @@ export const SingleMessage = (message: {
           {parts ? (
             <div className="flex flex-col gap-4">
               {parts.map((part, i) => {
-                // 如果是控制台环境，只显示最后一条
                 switch (part.type) {
                   case "text":
                     return <PlainText key={i}>{part.text}</PlainText>;

@@ -1,19 +1,21 @@
 "use client";
 import { Message } from "ai";
+import { useTranslations } from "next-intl";
 
 export function StatusDisplay({ status }: { chatId: number; status: string; messages: Message[] }) {
+  const t = useTranslations("StudyPage.StatusDisplay");
   const getStatusMessage = (status: string) => {
     switch (status) {
       case "streaming":
-        return "AI 正在思考中...";
+        return t("thinking");
       case "submitted":
-        return "正在处理您的请求...";
+        return t("processing");
       case "complete":
-        return "处理完成 ✨";
+        return t("complete");
       case "error":
-        return "出现错误，请重试";
+        return t("error");
       case "ready":
-        return "";
+        return t("ready");
       default:
         return "";
     }

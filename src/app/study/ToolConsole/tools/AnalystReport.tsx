@@ -3,10 +3,12 @@ import { fetchAnalystById } from "@/data";
 import { cn } from "@/lib/utils";
 import { AnalystReportResult } from "@/tools/experts/report";
 import { ToolInvocation } from "ai";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 const AnalystReport = ({ toolInvocation }: { toolInvocation: ToolInvocation }) => {
+  const t = useTranslations("StudyPage.ToolConsole");
   const result = useMemo(() => {
     if (toolInvocation.state === "result") {
       return toolInvocation.result as AnalystReportResult;
@@ -67,7 +69,7 @@ const AnalystReport = ({ toolInvocation }: { toolInvocation: ToolInvocation }) =
         {hasReport && (
           <Button asChild variant="ghost" size="sm">
             <Link href={`/analyst/${result.analystId}/html`} target="_blank">
-              分享报告
+              {t("shareReport")}
             </Link>
           </Button>
         )}

@@ -13,10 +13,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { setUserChatToken, StudyUserChat } from "@/data";
 import { ClipboardCopyIcon, RotateCcwIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
 
 export function ShareReplayButton({ studyChat }: { studyChat: StudyUserChat }) {
+  const t = useTranslations("StudyPage.ShareReplayButton");
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [shareUrl, setShareUrl] = useState<string | null>(null);
@@ -31,17 +33,17 @@ export function ShareReplayButton({ studyChat }: { studyChat: StudyUserChat }) {
       }
     } catch (error) {
       console.error("Failed to create share link:", error);
-      toast.error("创建回放分享链接失败，请稍后再试");
+      toast.error(t("errorMessage"));
     } finally {
       setIsLoading(false);
     }
-  }, [studyChat]);
+  }, [t, studyChat]);
   const handleCopyUrl = useCallback(() => {
     if (shareUrl) {
       navigator.clipboard.writeText(shareUrl);
-      toast.success("链接已复制到剪贴板");
+      toast.success(t("copySuccess"));
     }
-  }, [shareUrl]);
+  }, [t, shareUrl]);
   return (
     <AlertDialog
       open={open}
@@ -51,47 +53,41 @@ export function ShareReplayButton({ studyChat }: { studyChat: StudyUserChat }) {
     >
       <AlertDialogTrigger asChild>
         <Button variant="ghost" size="sm" disabled={isLoading}>
-          <RotateCcwIcon size={16} /> {isLoading ? "生成中..." : "分享回放"}
+          <RotateCcwIcon size={16} /> {isLoading ? t("generating") : t("shareReplay")}
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>生成回放分享链接</AlertDialogTitle>
+          <AlertDialogTitle>{t("title")}</AlertDialogTitle>
           <AlertDialogDescription></AlertDialogDescription>
         </AlertDialogHeader>
-        {!shareUrl &&
-          !isLoading &&
-          "将生成回放分享链接，其他人可以通过该链接直接访问这个会话的回放。要继续吗？"}
-        {isLoading && "正在生成回放分享链接，请稍候..."}
+        {!shareUrl && !isLoading && t("description")}
+        {isLoading && t("generatingMessage")}
         {shareUrl && (
           <div className="mt-3 space-y-3 overflow-hidden">
-            <p className="text-sm text-muted-foreground mb-2">
-              回放分享链接已生成，其他人可以通过此链接访问会话回放：
-            </p>
+            <p className="text-sm text-muted-foreground mb-2">{t("successMessage")}</p>
             <div className="flex items-center gap-2 mt-1">
               <div className="bg-muted p-2 rounded-md text-xs flex-1 overflow-hidden break-words">
                 {shareUrl}
               </div>
               <Button size="sm" variant="outline" onClick={handleCopyUrl} className="shrink-0">
                 <ClipboardCopyIcon size={16} className="mr-1" />
-                复制
+                {t("copyButton")}
               </Button>
             </div>
-            <p className="text-xs text-muted-foreground mt-2">
-              您也可以点击下方的&quot;打开&quot;按钮在新标签页中查看。
-            </p>
+            <p className="text-xs text-muted-foreground mt-2">{t("openInstructions")}</p>
           </div>
         )}
         <AlertDialogFooter>
           <AlertDialogCancel onClick={() => setOpen(false)}>
-            {shareUrl ? "关闭" : "取消"}
+            {shareUrl ? t("closeButton") : t("cancelButton")}
           </AlertDialogCancel>
           {!shareUrl ? (
             <AlertDialogAction onClick={handleShareReplay} disabled={isLoading}>
-              {isLoading ? "生成中..." : "确认"}
+              {isLoading ? t("generating") : t("confirmButton")}
             </AlertDialogAction>
           ) : (
-            <Button onClick={() => window.open(shareUrl, "_blank")}>打开</Button>
+            <Button onClick={() => window.open(shareUrl, "_blank")}>{t("openButton")}</Button>
           )}
         </AlertDialogFooter>
       </AlertDialogContent>

@@ -4,6 +4,7 @@ import { useScrollToBottom } from "@/components/use-scroll-to-bottom";
 import { StudyUserChat } from "@/data";
 import { cn } from "@/lib/utils";
 import { ChevronDown, ChevronUp, EyeIcon, EyeOffIcon, HomeIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useState } from "react";
 import { ChatBox } from "./ChatBox";
@@ -13,18 +14,19 @@ import { ShareReplayButton } from "./ShareReplayButton";
 import { ToolConsole } from "./ToolConsole/ToolConsole";
 
 function Header({ studyChat }: { studyChat: StudyUserChat }) {
+  const t = useTranslations("StudyPage");
   const { replay } = useStudyContext();
   return (
     <div className="relative w-full">
       <div className="absolute left-0 top-1/2 -translate-y-1/2">
         <Button asChild variant="ghost" size="sm">
           <Link href="/">
-            <HomeIcon size={16} /> 首页
+            <HomeIcon size={16} /> {t("home")}
           </Link>
         </Button>
       </div>
       <h1 className="sm:text-lg font-medium px-24 text-center truncate">
-        {studyChat.title || "研究"}
+        {studyChat.title || t("research")}
       </h1>
       {!replay ? (
         <div className="absolute right-0 top-1/2 -translate-y-1/2">
@@ -37,16 +39,19 @@ function Header({ studyChat }: { studyChat: StudyUserChat }) {
 
 // 添加跟随状态切换按钮
 const FollowButton = () => {
+  const t = useTranslations("StudyPage.ToolConsole");
   const { viewToolInvocation, unsetViewToolInvocation } = useStudyContext();
   return (
     <Button
       onClick={() => unsetViewToolInvocation()}
       variant="ghost"
       size="sm"
-      title={viewToolInvocation ? "停止跟随最新结果" : "跟随最新结果"}
+      title={viewToolInvocation ? "Stop following latest result" : "Follow latest result"}
     >
       {!viewToolInvocation ? <EyeIcon className="h-4 w-4" /> : <EyeOffIcon className="h-4 w-4" />}
-      <span className="ml-1 text-xs">{!viewToolInvocation ? "自动跟随" : "手动选择"}</span>
+      <span className="ml-1 text-xs">
+        {!viewToolInvocation ? t("autoFollow") : t("manualSelect")}
+      </span>
     </Button>
   );
 };

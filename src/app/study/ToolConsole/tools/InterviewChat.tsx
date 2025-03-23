@@ -3,12 +3,14 @@ import { Analyst, fetchInterviewByAnalystAndPersona, Persona } from "@/data";
 import { fixChatMessages } from "@/lib/utils";
 import { ToolName } from "@/tools";
 import { Message, ToolInvocation } from "ai";
+import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
 import { useStudyContext } from "../../hooks/StudyContext";
 import { consoleStreamWaitTime, useProgressiveMessages } from "../../hooks/useProgressiveMessages";
 import { StreamSteps } from "./StreamSteps";
 
 const InterviewChat = ({ toolInvocation }: { toolInvocation: ToolInvocation }) => {
+  const t = useTranslations("StudyPage.ToolConsole");
   const analystId = toolInvocation.args.analystId as number;
   const personaId = toolInvocation.args.personaId as number;
 
@@ -74,9 +76,9 @@ const InterviewChat = ({ toolInvocation }: { toolInvocation: ToolInvocation }) =
         {interviewToken && messagesDisplay.length === 0 ? (
           <StreamSteps
             key="message-start"
-            nickname="系统"
+            nickname="System"
             role="system"
-            content="访谈启动中 .."
+            content="Interview starting.."
           ></StreamSteps>
         ) : null}
         {!interviewToken &&
@@ -84,7 +86,7 @@ const InterviewChat = ({ toolInvocation }: { toolInvocation: ToolInvocation }) =
         (!replay || messagesDisplay.length === messages.length) ? (
           <StreamSteps
             key="message-conclusion"
-            nickname="调研结论"
+            nickname={t("researchConclusion")}
             role="system"
             content={conclusion}
           ></StreamSteps>
@@ -93,7 +95,7 @@ const InterviewChat = ({ toolInvocation }: { toolInvocation: ToolInvocation }) =
       </div>
       {toolInvocation.state !== "result" && (
         <div className="w-full flex py-4 gap-px items-center justify-start text-zinc-500 text-xs font-mono">
-          <span className="mr-2">Interviewing with user </span>
+          <span className="mr-2">{t("interviewing")} </span>
           <span className="animate-bounce">✨ </span>
           {/* <span className="animate-bounce">·</span> */}
           {/* <span className="animate-bounce [animation-delay:0.2s]">·</span> */}
@@ -105,7 +107,7 @@ const InterviewChat = ({ toolInvocation }: { toolInvocation: ToolInvocation }) =
           <div className="flex items-start gap-3">
             <div className="mt-1 rounded-md bg-background p-2 border">📝</div>
             <div className="flex-1">
-              <div className="text-sm font-medium mb-2">研究主题</div>
+              <div className="text-sm font-medium mb-2">{t("researchTopic")}</div>
               <p className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed">
                 {analyst.topic}
               </p>

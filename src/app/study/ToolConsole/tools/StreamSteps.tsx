@@ -13,6 +13,7 @@ import {
 import { Message as MessageType, ToolInvocation } from "ai";
 import { motion } from "framer-motion";
 import { BotIcon, CpuIcon, UserIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { PropsWithChildren, ReactNode } from "react";
 
 const PlainText = ({ children }: PropsWithChildren) => {
@@ -24,6 +25,7 @@ const PlainText = ({ children }: PropsWithChildren) => {
 };
 
 const StreamStep = ({ toolInvocation }: { toolInvocation: ToolInvocation }) => {
+  const t = useTranslations("StudyPage.ToolConsole");
   const { toolName, args } = toolInvocation;
   return (
     <div>
@@ -48,7 +50,7 @@ const StreamStep = ({ toolInvocation }: { toolInvocation: ToolInvocation }) => {
       </pre>
       {toolInvocation.state === "result" && (
         <>
-          <div className="text-sm text-zinc-800 my-4">执行结果</div>
+          <div className="text-sm text-zinc-800 my-4">{t("executionResult")}</div>
           {(() => {
             switch (toolName) {
               case ToolName.xhsSearch:

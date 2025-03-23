@@ -2,14 +2,18 @@ import { Markdown } from "@/components/markdown";
 import { cn } from "@/lib/utils";
 import { ToolInvocation } from "ai";
 import { BotIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { FC } from "react";
 
 const ReasoningThinking: FC<{
   toolInvocation: ToolInvocation;
 }> = ({ toolInvocation }) => {
+  const t = useTranslations("StudyPage.ToolConsole");
   return (
     <div>
-      <div className="my-2 mx-1 text-sm">深度思考：{toolInvocation.args.question}</div>
+      <div className="my-2 mx-1 text-sm">
+        {t("deepThinking")}: {toolInvocation.args.question}
+      </div>
       {toolInvocation.state === "result" ? (
         <div
           className={cn(
