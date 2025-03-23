@@ -8,15 +8,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { signOut, useSession } from "next-auth/react";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 
 export default function UserMenu() {
   const { data: session } = useSession();
+  const t = useTranslations("Components.UserMenu");
 
   if (!session) {
     return (
       <Button variant="ghost" size="sm" asChild>
-        <Link href="/auth/signin">登录</Link>
+        <Link href="/auth/signin">{t("login")}</Link>
       </Button>
     );
   }
@@ -34,7 +36,7 @@ export default function UserMenu() {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem>{userEmail}</DropdownMenuItem>
-        <DropdownMenuItem onClick={() => signOut({ callbackUrl: "/" })}>退出登录</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => signOut({ callbackUrl: "/" })}>{t("logout")}</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

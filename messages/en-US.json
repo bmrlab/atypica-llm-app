@@ -89,5 +89,44 @@
     "personaDialog": {
       "source": "Source"
     }
+  },
+  "Auth": {
+    "SignIn": {
+      "title": "Sign In",
+      "subtitle": "Enter your login details",
+      "emailPlaceholder": "Your email address",
+      "passwordPlaceholder": "Your password",
+      "submitButton": "Sign In",
+      "submittingButton": "Signing in...",
+      "errorMessage": "Invalid email or password",
+      "noAccountText": "Don't have an account?",
+      "signUpLink": "Sign up now"
+    },
+    "SignUp": {
+      "title": "Sign Up",
+      "subtitle": "Create your account",
+      "emailPlaceholder": "Your @tezign.com email address",
+      "passwordPlaceholder": "Set your password",
+      "submitButton": "Sign Up",
+      "submittingButton": "Signing up...",
+      "haveAccountText": "Already have an account?",
+      "signInLink": "Sign in now"
+    }
+  },
+  "Components": {
+    "UserMenu": {
+      "login": "Login",
+      "logout": "Logout"
+    },
+    "ChatMessage": {
+      "toolExecution": "Tool Execution Parameters",
+      "executionResult": "Execution Result"
+    },
+    "PointAlertDialog": {
+      "confirmOperation": "Confirm Operation",
+      "pointConsumption": "This operation will consume {points} points, do you want to continue?",
+      "cancel": "Cancel",
+      "confirm": "Confirm"
+    }
   }
 }

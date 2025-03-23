@@ -1,10 +1,11 @@
 "use client";
-import { Suspense, useState } from "react";
-import { signIn } from "next-auth/react";
-import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { signIn } from "next-auth/react";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useState } from "react";
 
 export default function SignInPage() {
   return (
@@ -17,6 +18,7 @@ export default function SignInPage() {
 function SignIn() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const t = useTranslations("Auth.SignIn");
   const callbackUrl = searchParams.get("callbackUrl") || "/";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -38,7 +40,7 @@ function SignIn() {
       if (!result?.error) {
         router.replace(callbackUrl);
       } else {
-        setError("Invalid email or password");
+        setError(t("errorMessage"));
       }
     } catch (error) {
       setError((error as Error).message);
@@ -51,19 +53,15 @@ function SignIn() {
     <div className="flex min-h-screen items-center justify-center">
       <div className="mx-auto w-full max-w-xs space-y-6 px-4">
         <div className="space-y-2 text-center">
-          <h1 className="text-3xl font-bold">登录</h1>
-          <p className="text-gray-500">请输入您的登录信息</p>
+          <h1 className="text-3xl font-bold">{t("title")}</h1>
+          <p className="text-gray-500">{t("subtitle")}</p>
         </div>
         <form onSubmit={onSubmit} className="space-y-4">
-          {error && (
-            <div className="rounded-lg bg-red-50 p-4 text-sm text-red-500">
-              {error}
-            </div>
-          )}
+          {error && <div className="rounded-lg bg-red-50 p-4 text-sm text-red-500">{error}</div>}
           <div className="space-y-2">
             <Input
               id="email"
-              placeholder="您的邮箱地址"
+              placeholder={t("emailPlaceholder")}
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -73,7 +71,7 @@ function SignIn() {
           <div className="space-y-2">
             <Input
               id="password"
-              placeholder="您的密码"
+              placeholder={t("passwordPlaceholder")}
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -81,13 +79,13 @@ function SignIn() {
             />
           </div>
           <Button className="w-full" type="submit" disabled={isLoading}>
-            {isLoading ? "登录中..." : "登录"}
+            {isLoading ? t("submittingButton") : t("submitButton")}
           </Button>
         </form>
         <div className="text-center text-sm">
-          还没有账号？{" "}
+          {t("noAccountText")}{" "}
           <Link href="/auth/signup" className="text-blue-500 hover:underline">
-            立即注册
+            {t("signUpLink")}
           </Link>
         </div>
       </div>

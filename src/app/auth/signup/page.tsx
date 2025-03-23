@@ -2,10 +2,12 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { signIn } from "next-auth/react";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useState } from "react";
 
 export default function SignUpPage() {
+  const t = useTranslations("Auth.SignUp");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -50,15 +52,15 @@ export default function SignUpPage() {
     <div className="flex min-h-screen items-center justify-center">
       <div className="mx-auto w-full max-w-xs space-y-6 px-4">
         <div className="space-y-2 text-center">
-          <h1 className="text-3xl font-bold">注册</h1>
-          <p className="text-gray-500">创建您的账户</p>
+          <h1 className="text-3xl font-bold">{t("title")}</h1>
+          <p className="text-gray-500">{t("subtitle")}</p>
         </div>
         <form onSubmit={onSubmit} className="space-y-4">
           {error && <div className="rounded-lg bg-red-50 p-4 text-sm text-red-500">{error}</div>}
           <div className="space-y-2">
             <Input
               id="email"
-              placeholder="您的 @tezign.com 邮箱地址"
+              placeholder={t("emailPlaceholder")}
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -68,7 +70,7 @@ export default function SignUpPage() {
           <div className="space-y-2">
             <Input
               id="password"
-              placeholder="设置密码"
+              placeholder={t("passwordPlaceholder")}
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -76,13 +78,13 @@ export default function SignUpPage() {
             />
           </div>
           <Button className="w-full" type="submit" disabled={isLoading}>
-            {isLoading ? "注册中..." : "注册"}
+            {isLoading ? t("submittingButton") : t("submitButton")}
           </Button>
         </form>
         <div className="text-center text-sm">
-          已有账号？{" "}
+          {t("haveAccountText")}{" "}
           <Link href="/auth/signin" className="text-blue-500 hover:underline">
-            立即登录
+            {t("signInLink")}
           </Link>
         </div>
       </div>

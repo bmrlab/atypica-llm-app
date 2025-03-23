@@ -11,6 +11,7 @@ import {
 import { Message as MessageType, ToolInvocation } from "ai";
 import { motion } from "framer-motion";
 import { BotIcon, CpuIcon, UserIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { FC, HTMLAttributes, PropsWithChildren, ReactNode } from "react";
 import { Markdown } from "./markdown";
 
@@ -20,6 +21,8 @@ const ToolArgs: FC<
     args: ToolInvocation["args"];
   }
 > = ({ toolName, args, className }) => {
+  const t = useTranslations("Components.ChatMessage");
+
   return (
     <pre
       className={cn(
@@ -27,7 +30,9 @@ const ToolArgs: FC<
         className,
       )}
     >
-      <div className="ml-2 mt-1 font-bold">{toolName} 执行参数</div>
+      <div className="ml-2 mt-1 font-bold">
+        {toolName} {t("toolExecution")}
+      </div>
       <table className="text-left mt-2">
         <tbody>
           {Object.entries(args).map(([key, value]) => (
@@ -45,11 +50,12 @@ const ToolArgs: FC<
 };
 
 const ToolInvocationMessage = ({ toolInvocation }: { toolInvocation: ToolInvocation }) => {
+  const t = useTranslations("Components.ChatMessage");
+
   if (toolInvocation.state === "call" || toolInvocation.state === "partial-call") {
     const { toolName, args } = toolInvocation;
     return (
       <div>
-        {/* 正在执行  */}
         <ToolArgs toolName={toolName} args={args} />
       </div>
     );
@@ -78,7 +84,7 @@ const ToolInvocationMessage = ({ toolInvocation }: { toolInvocation: ToolInvocat
     return (
       <div>
         <ToolArgs toolName={toolName} args={args} />
-        <div className="text-sm text-zinc-800 my-4">执行结果</div>
+        <div className="text-sm text-zinc-800 my-4">{t("executionResult")}</div>
         {renderResult()}
       </div>
     );

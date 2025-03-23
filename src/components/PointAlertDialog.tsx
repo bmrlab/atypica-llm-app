@@ -9,6 +9,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { useTranslations } from "next-intl";
 import { ReactNode } from "react";
 
 interface PointAlertDialogProps {
@@ -18,25 +19,22 @@ interface PointAlertDialogProps {
   onCancel?: () => void;
 }
 
-export function PointAlertDialog({
-  points,
-  children,
-  onConfirm,
-  onCancel,
-}: PointAlertDialogProps) {
+export function PointAlertDialog({ points, children, onConfirm, onCancel }: PointAlertDialogProps) {
+  const t = useTranslations("Components.PointAlertDialog");
+
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>{children}</AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>确认操作</AlertDialogTitle>
+          <AlertDialogTitle>{t("confirmOperation")}</AlertDialogTitle>
           <AlertDialogDescription>
-            此操作将消耗 {points} 点积分，是否继续？
+            {t("pointConsumption").replace("{points}", points.toString())}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={onCancel}>取消</AlertDialogCancel>
-          <AlertDialogAction onClick={onConfirm}>确认</AlertDialogAction>
+          <AlertDialogCancel onClick={onCancel}>{t("cancel")}</AlertDialogCancel>
+          <AlertDialogAction onClick={onConfirm}>{t("confirm")}</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
