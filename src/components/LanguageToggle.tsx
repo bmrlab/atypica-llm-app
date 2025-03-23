@@ -27,7 +27,7 @@ export default function LanguageToggle() {
   return (
     <Button variant="ghost" size="sm" onClick={toggleLocale} title="Change Language">
       <GlobeIcon className="h-4 w-4 mr-1" />
-      <span className="text-xs">{locale === "zh-CN" ? "English" : "中文"}</span>
+      <span className="text-xs">{locale === "zh-CN" ? "中文" : "English"}</span>
     </Button>
   );
 }

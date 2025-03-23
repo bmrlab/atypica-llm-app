@@ -8,30 +8,29 @@ import { forbidden, redirect } from "next/navigation";
 
 const listenScript = (redirect: string) => `
 <script>
-  // 创建一个标志来判断流是否完成
   window.streamComplete = false;
-  // 使用 MutationObserver 监听 DOM 变化
   const observer = new MutationObserver((mutations) => {
-    // 检查是否发现了流结束标记
     if (document.getElementById('stream-complete') && !window.streamComplete) {
       window.streamComplete = true;
-      // 延迟一小段时间后重定向，让用户有机会看到完整内容
       setTimeout(() => {
         window.location.href = '${redirect}';
       }, 2000);
     }
   });
-  // 开始观察文档变化
   observer.observe(document.documentElement, { childList: true, subtree: true });
 </script>
 `;
 
-const redirectNote = () => `
+const redirectNote = () => {
+  // In a real implementation, we would get this text through i18n
+  // Since route handlers don't have direct access to useTranslations, we'd need to pass the locale or use a different approach
+  return `
 <div id="stream-complete" style="display:none;"></div>
 <div style="text-align:center; padding: 20px; margin-top: 30px;">
-  <p>报告生成完毕，即将跳转到报告页面...</p>
+  <p>Report generation complete, redirecting to the report page...</p>
 </div>
 `;
+};
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const url = new URL(req.url);

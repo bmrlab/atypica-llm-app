@@ -1,16 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { CircleCheckBig, LoaderCircle } from "lucide-react";
-import Link from "next/link";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { fetchAnalystById } from "@/data";
+import { CircleCheckBig, LoaderCircle } from "lucide-react";
+import { useTranslations } from "next-intl";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 
 interface ReportDialogProps {
   open: boolean;
@@ -18,11 +14,8 @@ interface ReportDialogProps {
   analystId: number;
 }
 
-export function ReportDialog({
-  open,
-  onOpenChange,
-  analystId,
-}: ReportDialogProps) {
+export function ReportDialog({ open, onOpenChange, analystId }: ReportDialogProps) {
+  const t = useTranslations("AnalystPage.ReportDialog");
   const [hasReport, setHasReport] = useState(false);
 
   // Check if report is generated
@@ -43,21 +36,18 @@ export function ReportDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange} modal>
-      <DialogContent
-        className="sm:max-w-[80vw]"
-        onPointerDownOutside={(e) => e.preventDefault()}
-      >
+      <DialogContent className="sm:max-w-[80vw]" onPointerDownOutside={(e) => e.preventDefault()}>
         <DialogHeader className="space-y-4">
           <DialogTitle className="flex items-center gap-2">
             {hasReport ? (
               <>
                 <CircleCheckBig className="text-green-600" />
-                报告已生成
+                {t("reportGenerated")}
               </>
             ) : (
               <>
                 <LoaderCircle className="animate-spin text-orange-300" />
-                生成报告中
+                {t("generatingReport")}
               </>
             )}
           </DialogTitle>
@@ -75,23 +65,18 @@ export function ReportDialog({
                   : "text-orange-700 dark:text-orange-300"
               }`}
             >
-              {hasReport
-                ? "报告生成完成，请点击下方按钮查看完整报告。"
-                : "正在生成研究报告，请勿关闭此窗口。生成完成后会自动提示。"}
+              {hasReport ? t("completeMessage") : t("waitMessage")}
             </p>
           </div>
         </DialogHeader>
         <div className="h-[70vh]">
-          <iframe
-            src={`/analyst/${analystId}/live`}
-            className="w-full h-full border-none"
-          ></iframe>
+          <iframe src={`/analyst/${analystId}/live`} className="w-full h-full border-none"></iframe>
         </div>
         <div className="flex justify-end gap-2">
           {hasReport && (
             <Button asChild variant="default" size="sm">
               <Link href={`/analyst/${analystId}/html`} target="_blank">
-                查看报告
+                {t("viewReport")}
               </Link>
             </Button>
           )}

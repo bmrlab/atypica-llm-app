@@ -1,13 +1,70 @@
 {
-  "tagline": "Modeling the Subjective World",
+  "tagline": "为「主观世界」建模",
   "HomePage": {
-    "title": "Home",
+    "title": "首页",
     "HistoryDrawer": {
-      "title": "Chat History",
-      "unnamedChat": "Unnamed Chat"
+      "title": "历史对话",
+      "unnamedChat": "未命名对话"
     },
     "InputSection": {
-      "placeholder": "What's on your mind"
+      "placeholder": "你在想什么"
+    }
+  },
+  "AnalystListPage": {
+    "backButton": "返回",
+    "researchTopics": "用户调研主题",
+    "createNewTopic": "创建新的主题",
+    "createMobile": "新主题",
+    "topicDialog": {
+      "title": "创建新的主题",
+      "role": "角色",
+      "rolePlaceholder": "例如：品牌策划师",
+      "topic": "研究主题",
+      "topicPlaceholder": "请输入研究主题...",
+      "create": "创建"
+    },
+    "guide": {
+      "title": "使用指南",
+      "tip1": "创建一个研究主题，利用 AI 进行用户访谈",
+      "tip2": "点击卡片查看访谈对象、访谈内容和完整报告"
+    }
+  },
+  "AnalystPage": {
+    "backButton": "返回",
+    "guide": {
+      "title": "使用指南",
+      "tip1": "添加更多访谈对象来获取更全面的见解",
+      "tip2": "选择单个访谈逐一进行，或使用\"开启所有人访谈\"批量开始",
+      "tip3": "在访谈过程中随时生成报告，也可以在所有访谈结束后生成最终报告"
+    },
+    "topicCard": {
+      "researchTopic": "研究主题",
+      "viewReport": "查看报告",
+      "regenerateReport": "重新生成报告",
+      "generateReport": "生成报告"
+    },
+    "interviewSection": {
+      "title": "访谈用户",
+      "startAllInterviews": "开启所有人访谈",
+      "addInterviewSubject": "添加访谈对象"
+    },
+    "InterviewCard": {
+      "interviewing": "正在访谈",
+      "concluded": "已总结",
+      "viewSummary": "查看总结",
+      "startInterview": "去访谈"
+    },
+    "SelectPersonaDialog": {
+      "title": "选择访谈对象",
+      "cancel": "取消",
+      "confirm": "确定"
+    },
+    "ReportDialog": {
+      "reportGenerated": "报告已生成",
+      "generatingReport": "生成报告中",
+      "completeMessage": "报告生成完成，请点击下方按钮查看完整报告。",
+      "waitMessage": "正在生成研究报告，请勿关闭此窗口。生成完成后会自动提示。",
+      "viewReport": "查看报告"
     }
   }
 }

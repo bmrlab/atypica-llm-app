@@ -1,13 +1,6 @@
 "use client";
-import { useState } from "react";
-import { Analyst, createAnalyst } from "@/data";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -17,14 +10,14 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { useRouter } from "next/navigation";
+import { Analyst, createAnalyst } from "@/data";
 import { PlusIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
-export function AnalystsList({
-  analysts: initialAnalysts,
-}: {
-  analysts: Analyst[];
-}) {
+export function AnalystsList({ analysts: initialAnalysts }: { analysts: Analyst[] }) {
+  const t = useTranslations("AnalystListPage");
   const [analysts, setAnalysts] = useState(initialAnalysts);
   const [isOpen, setIsOpen] = useState(false);
   const [role, setRole] = useState("");
@@ -50,51 +43,49 @@ export function AnalystsList({
       <div className="relative w-full mb-4 sm:mb-8">
         <div className="absolute left-0 top-1/2 -translate-y-1/2">
           <Button variant="ghost" size="sm" onClick={() => router.back()}>
-            ← 返回
+            {t("backButton")}
           </Button>
         </div>
-        <h1 className="sm:text-lg font-medium px-18 text-center truncate">
-          用户调研主题
-        </h1>
+        <h1 className="sm:text-lg font-medium px-18 text-center truncate">{t("researchTopics")}</h1>
         <div className="absolute right-0 top-1/2 -translate-y-1/2">
           <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
               <div>
                 <Button variant="default" size="sm" className="hidden sm:block">
-                  创建新的主题
+                  {t("createNewTopic")}
                 </Button>
                 <Button variant="ghost" size="sm" className="flex sm:hidden">
                   <PlusIcon />
-                  新主题
+                  {t("createMobile")}
                 </Button>
               </div>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>创建新的主题</DialogTitle>
+                <DialogTitle>{t("topicDialog.title")}</DialogTitle>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">角色</label>
+                  <label className="text-sm font-medium">{t("topicDialog.role")}</label>
                   <Input
                     value={role}
                     onChange={(e) => setRole(e.target.value)}
-                    placeholder="例如：品牌策划师"
+                    placeholder={t("topicDialog.rolePlaceholder")}
                     required
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">研究主题</label>
+                  <label className="text-sm font-medium">{t("topicDialog.topic")}</label>
                   <Textarea
                     value={topic}
                     onChange={(e) => setTopic(e.target.value)}
-                    placeholder="请输入研究主题..."
+                    placeholder={t("topicDialog.topicPlaceholder")}
                     className="min-h-[100px]"
                     required
                   />
                 </div>
                 <Button type="submit" className="w-full">
-                  创建
+                  {t("topicDialog.create")}
                 </Button>
               </form>
             </DialogContent>
@@ -104,10 +95,10 @@ export function AnalystsList({
 
       <div className="mb-4">
         <div className="bg-muted/50 rounded-lg p-6">
-          <h3 className="font-medium mb-2">💡 使用指南</h3>
+          <h3 className="font-medium mb-2">💡 {t("guide.title")}</h3>
           <ul className="list-disc ml-4 space-y-1 text-sm text-muted-foreground">
-            <li>创建一个研究主题，利用 AI 进行用户访谈</li>
-            <li>点击卡片查看访谈对象、访谈内容和完整报告</li>
+            <li>{t("guide.tip1")}</li>
+            <li>{t("guide.tip2")}</li>
           </ul>
         </div>
       </div>

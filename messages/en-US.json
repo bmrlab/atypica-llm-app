@@ -1,13 +1,70 @@
 {
-  "tagline": "为「主观世界」建模",
+  "tagline": "Modeling the Subjective World",
   "HomePage": {
-    "title": "首页",
+    "title": "Home",
     "HistoryDrawer": {
-      "title": "历史对话",
-      "unnamedChat": "未命名对话"
+      "title": "Chat History",
+      "unnamedChat": "Unnamed Chat"
     },
     "InputSection": {
-      "placeholder": "你在想什么"
+      "placeholder": "What's on your mind"
+    }
+  },
+  "AnalystListPage": {
+    "backButton": "Back",
+    "researchTopics": "Research Topics",
+    "createNewTopic": "Create New Topic",
+    "createMobile": "New Topic",
+    "topicDialog": {
+      "title": "Create New Topic",
+      "role": "Role",
+      "rolePlaceholder": "e.g., Brand Strategist",
+      "topic": "Research Topic",
+      "topicPlaceholder": "Please enter your research topic...",
+      "create": "Create"
+    },
+    "guide": {
+      "title": "Usage Guide",
+      "tip1": "Create a research topic to conduct user interviews using AI",
+      "tip2": "Click on a card to view interview subjects, content, and full reports"
+    }
+  },
+  "AnalystPage": {
+    "backButton": "Back",
+    "guide": {
+      "title": "Usage Guide",
+      "tip1": "Add more interview subjects to gain more comprehensive insights",
+      "tip2": "Select individual interviews one by one, or use \"Start All Interviews\" to begin in batch",
+      "tip3": "Generate reports at any time during interviews, or generate a final report after all interviews are completed"
+    },
+    "topicCard": {
+      "researchTopic": "Research Topic",
+      "viewReport": "View Report",
+      "regenerateReport": "Regenerate Report",
+      "generateReport": "Generate Report"
+    },
+    "interviewSection": {
+      "title": "Interview Subjects",
+      "startAllInterviews": "Start All Interviews",
+      "addInterviewSubject": "Add Interview Subject"
+    },
+    "InterviewCard": {
+      "interviewing": "Interviewing",
+      "concluded": "Concluded",
+      "viewSummary": "View Summary",
+      "startInterview": "Start Interview"
+    },
+    "SelectPersonaDialog": {
+      "title": "Select Interview Subjects",
+      "cancel": "Cancel",
+      "confirm": "Confirm"
+    },
+    "ReportDialog": {
+      "reportGenerated": "Report Generated",
+      "generatingReport": "Generating Report",
+      "completeMessage": "The report has been generated. Click the button below to view the full report.",
+      "waitMessage": "Generating research report, please do not close this window. You will be notified when the generation is complete.",
+      "viewReport": "View Report"
     }
   }
 }

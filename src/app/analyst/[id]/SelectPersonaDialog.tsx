@@ -1,21 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { fetchPersonas, Persona, upsertAnalystInterview } from "@/data";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-  CardFooter,
-} from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { fetchPersonas, Persona, upsertAnalystInterview } from "@/data";
+import { useTranslations } from "next-intl";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 interface SelectPersonaDialogProps {
@@ -31,6 +21,7 @@ export function SelectPersonaDialog({
   analystId,
   onSuccess,
 }: SelectPersonaDialogProps) {
+  const t = useTranslations("AnalystPage.SelectPersonaDialog");
   const [loading, setLoading] = useState(true);
   const [personas, setPersonas] = useState<Persona[]>([]);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
@@ -63,7 +54,7 @@ export function SelectPersonaDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-6xl">
         <DialogHeader>
-          <DialogTitle>选择访谈对象</DialogTitle>
+          <DialogTitle>{t("title")}</DialogTitle>
         </DialogHeader>
         {loading ? (
           <div className="flex justify-center items-center h-40">
@@ -76,9 +67,7 @@ export function SelectPersonaDialog({
                 <Card
                   key={persona.id}
                   className={`gap-3 cursor-pointer transition-colors ${
-                    selectedIds.includes(persona.id)
-                      ? "bg-accent"
-                      : "hover:bg-accent/50"
+                    selectedIds.includes(persona.id) ? "bg-accent" : "hover:bg-accent/50"
                   }`}
                   onClick={() => {
                     setSelectedIds((prev) =>
@@ -102,13 +91,10 @@ export function SelectPersonaDialog({
             </div>
             <div className="flex justify-end space-x-2 mt-4">
               <Button variant="outline" onClick={() => onOpenChange(false)}>
-                取消
+                {t("cancel")}
               </Button>
-              <Button
-                onClick={handleSubmit}
-                disabled={selectedIds.length === 0}
-              >
-                确定 ({selectedIds.length})
+              <Button onClick={handleSubmit} disabled={selectedIds.length === 0}>
+                {t("confirm")} ({selectedIds.length})
               </Button>
             </div>
           </>
