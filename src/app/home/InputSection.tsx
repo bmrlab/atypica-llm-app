@@ -3,10 +3,12 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { createUserChat } from "@/data";
 import { ArrowRightIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export function InputSection() {
+  const t = useTranslations("HomePage.InputSection");
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
@@ -33,7 +35,7 @@ export function InputSection() {
         <Textarea
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="你在想什么"
+          placeholder={t("placeholder")}
           className="min-h-32 resize-none focus-visible:ring-primary rounded-3xl p-5"
           disabled={isLoading}
           onKeyDown={(e) => {

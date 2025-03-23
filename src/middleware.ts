@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export const config = {
-  matcher: "/.ping",
+  matcher: ["/((?!api|_next/static|_next/image|_public|favicon.ico|sitemap.xml|robots.txt).*)"],
 };
 
 function handlePingRequest(req: NextRequest) {
@@ -14,10 +14,23 @@ function handlePingRequest(req: NextRequest) {
   });
 }
 
+function handleLocale(req: NextRequest) {
+  // Get the locale from cookies
+  const localeCookie = req.cookies.get("locale");
+  const locale = localeCookie?.value || "zh-CN";
+  // Create a response object from the request
+  const response = NextResponse.next();
+  // Set the locale in a header to be accessible in server components
+  response.headers.set("x-locale", locale);
+  return response;
+}
+
 export async function middleware(req: NextRequest) {
   if (req.nextUrl.pathname.endsWith(".ping")) {
     return handlePingRequest(req);
   }
 
-  return NextResponse.next();
+  const response = handleLocale(req);
+
+  return response;
 }

@@ -3,6 +3,8 @@ import { Toaster } from "@/components/ui/sonner";
 import UserMenu from "@/components/UserMenu";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import type { Metadata, Viewport } from "next";
+import { NextIntlClientProvider } from "next-intl";
+import { getLocale } from "next-intl/server";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -49,23 +51,27 @@ export const metadata: Metadata = {
     follow: true,
   },
   icons: {
-    icon: "/atypica.png",
-    shortcut: "/atypica.png",
-    apple: { url: "/atypica.png", sizes: "180x180", type: "image/png" },
+    icon: "/_public/atypica.png",
+    shortcut: "/_public/atypica.png",
+    apple: { url: "/_public/atypica.png", sizes: "180x180", type: "image/png" },
   },
   manifest: "/manifest.json",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getLocale();
+
   return (
-    <html lang="en">
+    <html lang={locale}>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <AuthProvider>{children}</AuthProvider>
-        <Toaster />
+        <NextIntlClientProvider>
+          <AuthProvider>{children}</AuthProvider>
+          <Toaster />
+        </NextIntlClientProvider>
       </body>
       {process.env.NODE_ENV === "production" && <GoogleAnalytics gaId="G-EJTF0VJKQP" />}
     </html>

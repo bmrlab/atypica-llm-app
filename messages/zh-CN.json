@@ -1,0 +1,13 @@
+{
+  "tagline": "Modeling the Subjective World",
+  "HomePage": {
+    "title": "Home",
+    "HistoryDrawer": {
+      "title": "Chat History",
+      "unnamedChat": "Unnamed Chat"
+    },
+    "InputSection": {
+      "placeholder": "What's on your mind"
+    }
+  }
+}

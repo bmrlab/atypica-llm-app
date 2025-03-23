@@ -1,8 +1,11 @@
+import LanguageToggle from "@/components/LanguageToggle";
 import UserMenu from "@/components/UserMenu";
+import { useTranslations } from "next-intl";
 import { StudyHistoryDrawer } from "./HistoryDrawer";
 import { InputSection } from "./InputSection";
 
 export default function HomePageClient({ anonymous }: { anonymous: boolean }) {
+  const t = useTranslations();
   return (
     <div className="min-h-screen max-w-6xl mx-auto py-12 sm:py-24 space-y-12 sm:space-y-24">
       <div className="text-center space-y-6">
@@ -10,7 +13,7 @@ export default function HomePageClient({ anonymous }: { anonymous: boolean }) {
           atypica.LLM
         </h1>
         <p className="text-base sm:text-2xl font-light text-muted-foreground max-w-3xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom-6 duration-1000">
-          为「主观世界」建模
+          {t("tagline")}
         </p>
       </div>
       <div className="mt-8 animate-in fade-in slide-in-from-bottom-8 duration-1000 p-3">
@@ -21,7 +24,8 @@ export default function HomePageClient({ anonymous }: { anonymous: boolean }) {
           <StudyHistoryDrawer />
         </div>
       ) : null}
-      <div className="fixed right-2 top-2 sm:top-4 sm:right-4">
+      <div className="fixed right-2 top-2 sm:top-4 sm:right-4 flex items-center justify-end gap-4">
+        <LanguageToggle />
         <UserMenu />
       </div>
     </div>

@@ -10,9 +10,11 @@ import {
 import { fetchUserChats, UserChat } from "@/data";
 import { fixChatMessages } from "@/lib/utils";
 import { HistoryIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
 export function StudyHistoryDrawer() {
+  const t = useTranslations("HomePage.HistoryDrawer");
   const [chats, setChats] = useState<UserChat[]>([]);
   const [open, setOpen] = useState(false);
 
@@ -46,7 +48,7 @@ export function StudyHistoryDrawer() {
       </DrawerTrigger>
       <DrawerContent className="w-[280px] mr-0 ml-auto">
         <DrawerHeader>
-          <DrawerTitle className="text-center">历史对话</DrawerTitle>
+          <DrawerTitle className="text-center">{t("title")}</DrawerTitle>
         </DrawerHeader>
         <div className="p-4 space-y-2">
           {chats.map((chat) => (
@@ -60,7 +62,7 @@ export function StudyHistoryDrawer() {
               }
               className="px-3 py-2 text-sm truncate text-zinc-500 hover:bg-zinc-100 rounded cursor-pointer"
             >
-              {chat.title || "未命名对话"}
+              {chat.title || t("unnamedChat")}
             </div>
           ))}
         </div>

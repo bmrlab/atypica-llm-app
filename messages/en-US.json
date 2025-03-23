@@ -1,0 +1,13 @@
+{
+  "tagline": "为「主观世界」建模",
+  "HomePage": {
+    "title": "首页",
+    "HistoryDrawer": {
+      "title": "历史对话",
+      "unnamedChat": "未命名对话"
+    },
+    "InputSection": {
+      "placeholder": "你在想什么"
+    }
+  }
+}
