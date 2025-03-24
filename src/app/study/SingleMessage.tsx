@@ -9,7 +9,6 @@ import { PropsWithChildren, ReactNode, useEffect } from "react";
 import { useStudyContext } from "./hooks/StudyContext";
 
 const ToolInvocationMessage = ({ toolInvocation }: { toolInvocation: ToolInvocation }) => {
-  const { toolName, args } = toolInvocation;
   const { setViewToolInvocation, setLastToolInvocation } = useStudyContext();
 
   useEffect(() => {
@@ -21,7 +20,7 @@ const ToolInvocationMessage = ({ toolInvocation }: { toolInvocation: ToolInvocat
       <Collapsible className="w-full">
         <CollapsibleTrigger className="w-full flex items-center gap-1 text-xs font-bold hover:underline group">
           <ChevronRight className="h-3 w-3 transition-transform group-data-[state=open]:rotate-90" />
-          <div className="ml-1 my-2 font-bold">exec {toolName}</div>
+          <div className="ml-1 my-2 font-bold">exec {toolInvocation.toolName}</div>
           <div
             className="text-gray-400 ml-auto mr-2 p-2 hover:bg-gray-100 rounded-md"
             onClick={(e) => {
@@ -36,7 +35,7 @@ const ToolInvocationMessage = ({ toolInvocation }: { toolInvocation: ToolInvocat
           <div className="ml-1 mt-1 mb-1 text-gray-500">&gt;_ args</div>
           <table className="text-left">
             <tbody>
-              {Object.entries(args).map(([key, value]) => (
+              {Object.entries(toolInvocation.args).map(([key, value]) => (
                 <tr key={key}>
                   <td className="p-1 align-top">{key}:</td>
                   <td className="p-1 whitespace-pre-wrap">

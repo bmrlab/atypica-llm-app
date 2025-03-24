@@ -203,7 +203,7 @@ export async function deleteMessageFromUserChat(
       if (userChat?.userId != user.id) {
         forbidden();
       }
-      let newMessages = [...messages];
+      const newMessages = [...messages];
       const index = newMessages.findIndex((message) => message.id === messageId);
       if (index >= 0 && newMessages[index].role === "user") {
         if (newMessages[index + 1]?.role === "assistant") {

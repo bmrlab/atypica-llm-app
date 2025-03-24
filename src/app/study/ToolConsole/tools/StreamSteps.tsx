@@ -12,8 +12,7 @@ import {
 } from "@/tools/ui/ToolMessage";
 import { Message as MessageType, ToolInvocation } from "ai";
 import { motion } from "framer-motion";
-import { BotIcon, CpuIcon, UserIcon } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { BotIcon, CpuIcon, LoaderIcon, UserIcon } from "lucide-react";
 import { PropsWithChildren, ReactNode } from "react";
 
 const PlainText = ({ children }: PropsWithChildren) => {
@@ -25,53 +24,48 @@ const PlainText = ({ children }: PropsWithChildren) => {
 };
 
 const StreamStep = ({ toolInvocation }: { toolInvocation: ToolInvocation }) => {
-  const t = useTranslations("StudyPage.ToolConsole");
-  const { toolName, args } = toolInvocation;
   return (
-    <div>
-      <pre
-        className={cn(
-          "text-xs whitespace-pre-wrap bg-gray-50 border border-gray-100 rounded-lg p-2 font-mono",
-        )}
-      >
-        <div className="ml-2 mt-1 mb-2 font-bold">{toolName} exec args</div>
-        <table className="text-left">
-          <tbody>
-            {Object.entries(args).map(([key, value]) => (
-              <tr key={key}>
-                <td className="p-2 align-top">{key}:</td>
-                <td className="p-2 whitespace-pre-wrap">
-                  {typeof value === "object" ? JSON.stringify(value, null, 2) : value?.toString()}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </pre>
-      {toolInvocation.state === "result" && (
-        <>
-          <div className="text-sm text-zinc-800 my-4">{t("executionResult")}</div>
-          {(() => {
-            switch (toolName) {
-              case ToolName.xhsSearch:
-                return <XHSSearchResultMessage result={toolInvocation.result} />;
-              case ToolName.xhsUserNotes:
-                return <XHSUserNotesResultMessage result={toolInvocation.result} />;
-              case ToolName.xhsNoteComments:
-                return <XHSNoteCommentsResultMessage result={toolInvocation.result} />;
-              case ToolName.reasoningThinking:
-                return <ReasoningThinkingResultMessage result={toolInvocation.result} />;
-              case ToolName.saveAnalyst:
-                return <SaveAnalystToolResultMessage result={toolInvocation.result} />;
-              default:
-                return (
-                  <pre className="text-xs font-mono whitespace-pre-wrap p-4 text-muted-foreground bg-gray-50 border border-gray-100 rounded-lg">
-                    {toolInvocation.result.plainText ?? "-"}
-                  </pre>
-                );
-            }
-          })()}
-        </>
+    <div className={cn("text-xs whitespace-pre-wrap p-2 font-mono")}>
+      <div className="ml-1 my-2 font-bold">exec {toolInvocation.toolName}</div>
+      <div className="ml-1 mt-1 mb-1 text-gray-500">&gt;_ args</div>
+      <table className="text-left">
+        <tbody>
+          {Object.entries(toolInvocation.args).map(([key, value]) => (
+            <tr key={key}>
+              <td className="p-1 align-top">{key}:</td>
+              <td className="p-1 whitespace-pre-wrap">
+                {typeof value === "object" ? JSON.stringify(value, null, 2) : value?.toString()}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <div className="ml-1 mt-2 mb-2 text-gray-500">&gt;_ result</div>
+      {toolInvocation.state === "result" ? (
+        (() => {
+          switch (toolInvocation.toolName) {
+            case ToolName.xhsSearch:
+              return <XHSSearchResultMessage result={toolInvocation.result} />;
+            case ToolName.xhsUserNotes:
+              return <XHSUserNotesResultMessage result={toolInvocation.result} />;
+            case ToolName.xhsNoteComments:
+              return <XHSNoteCommentsResultMessage result={toolInvocation.result} />;
+            case ToolName.reasoningThinking:
+              return <ReasoningThinkingResultMessage result={toolInvocation.result} />;
+            case ToolName.saveAnalyst:
+              return <SaveAnalystToolResultMessage result={toolInvocation.result} />;
+            default:
+              return (
+                <pre className="text-xs font-mono whitespace-pre-wrap p-4 text-muted-foreground bg-gray-50 border border-gray-100 rounded-lg">
+                  {toolInvocation.result.plainText ?? "-"}
+                </pre>
+              );
+          }
+        })()
+      ) : (
+        <div className="p-1">
+          <LoaderIcon className="animate-spin" size={16} />
+        </div>
       )}
     </div>
   );
@@ -87,12 +81,24 @@ export const StreamSteps = (message: {
 
   return (
     <motion.div
-      className={cn("flex flex-col gap-4 w-full")}
+      className={cn(
+        "flex flex-col gap-4 w-full",
+        role === "user"
+          ? "bg-blue-50/50 border-r-4 border-blue-200 pr-2 py-4 pl-4 rounded-l-lg"
+          : role === "system"
+            ? "bg-green-50/50 p-4 rounded-lg"
+            : "",
+      )}
       initial={{ y: 15, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
     >
-      <div className={cn("flex flex-row gap-2 justify-start items-center flex-shrink-0")}>
+      <div
+        className={cn(
+          "flex gap-2 justify-start items-center flex-shrink-0",
+          role === "user" ? "flex-row-reverse" : "flex-row",
+        )}
+      >
         {role === "user" ? (
           <UserIcon size={24} />
         ) : role === "assistant" ? (
