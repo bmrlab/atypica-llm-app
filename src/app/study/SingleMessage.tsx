@@ -4,7 +4,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { cn } from "@/lib/utils";
 import { Message as MessageType, ToolInvocation } from "ai";
 import { motion } from "framer-motion";
-import { BotIcon, ChevronRight, EyeIcon, LoaderIcon } from "lucide-react";
+import { BotIcon, ChevronRight, EyeIcon, LoaderIcon, XIcon } from "lucide-react";
 import { PropsWithChildren, ReactNode, useEffect } from "react";
 import { useStudyContext } from "./hooks/StudyContext";
 
@@ -68,31 +68,51 @@ const PlainText = ({ children }: PropsWithChildren) => {
   );
 };
 
-export const SingleMessage = (message: {
+export const SingleMessage = ({
+  nickname,
+  role,
+  content,
+  parts,
+  onDelete,
+}: {
   nickname?: string;
   role: "assistant" | "user" | "system" | "data";
   content: string | ReactNode;
   parts?: MessageType["parts"];
+  onDelete?: () => void;
 }) => {
-  const { nickname, role, content, parts } = message;
   function UserLargeMessage({ content }: { content: string }) {
     return (
       <div
         className={cn(
-          content.length < 20
-            ? "text-2xl"
-            : content.length < 50
-              ? "text-xl"
-              : content.length < 80
-                ? "text-lg"
-                : content.length < 100
-                  ? "text-base"
-                  : "text-sm",
-          "font-medium w-full mt-8 mb-6",
-          "not-first-of-type:border-t not-first-of-type:border-gray-100 not-first-of-type:pt-12",
+          "w-full mt-8 mb-6",
+          "not-first-of-type:border-t not-first-of-type:border-gray-100 not-first-of-type:pt-12 flex items-center justify-between",
         )}
       >
-        {content}
+        <span
+          className={cn(
+            content.length < 20
+              ? "text-2xl"
+              : content.length < 50
+                ? "text-xl"
+                : content.length < 80
+                  ? "text-lg"
+                  : content.length < 100
+                    ? "text-base"
+                    : "text-sm",
+            "font-medium",
+          )}
+        >
+          {content}
+        </span>
+        {onDelete ? (
+          <div
+            className="p-2 text-muted-foreground hover:text-muted-foreground/50 mr-4"
+            onClick={() => onDelete()}
+          >
+            <XIcon className="w-4 h-4" />
+          </div>
+        ) : null}
       </div>
     );
   }

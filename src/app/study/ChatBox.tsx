@@ -1,6 +1,6 @@
 "use client";
 import { useScrollToBottom } from "@/components/use-scroll-to-bottom";
-import { createUserChat, StudyUserChat, updateUserChat } from "@/data";
+import { createUserChat, deleteMessageFromUserChat, StudyUserChat, updateUserChat } from "@/data";
 import { cn, fixChatMessages } from "@/lib/utils";
 import { Message, useChat } from "@ai-sdk/react";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -103,12 +103,24 @@ export function ChatBox({ studyChat, readOnly }: { studyChat: StudyUserChat; rea
         ref={messagesContainerRef}
         className="flex-1 flex flex-col pb-24 w-full items-center overflow-y-scroll"
       >
-        {messages.map((message) => (
+        {messages.map((message, index) => (
           <SingleMessage
             key={message.id}
             role={message.role}
             content={message.content}
             parts={message.parts}
+            onDelete={
+              message.role === "user" && index >= messages.length - 2
+                ? async () => {
+                    const newMessages = await deleteMessageFromUserChat(
+                      studyChat.id,
+                      messages,
+                      message.id,
+                    );
+                    setMessages(newMessages);
+                  }
+                : undefined
+            }
           ></SingleMessage>
         ))}
         {error && (
