@@ -1,15 +1,15 @@
 "use client";
 // 给 chat 类型的 tool call 用的组件，比如 scout chat 和 interview chat
 import { Markdown } from "@/components/markdown";
-import { cn } from "@/lib/utils";
-import { ToolName } from "@/tools";
 import {
   ReasoningThinkingResultMessage,
   SaveAnalystToolResultMessage,
   XHSNoteCommentsResultMessage,
   XHSSearchResultMessage,
   XHSUserNotesResultMessage,
-} from "@/tools/ui/ToolMessage";
+} from "@/components/ToolMessage";
+import { cn } from "@/lib/utils";
+import { ToolName } from "@/tools";
 import { Message as MessageType, ToolInvocation } from "ai";
 import { motion } from "framer-motion";
 import { BotIcon, CpuIcon, LoaderIcon, UserIcon } from "lucide-react";

@@ -1,12 +1,12 @@
 import { Markdown } from "@/components/markdown";
+import { ReasoningThinkingResult } from "@/tools/experts/reasoning";
+import { SaveAnalystToolResult } from "@/tools/system/saveAnalyst";
+import { XHSNoteCommentsResult } from "@/tools/xhs/noteComments";
+import { XHSSearchResult } from "@/tools/xhs/search";
+import { XHSUserNotesResult } from "@/tools/xhs/userNotes";
 import Image from "next/image";
 import Link from "next/link";
 import { FC } from "react";
-import { ReasoningThinkingResult } from "../experts/reasoning";
-import { SaveAnalystToolResult } from "../system/saveAnalyst";
-import { XHSNoteCommentsResult } from "../xhs/noteComments";
-import { XHSSearchResult } from "../xhs/search";
-import { XHSUserNotesResult } from "../xhs/userNotes";
 // import { ImageCarousel } from "./ImageCarousel";
 
 export const XHSSearchResultMessage: FC<{ result: XHSSearchResult }> = ({ result: { notes } }) => {
