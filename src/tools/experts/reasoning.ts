@@ -1,12 +1,7 @@
+import openai from "@/lib/openai";
 import { PlainTextToolResult } from "@/tools/utils";
-import { createDeepSeek } from "@ai-sdk/deepseek";
 import { streamText, tool } from "ai";
 import { z } from "zod";
-
-const deepseek = createDeepSeek({
-  apiKey: process.env.SILICONFLOW_API_KEY,
-  baseURL: process.env.SILICONFLOW_BASE_URL,
-});
 
 export interface ReasoningThinkingResult extends PlainTextToolResult {
   reasoning: string;
@@ -31,7 +26,8 @@ ${question}
   try {
     return new Promise(async (resolve, reject) => {
       const response = streamText({
-        model: deepseek("Pro/deepseek-ai/DeepSeek-R1"),
+        // model: deepseek("Pro/deepseek-ai/DeepSeek-R1"),
+        model: openai("gpt-4o"),
         system: "你是一个专业的顾问，需要逐步仔细思考这个问题。用较少的文字回复，不要超过300字。",
         messages: [{ role: "user", content: prompt }],
         // maxTokens: 500,

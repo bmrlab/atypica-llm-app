@@ -166,7 +166,7 @@
       "interviewStarting": "Interview starting..",
       "researchConclusion": "Research Conclusion",
       "researchTopic": "Research Topic",
-      "interviewing": "Interviewing with user"
+      "interviewing": "Interviewing with {count} people"
     }
   },
   "InterviewPage": {

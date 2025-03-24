@@ -10,68 +10,87 @@ import { generateId, Message, streamText, tool } from "ai";
 import { z } from "zod";
 
 export interface InterviewResult extends PlainTextToolResult {
+  interviews: {
+    analystId: number;
+    personaId: number;
+    personaName: string;
+    conclusion?: string;
+    result: string;
+  }[];
   plainText: string;
 }
 
 export const interviewTool = tool({
-  description: "对一个用户进行调研主题的访谈",
+  description: "针对一个调研主题的一系列用户进行访谈，每次最多3人",
   parameters: z.object({
-    analystId: z.number().describe("调研主题的 ID"),
-    personaId: z.number().describe("调研对象的 ID"),
+    analystId: z.number().describe("调研主题的ID"),
+    personas: z
+      .array(
+        z.object({
+          id: z.number().describe("调研对象的ID"),
+          name: z.string().describe("调研对象的姓名"),
+        }),
+      )
+      .describe("调研对象的列表，最多3人"),
   }),
   experimental_toToolResultContent: (result: PlainTextToolResult) => {
     return [{ type: "text", text: result.plainText }];
   },
-  execute: async ({ analystId, personaId }): Promise<InterviewResult> => {
-    const [interview, persona, analyst] = await Promise.all([
-      prisma.analystInterview.upsert({
-        where: { analystId_personaId: { analystId, personaId } },
-        update: {},
-        create: {
+  execute: async ({ analystId, personas }): Promise<InterviewResult> => {
+    const single = async ({ id: personaId, name: personaName }: { id: number; name: string }) => {
+      const [interview, persona, analyst] = await Promise.all([
+        prisma.analystInterview.upsert({
+          where: { analystId_personaId: { analystId, personaId } },
+          update: {},
+          create: {
+            analystId,
+            personaId,
+            personaPrompt: "",
+            interviewerPrompt: "",
+            messages: [],
+            conclusion: "",
+          },
+        }),
+        prisma.persona.findUniqueOrThrow({ where: { id: personaId } }),
+        prisma.analyst.findUniqueOrThrow({ where: { id: analystId } }),
+      ]);
+      try {
+        await startInterview({
+          analyst,
+          persona: {
+            ...persona,
+            tags: persona.tags as string[],
+          },
+          analystInterviewId: interview.id,
+        });
+        const updatedInterview = await prisma.analystInterview.findUniqueOrThrow({
+          where: { id: interview.id },
+        });
+        return {
           analystId,
           personaId,
-          personaPrompt: "",
-          interviewerPrompt: "",
-          messages: [],
-          conclusion: "",
-        },
-      }),
-      prisma.persona.findUniqueOrThrow({ where: { id: personaId } }),
-      prisma.analyst.findUniqueOrThrow({ where: { id: analystId } }),
-    ]);
-    try {
-      await startInterview({
-        analyst,
-        persona: {
-          ...persona,
-          tags: persona.tags as string[],
-        },
-        analystInterviewId: interview.id,
-      });
-      const updatedInterview = await prisma.analystInterview.findUniqueOrThrow({
-        where: { id: interview.id },
-      });
-      await new Promise((resolve) => {
-        // 等 5s, 确保前端可以把 conclusion 显示出来
-        setTimeout(() => resolve(null), 5000);
-      });
-      return {
-        plainText: JSON.stringify({
-          analystId,
-          personaId,
+          personaName,
           conclusion: updatedInterview.conclusion,
           result: "访谈结束",
-        }),
-      };
-    } catch (error) {
-      return {
-        plainText: JSON.stringify({
+        };
+      } catch (error) {
+        return {
           analystId,
           personaId,
+          personaName,
           result: `访谈遇到问题 ${(error as Error).message}`,
-        }),
-      };
-    }
+        };
+      }
+    };
+    const interviewResults = await Promise.all(personas.map(single));
+    await new Promise((resolve) => {
+      // 等 5s, 确保前端可以把 conclusion 显示出来
+      setTimeout(() => resolve(null), 5000);
+    });
+    return {
+      interviews: interviewResults,
+      plainText: JSON.stringify(interviewResults),
+    };
   },
 });
 

@@ -166,7 +166,7 @@
       "interviewStarting": "访谈启动中..",
       "researchConclusion": "调研结论",
       "researchTopic": "研究主题",
-      "interviewing": "正在与用户访谈"
+      "interviewing": "正在与{count}人访谈"
     }
   },
   "InterviewPage": {

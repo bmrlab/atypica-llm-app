@@ -38,7 +38,7 @@ const ScoutTaskChat = ({ toolInvocation }: { toolInvocation: ToolInvocation }) =
     let timeoutId: NodeJS.Timeout;
     const poll = async () => {
       await fetchUpdate();
-      timeoutId = setTimeout(poll, 5000);
+      timeoutId = setTimeout(poll, 2000);
     };
     poll();
     return () => {

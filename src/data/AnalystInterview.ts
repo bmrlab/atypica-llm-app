@@ -4,7 +4,6 @@ import { AnalystInterview as AnalystInterviewPrisma } from "@prisma/client";
 import { InputJsonValue } from "@prisma/client/runtime/library";
 import { Message } from "ai";
 import { forbidden, notFound } from "next/navigation";
-import { Analyst } from "./Analyst";
 import { Persona } from "./Persona";
 import withAuth from "./withAuth";
 
@@ -50,24 +49,13 @@ export async function fetchInterviewByAnalystAndPersona({
 }: {
   analystId: number;
   personaId: number;
-}): Promise<
-  AnalystInterview & {
-    persona: Persona & {
-      tags: string[];
-    };
-    analyst: Analyst;
-  }
-> {
+}): Promise<AnalystInterview> {
   // @AUTHTODO: 读取 AnalystInterview 暂时不需要 user 有 Analyst 权限
   // return withAuth(async () => {
   try {
     const interview = await prisma.analystInterview.findUniqueOrThrow({
       where: {
         analystId_personaId: { analystId, personaId },
-      },
-      include: {
-        persona: true,
-        analyst: true,
       },
     });
     if (!interview) notFound();
@@ -80,10 +68,6 @@ export async function fetchInterviewByAnalystAndPersona({
     const { messages } = interview;
     return {
       ...interview,
-      persona: {
-        ...interview.persona,
-        tags: interview.persona.tags as string[],
-      },
       messages: messages as unknown as Message[],
     };
   } catch (error) {
