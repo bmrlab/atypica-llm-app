@@ -77,7 +77,7 @@ export default function SignUpPage() {
               required
             />
           </div>
-          <Button className="w-full" type="submit" disabled={isLoading}>
+          <Button variant="outline" className="w-full" type="submit" disabled={isLoading}>
             {isLoading ? t("submittingButton") : t("submitButton")}
           </Button>
         </form>

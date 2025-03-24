@@ -16,13 +16,13 @@ const ToolInvocationMessage = ({ toolInvocation }: { toolInvocation: ToolInvocat
   }, [toolInvocation, setLastToolInvocation]);
 
   return (
-    <pre className="text-xs whitespace-pre-wrap bg-gray-50 border border-gray-100 rounded-lg p-2 font-mono">
+    <pre className="text-xs whitespace-pre-wrap bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-lg p-2 font-mono">
       <Collapsible className="w-full">
         <CollapsibleTrigger className="w-full flex items-center gap-1 text-xs font-bold hover:underline group">
           <ChevronRight className="h-3 w-3 transition-transform group-data-[state=open]:rotate-90" />
           <div className="ml-1 my-2 font-bold">exec {toolInvocation.toolName}</div>
           <div
-            className="text-gray-400 ml-auto mr-2 p-2 hover:bg-gray-100 rounded-md"
+            className="text-foreground/70 ml-auto mr-2 p-2 hover:bg-zinc-100 hover:dark:bg-zinc-800 rounded-md"
             onClick={(e) => {
               e.stopPropagation();
               setViewToolInvocation(toolInvocation);
@@ -32,7 +32,7 @@ const ToolInvocationMessage = ({ toolInvocation }: { toolInvocation: ToolInvocat
           </div>
         </CollapsibleTrigger>
         <CollapsibleContent className="pl-5">
-          <div className="ml-1 mt-1 mb-1 text-gray-500">&gt;_ args</div>
+          <div className="ml-1 mt-1 mb-1 text-foreground/50">&gt;_ args</div>
           <table className="text-left">
             <tbody>
               {Object.entries(toolInvocation.args).map(([key, value]) => (
@@ -45,7 +45,7 @@ const ToolInvocationMessage = ({ toolInvocation }: { toolInvocation: ToolInvocat
               ))}
             </tbody>
           </table>
-          <div className="ml-1 mt-2 mb-1 text-gray-500">&gt;_ result</div>
+          <div className="ml-1 mt-2 mb-1 text-foreground/50">&gt;_ result</div>
           {toolInvocation.state === "result" ? (
             <div className="text-xs whitespace-pre-wrap p-1">{toolInvocation.result.plainText}</div>
           ) : (
@@ -61,7 +61,7 @@ const ToolInvocationMessage = ({ toolInvocation }: { toolInvocation: ToolInvocat
 
 const PlainText = ({ children }: PropsWithChildren) => {
   return (
-    <div className="text-sm text-zinc-800 flex flex-col gap-4">
+    <div className="text-sm flex flex-col gap-4">
       <Markdown>{children as string}</Markdown>
     </div>
   );
@@ -85,7 +85,7 @@ export const SingleMessage = ({
       <div
         className={cn(
           "w-full mt-8 mb-6",
-          "not-first-of-type:border-t not-first-of-type:border-gray-100 not-first-of-type:pt-12 flex items-center justify-between",
+          "not-first-of-type:border-t not-first-of-type:border-zinc-100 not-first-of-type:dark:border-zinc-700 not-first-of-type:pt-12 flex items-center justify-between",
         )}
       >
         <span

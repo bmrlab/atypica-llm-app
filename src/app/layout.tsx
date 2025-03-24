@@ -1,4 +1,5 @@
 import { AuthProvider } from "@/components/AuthProvider";
+import Stars from "@/components/Stars";
 import { Toaster } from "@/components/ui/sonner";
 import UserMenu from "@/components/UserMenu";
 import { GoogleAnalytics } from "@next/third-parties/google";
@@ -66,8 +67,9 @@ export default async function RootLayout({
   const locale = await getLocale();
 
   return (
-    <html lang={locale}>
+    <html lang={locale} className="dark">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <Stars />
         <NextIntlClientProvider>
           <AuthProvider>{children}</AuthProvider>
           <Toaster />

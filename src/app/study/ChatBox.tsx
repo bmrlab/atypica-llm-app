@@ -137,7 +137,7 @@ export function ChatBox({ studyChat, readOnly }: { studyChat: StudyUserChat; rea
         <textarea
           // ref={inputRef}
           className={cn(
-            "block bg-zinc-100 rounded-md px-4 py-3.5 w-full outline-none text-sm text-zinc-800",
+            "block bg-zinc-100 dark:bg-zinc-900 text-zinc-800 dark:text-zinc-100 rounded-md px-4 py-3.5 w-full outline-none text-sm",
             inputDisabled ? "opacity-50 cursor-not-allowed" : "",
           )}
           placeholder="Ask a follow-up question or reply"

@@ -52,7 +52,7 @@ export function ShareReplayButton({ studyChat }: { studyChat: StudyUserChat }) {
       }}
     >
       <AlertDialogTrigger asChild>
-        <Button variant="ghost" size="sm" disabled={isLoading}>
+        <Button variant="outline" size="sm" disabled={isLoading}>
           <RotateCcwIcon size={16} /> {isLoading ? t("generating") : t("shareReplay")}
         </Button>
       </AlertDialogTrigger>

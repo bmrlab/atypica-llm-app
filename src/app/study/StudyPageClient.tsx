@@ -19,22 +19,16 @@ function Header({ studyChat }: { studyChat: StudyUserChat }) {
   return (
     <div className="relative w-full flex items-center justify-between gap-2">
       {/* <div className="absolute left-0 top-1/2 -translate-y-1/2"> */}
-      <div>
-        <Button asChild variant="ghost" size="sm">
-          <Link href="/">
-            <HomeIcon size={16} /> {t("home")}
-          </Link>
-        </Button>
-      </div>
+      <Button asChild variant="outline" size="sm">
+        <Link href="/">
+          <HomeIcon size={16} /> {t("home")}
+        </Link>
+      </Button>
       <h1 className="flex-1 sm:text-lg font-medium text-center truncate">
         {studyChat.title || t("research")}
       </h1>
       {/* <div className="absolute right-0 top-1/2 -translate-y-1/2"> */}
-      {!replay ? (
-        <div>
-          <ShareReplayButton studyChat={studyChat} />
-        </div>
-      ) : null}
+      {!replay ? <ShareReplayButton studyChat={studyChat} /> : null}
     </div>
   );
 }
@@ -101,7 +95,7 @@ export function StudyPageClient({
           <div
             className={cn(
               "relative p-4 flex-1 overflow-hidden flex flex-col items-stretch justify-start",
-              "border rounded-lg bg-gray-50 shadow-lg shadow-ring",
+              "border rounded-lg bg-zinc-100 dark:bg-zinc-900 shadow-lg shadow-ring/70", // shadow-[0_0_10px_0]
               "ml-10 max-lg:ml-0",
             )}
           >
@@ -124,7 +118,7 @@ export function StudyPageClient({
                 !consoleOpen
                   ? "max-lg:p-0 max-lg:flex-none max-lg:h-0 max-lg:mt-0 max-lg:invisible"
                   : "",
-                "overflow-auto border rounded-lg bg-white",
+                "overflow-auto border rounded-lg dark:border-zinc-800 bg-white dark:bg-background",
               )}
               ref={messagesContainerRef}
             >

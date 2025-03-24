@@ -24,7 +24,7 @@ export function StatusDisplay({ status }: { chatId: number; status: string; mess
   if (!status) return null;
 
   return (
-    <div className="flex gap-2 justify-center items-center text-zinc-500 dark:text-zinc-400 text-sm">
+    <div className="flex gap-2 justify-center items-center text-primary">
       {status === "streaming" && (
         <div className="flex gap-1">
           <span className="animate-bounce">·</span>
@@ -32,7 +32,7 @@ export function StatusDisplay({ status }: { chatId: number; status: string; mess
           <span className="animate-bounce [animation-delay:0.4s]">·</span>
         </div>
       )}
-      <span>{getStatusMessage(status)}</span>
+      <span className="text-xs tracking-wider font-medium">{getStatusMessage(status)}</span>
     </div>
   );
 }

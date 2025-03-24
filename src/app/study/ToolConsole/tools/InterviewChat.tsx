@@ -142,7 +142,7 @@ const SingleInterviewChat = ({ analyst, personaId }: { analyst: Analyst; persona
   const [messagesContainerRef, messagesEndRef] = useScrollToBottom<HTMLDivElement>();
 
   return (
-    <div ref={messagesContainerRef} className="flex-1 overflow-y-scroll space-y-6">
+    <div ref={messagesContainerRef} className="flex-1 overflow-y-scroll space-y-8">
       {(!persona || !messages.length) && <div className="font-mono text-sm">Loading...</div>}
       {messagesDisplay.map((message) => (
         <StreamSteps

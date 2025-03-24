@@ -17,7 +17,7 @@ import { PropsWithChildren, ReactNode } from "react";
 
 const PlainText = ({ children }: PropsWithChildren) => {
   return (
-    <div className="text-sm text-zinc-800 flex flex-col gap-4">
+    <div className="text-sm flex flex-col gap-4">
       <Markdown>{children as string}</Markdown>
     </div>
   );
@@ -25,9 +25,9 @@ const PlainText = ({ children }: PropsWithChildren) => {
 
 const StreamStep = ({ toolInvocation }: { toolInvocation: ToolInvocation }) => {
   return (
-    <div className={cn("text-xs whitespace-pre-wrap p-2 font-mono")}>
+    <div className={cn("text-xs whitespace-pre-wrap font-mono")}>
       <div className="ml-1 my-2 font-bold">exec {toolInvocation.toolName}</div>
-      <div className="ml-1 mt-1 mb-1 text-gray-500">&gt;_ args</div>
+      <div className="ml-1 mt-1 mb-1 text-foreground/50">&gt;_ args</div>
       <table className="text-left">
         <tbody>
           {Object.entries(toolInvocation.args).map(([key, value]) => (
@@ -40,7 +40,7 @@ const StreamStep = ({ toolInvocation }: { toolInvocation: ToolInvocation }) => {
           ))}
         </tbody>
       </table>
-      <div className="ml-1 mt-2 mb-2 text-gray-500">&gt;_ result</div>
+      <div className="ml-1 mt-2 mb-2 text-foreground/50">&gt;_ result</div>
       {toolInvocation.state === "result" ? (
         (() => {
           switch (toolInvocation.toolName) {
@@ -56,7 +56,13 @@ const StreamStep = ({ toolInvocation }: { toolInvocation: ToolInvocation }) => {
               return <SaveAnalystToolResultMessage result={toolInvocation.result} />;
             default:
               return (
-                <pre className="text-xs font-mono whitespace-pre-wrap p-4 text-muted-foreground bg-gray-50 border border-gray-100 rounded-lg">
+                <pre
+                  className={cn(
+                    "text-xs font-mono whitespace-pre-wrap p-4",
+                    "text-zinc-800 bg-zinc-300 dark:text-zinc-200 dark:bg-zinc-800",
+                    "border border-zinc-200 dark:border-zinc-700 rounded-lg",
+                  )}
+                >
                   {toolInvocation.result.plainText ?? "-"}
                 </pre>
               );
@@ -81,21 +87,14 @@ export const StreamSteps = (message: {
 
   return (
     <motion.div
-      className={cn(
-        "flex flex-col gap-4 w-full",
-        role === "user"
-          ? "bg-blue-50/50 border-r-4 border-blue-200 pr-2 py-4 pl-4 rounded-l-lg"
-          : role === "system"
-            ? "bg-green-50/50 p-4 rounded-lg"
-            : "",
-      )}
+      className={cn("flex flex-col w-full")}
       initial={{ y: 15, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
     >
       <div
         className={cn(
-          "flex gap-2 justify-start items-center flex-shrink-0",
+          "mb-2 flex gap-2 justify-start items-center flex-shrink-0",
           role === "user" ? "flex-row-reverse" : "flex-row",
         )}
       >
@@ -107,13 +106,23 @@ export const StreamSteps = (message: {
           <CpuIcon size={24} />
         ) : null}
         {nickname && (
-          <div className="leading-[24px] text-zinc-800 text-sm font-medium">{nickname}</div>
+          <div className="leading-[24px] text-zinc-800 dark:text-zinc-200 text-sm font-medium">
+            {nickname}
+          </div>
         )}
       </div>
 
-      <div className="flex flex-col gap-6 flex-1 overflow-hidden">
+      <div
+        className={cn(
+          role === "user"
+            ? "not-dark:bg-blue-50/50 dark:border dark:border-primary/90 pr-2 py-4 pl-4 rounded-lg"
+            : role === "system"
+              ? "bg-green-50/50 dark:bg-zinc-800 p-4 rounded-lg"
+              : "",
+        )}
+      >
         {parts ? (
-          <div className="flex flex-col gap-4">
+          <div className={cn("flex flex-col gap-4")}>
             {parts.map((part, i) => {
               // 小红书搜索任务之类的，是多个 step 一起显示，搜索结果和总结，所以需要显示超过1条在一起，更好
               switch (part.type) {

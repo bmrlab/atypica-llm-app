@@ -8,7 +8,7 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import { fetchUserChats, UserChat } from "@/data";
-import { fixChatMessages } from "@/lib/utils";
+import { cn, fixChatMessages } from "@/lib/utils";
 import { HistoryIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
@@ -60,7 +60,10 @@ export function StudyHistoryDrawer() {
                   messages: fixChatMessages(chat.messages),
                 })
               }
-              className="px-3 py-2 text-sm truncate text-zinc-500 hover:bg-zinc-100 rounded cursor-pointer"
+              className={cn(
+                "px-3 py-2 text-sm truncate rounded cursor-pointer",
+                "text-zinc-500 dark:text-zinc-300 hover:bg-zinc-100 hover:dark:bg-zinc-800",
+              )}
             >
               {chat.title || t("unnamedChat")}
             </div>

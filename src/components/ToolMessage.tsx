@@ -1,4 +1,5 @@
 import { Markdown } from "@/components/markdown";
+import { cn } from "@/lib/utils";
 import { ReasoningThinkingResult } from "@/tools/experts/reasoning";
 import { SaveAnalystToolResult } from "@/tools/system/saveAnalyst";
 import { XHSNoteCommentsResult } from "@/tools/xhs/noteComments";
@@ -11,7 +12,12 @@ import { FC } from "react";
 
 export const XHSSearchResultMessage: FC<{ result: XHSSearchResult }> = ({ result: { notes } }) => {
   return (
-    <div className="flex flex-row gap-3 w-full overflow-x-scroll p-3 bg-gray-50 border border-gray-100 rounded-md">
+    <div
+      className={cn(
+        "flex flex-row gap-3 w-full overflow-x-scroll p-3 rounded-md",
+        "bg-zinc-50 dark:bg-zinc-800 border border-zinc-100 dark:border-zinc-700",
+      )}
+    >
       {/* 只挑选 5 条展示 */}
       {notes.slice(0, 5).map((note) => (
         <div key={note.id} className="flex flex-col items-center w-[120px]">
@@ -36,12 +42,12 @@ export const XHSSearchResultMessage: FC<{ result: XHSSearchResult }> = ({ result
                   className="object-cover rounded-full"
                 />
               </div>
-              <div className="text-xs text-gray-600 line-clamp-1">{note.user.nickname}</div>
+              <div className="text-xs text-foreground/80 line-clamp-1">{note.user.nickname}</div>
             </div>
             <h3 className="font-medium text-xs line-clamp-1">{note.title}</h3>
-            <p className="text-gray-600 text-xs mt-1 line-clamp-2">{note.desc}</p>
+            <p className="text-foreground/80 text-xs mt-1 line-clamp-2">{note.desc}</p>
             {/* <div>{note.id}</div> */}
-            {/* <div className="text-gray-600 text-xs mt-1">评论数：{note.comments_count}</div> */}
+            {/* <div className="text-foreground/80 text-xs mt-1">评论数：{note.comments_count}</div> */}
           </div>
         </div>
       ))}
@@ -53,7 +59,12 @@ export const XHSUserNotesResultMessage: FC<{ result: XHSUserNotesResult }> = ({
   result: { notes },
 }) => {
   return (
-    <div className="flex flex-row gap-3 w-full overflow-x-scroll p-3 bg-gray-50 border border-gray-100 rounded-md">
+    <div
+      className={cn(
+        "flex flex-row gap-3 w-full overflow-x-scroll p-3 rounded-md",
+        "bg-zinc-50 dark:bg-zinc-800 border border-zinc-100 dark:border-zinc-700",
+      )}
+    >
       {/* 只挑选 5 条展示 */}
       {notes.slice(0, 5).map((note) => (
         <div key={note.id} className="flex flex-col items-center w-[120px]">
@@ -78,10 +89,10 @@ export const XHSUserNotesResultMessage: FC<{ result: XHSUserNotesResult }> = ({
                   className="object-cover rounded-full"
                 />
               </div>
-              <div className="text-xs text-gray-600 line-clamp-1">{note.user.nickname}</div>
+              <div className="text-xs text-foreground/80 line-clamp-1">{note.user.nickname}</div>
             </div>
             <h3 className="font-medium text-xs line-clamp-1">{note.title}</h3>
-            <p className="text-gray-600 text-xs mt-1 line-clamp-2">{note.desc}</p>
+            <p className="text-foreground/80 text-xs mt-1 line-clamp-2">{note.desc}</p>
           </div>
         </div>
       ))}
@@ -93,7 +104,7 @@ export const XHSNoteCommentsResultMessage: FC<{
   result: XHSNoteCommentsResult;
 }> = ({ result: { comments } }) => {
   return (
-    <div className="p-3 bg-gray-50 border border-gray-100 rounded-md">
+    <div className="p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-100 dark:border-zinc-700 rounded-md">
       {/* 只挑选 10 条展示 */}
       {comments.slice(0, 10).map((comment) => (
         <div key={comment.id} className="flex items-start justify-start gap-3 mb-2">
@@ -107,8 +118,8 @@ export const XHSNoteCommentsResultMessage: FC<{
             />
           </div>
           <div className="flex-1 overflow-hidden">
-            <strong className="text-xs text-gray-600">{comment.user.nickname}</strong>
-            <p className="text-gray-600 text-xs line-clamp-2">{comment.content}</p>
+            <strong className="text-xs text-foreground/80">{comment.user.nickname}</strong>
+            <p className="text-foreground/80 text-xs line-clamp-2">{comment.content}</p>
           </div>
         </div>
       ))}
@@ -120,8 +131,8 @@ export const ReasoningThinkingResultMessage: FC<{
   result: ReasoningThinkingResult;
 }> = ({ result: { reasoning, text } }) => {
   return (
-    <div className="p-3 bg-gray-50 border border-gray-100 rounded-lg text-xs">
-      <div className="text-gray-600 mb-3">{reasoning}</div>
+    <div className="p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-100 dark:border-zinc-700 rounded-lg text-xs">
+      <div className="text-foreground/80 mb-3">{reasoning}</div>
       <Markdown>{text}</Markdown>
     </div>
   );
@@ -131,7 +142,7 @@ export const SaveAnalystToolResultMessage: FC<{
   result: SaveAnalystToolResult;
 }> = ({ result: { analystId } }) => {
   return (
-    <div className="p-3 bg-gray-50 border border-gray-100 rounded-lg text-xs">
+    <div className="p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-100 dark:border-zinc-700 rounded-lg text-xs">
       🎉 保存成功！
       <Link href={`/analyst/${analystId}`} target="_blank" className="text-blue-500">
         点击查看研究主题

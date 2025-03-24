@@ -11,13 +11,9 @@ import ScoutTaskChat from "./tools/ScoutTaskChat";
 
 const FallbackToolDisplay = ({ toolInvocation }: { toolInvocation: ToolInvocation }) => {
   return (
-    <pre
-      className={cn(
-        "text-xs whitespace-pre-wrap bg-gray-50 border border-gray-100 rounded-lg p-2 font-mono",
-      )}
-    >
+    <div className={cn("text-xs whitespace-pre-wrap p-2 font-mono")}>
       <div className="ml-1 my-2 font-bold">exec {toolInvocation.toolName}</div>
-      <div className="ml-1 mt-1 mb-1 text-gray-500">&gt;_ args</div>
+      <div className="ml-1 mt-1 mb-1 text-foreground/50">&gt;_ args</div>
       <table className="text-left">
         <tbody>
           {Object.entries(toolInvocation.args).map(([key, value]) => (
@@ -30,7 +26,7 @@ const FallbackToolDisplay = ({ toolInvocation }: { toolInvocation: ToolInvocatio
           ))}
         </tbody>
       </table>
-      <div className="ml-1 mt-2 mb-2 text-gray-500">&gt;_ result</div>
+      <div className="ml-1 mt-2 mb-2 text-foreground/50">&gt;_ result</div>
       {toolInvocation.state === "result" ? (
         <div className="text-xs whitespace-pre-wrap p-1">{toolInvocation.result.plainText}</div>
       ) : (
@@ -38,7 +34,7 @@ const FallbackToolDisplay = ({ toolInvocation }: { toolInvocation: ToolInvocatio
           <LoaderIcon className="animate-spin" size={16} />
         </div>
       )}
-    </pre>
+    </div>
   );
 };
 
