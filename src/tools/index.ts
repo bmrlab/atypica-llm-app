@@ -38,6 +38,7 @@ export enum ToolName {
   savePersona = "savePersona",
   saveInterviewConclusion = "saveInterviewConclusion",
   saveAnalyst = "saveAnalyst",
+  saveAnalystStudySummary = "saveAnalystStudySummary",
 }
 
 export default tools;

@@ -13,7 +13,7 @@ export const analystReportTool = tool({
   description: "为调研主题生成报告",
   parameters: z.object({
     analystId: z.number().describe("调研主题的 ID"),
-    regenerate: z.boolean().describe("是否重新生成报告").default(false),
+    regenerate: z.boolean().describe("重新生成报告").default(false),
   }),
   experimental_toToolResultContent: (result: PlainTextToolResult) => {
     return [{ type: "text", text: result.plainText }];
