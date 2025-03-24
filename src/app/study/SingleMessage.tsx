@@ -75,16 +75,30 @@ export const SingleMessage = (message: {
   parts?: MessageType["parts"];
 }) => {
   const { nickname, role, content, parts } = message;
+  function UserLargeMessage({ content }: { content: string }) {
+    return (
+      <div
+        className={cn(
+          content.length < 20
+            ? "text-2xl"
+            : content.length < 50
+              ? "text-xl"
+              : content.length < 80
+                ? "text-lg"
+                : content.length < 100
+                  ? "text-base"
+                  : "text-sm",
+          "font-medium w-full mt-8 mb-6",
+          "not-first-of-type:border-t not-first-of-type:border-gray-100 not-first-of-type:pt-12",
+        )}
+      >
+        {content}
+      </div>
+    );
+  }
 
   return role === "user" ? (
-    <div
-      className={cn(
-        "text-2xl font-medium w-full mt-8 mb-6",
-        "not-first-of-type:border-t not-first-of-type:border-gray-100 not-first-of-type:pt-12",
-      )}
-    >
-      {content}
-    </div>
+    <UserLargeMessage content={content?.toString() ?? ""} />
   ) : (
     <motion.div
       className={cn("flex flex-row gap-2 w-full")}

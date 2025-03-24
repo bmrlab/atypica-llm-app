@@ -17,19 +17,21 @@ function Header({ studyChat }: { studyChat: StudyUserChat }) {
   const t = useTranslations("StudyPage");
   const { replay } = useStudyContext();
   return (
-    <div className="relative w-full">
-      <div className="absolute left-0 top-1/2 -translate-y-1/2">
+    <div className="relative w-full flex items-center justify-between gap-2">
+      {/* <div className="absolute left-0 top-1/2 -translate-y-1/2"> */}
+      <div>
         <Button asChild variant="ghost" size="sm">
           <Link href="/">
             <HomeIcon size={16} /> {t("home")}
           </Link>
         </Button>
       </div>
-      <h1 className="sm:text-lg font-medium px-24 text-center truncate">
+      <h1 className="flex-1 sm:text-lg font-medium text-center truncate">
         {studyChat.title || t("research")}
       </h1>
+      {/* <div className="absolute right-0 top-1/2 -translate-y-1/2"> */}
       {!replay ? (
-        <div className="absolute right-0 top-1/2 -translate-y-1/2">
+        <div>
           <ShareReplayButton studyChat={studyChat} />
         </div>
       ) : null}
