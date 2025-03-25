@@ -40,7 +40,8 @@ export function InputSection() {
           enterKeyHint="enter"
           disabled={isLoading}
           onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            if (!isMobile && e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
               e.preventDefault();
               if (input.trim()) {
                 const form = e.currentTarget.form;
@@ -55,7 +56,7 @@ export function InputSection() {
           disabled={isLoading || !input.trim()}
           className="rounded-full size-9 absolute right-4 bottom-4"
         >
-          <ArrowRightIcon className="h-4 w-4 text-zinc-600" />
+          <ArrowRightIcon className="h-4 w-4 text-primary" />
         </Button>
       </form>
     </div>
