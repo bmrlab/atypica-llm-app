@@ -1,4 +1,5 @@
 "use client";
+import HippyGhostAvatar from "@/components/HippyGhostAvatar";
 import { useScrollToBottom } from "@/components/use-scroll-to-bottom";
 import { StudyUserChat } from "@/data";
 import { SingleMessage } from "./SingleMessage";
@@ -19,6 +20,7 @@ export function ChatReplay({ studyChat }: { studyChat: StudyUserChat }) {
         {messagesDisplay.map((message) => (
           <SingleMessage
             key={message.id}
+            avatar={{ assistant: <HippyGhostAvatar seed={studyChat.id} /> }}
             role={message.role}
             content={message.content}
             parts={message.parts}

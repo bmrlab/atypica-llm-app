@@ -1,4 +1,5 @@
 "use client";
+import HippyGhostAvatar from "@/components/HippyGhostAvatar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useScrollToBottom } from "@/components/use-scroll-to-bottom";
@@ -109,6 +110,7 @@ export function ChatBox({ studyChat, readOnly }: { studyChat: StudyUserChat; rea
         {messages.map((message, index) => (
           <SingleMessage
             key={message.id}
+            avatar={{ assistant: <HippyGhostAvatar seed={studyChat.id} /> }}
             role={message.role}
             content={message.content}
             parts={message.parts}

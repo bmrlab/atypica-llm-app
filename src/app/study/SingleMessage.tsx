@@ -75,12 +75,14 @@ const PlainText = ({ children }: PropsWithChildren) => {
 };
 
 export const SingleMessage = ({
+  avatar,
   nickname,
   role,
   content,
   parts,
   onDelete,
 }: {
+  avatar?: Partial<{ user: ReactNode; assistant: ReactNode; system: ReactNode }>;
   nickname?: string;
   role: "assistant" | "user" | "system" | "data";
   content: string | ReactNode;
@@ -133,8 +135,8 @@ export const SingleMessage = ({
       transition={{ duration: 0.4, ease: "easeOut" }}
     >
       <>
-        <BotIcon size={24} />
-        <div className="flex flex-col gap-6 flex-1 overflow-hidden px-3">
+        {avatar?.assistant || <BotIcon className="size-6" />}
+        <div className="flex flex-col gap-6 flex-1 overflow-hidden">
           {nickname && (
             <div className="leading-[24px] text-zinc-800 text-sm font-medium">{nickname}</div>
           )}

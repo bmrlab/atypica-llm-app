@@ -1,3 +1,4 @@
+import HippyGhostAvatar from "@/components/HippyGhostAvatar";
 import { fetchUserChatById } from "@/data";
 import { fixChatMessages } from "@/lib/utils";
 import { ToolName } from "@/tools";
@@ -51,6 +52,9 @@ const ScoutTaskChat = ({ toolInvocation }: { toolInvocation: ToolInvocation }) =
       {messagesDisplay.map((message) => (
         <StreamSteps
           key={`message-${message.id}`}
+          avatar={{
+            assistant: <HippyGhostAvatar seed={chatId} />,
+          }}
           role={message.role}
           content={message.content}
           parts={message.parts}

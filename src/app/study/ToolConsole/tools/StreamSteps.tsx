@@ -77,14 +77,19 @@ const StreamStep = ({ toolInvocation }: { toolInvocation: ToolInvocation }) => {
   );
 };
 
-export const StreamSteps = (message: {
+export const StreamSteps = ({
+  avatar,
+  nickname,
+  role,
+  content,
+  parts,
+}: {
+  avatar?: Partial<{ user: ReactNode; assistant: ReactNode; system: ReactNode }>;
   nickname?: string;
   role: "assistant" | "user" | "system" | "data";
   content: string | ReactNode;
   parts?: MessageType["parts"];
 }) => {
-  const { nickname, role, content, parts } = message;
-
   return (
     <motion.div
       className={cn("flex flex-col w-full")}
@@ -98,13 +103,13 @@ export const StreamSteps = (message: {
           role === "user" ? "flex-row-reverse" : "flex-row",
         )}
       >
-        {role === "user" ? (
-          <UserIcon size={24} />
-        ) : role === "assistant" ? (
-          <BotIcon size={24} />
-        ) : role === "system" ? (
-          <CpuIcon size={24} />
-        ) : null}
+        {role === "user"
+          ? avatar?.user || <UserIcon className="size-6" />
+          : role === "assistant"
+            ? avatar?.assistant || <BotIcon className="size-6" />
+            : role === "system"
+              ? avatar?.system || <CpuIcon className="size-6" />
+              : null}
         {nickname && (
           <div className="leading-[24px] text-zinc-800 dark:text-zinc-200 text-sm font-medium">
             {nickname}

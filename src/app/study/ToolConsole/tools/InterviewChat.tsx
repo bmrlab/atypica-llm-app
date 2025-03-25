@@ -1,6 +1,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useScrollToBottom } from "@/components/use-scroll-to-bottom";
 
+import HippyGhostAvatar from "@/components/HippyGhostAvatar";
 import {
   Analyst,
   fetchAnalystById,
@@ -22,6 +23,7 @@ const InterviewChat = ({ toolInvocation }: { toolInvocation: ToolInvocation }) =
   const analystId = toolInvocation.args.analystId as number;
   let personasArg = toolInvocation.args.personas as { id: number; name: string }[];
   if (!personasArg || toolInvocation.args.personaId) {
+    // 兼容旧版，interview 是一个一个开始的，args 上只有 personaId
     personasArg = [{ id: toolInvocation.args.personaId, name: "User" }];
   }
 
@@ -43,14 +45,11 @@ const InterviewChat = ({ toolInvocation }: { toolInvocation: ToolInvocation }) =
 
   return (
     <div className="flex flex-col gap-2 items-stretch justify-start w-full h-full">
-      <Tabs
-        defaultValue={personasArg[0].id.toString()}
-        className="flex-1 overflow-hidden flex flex-col items-stretch gap-4"
-      >
-        {personasArg.map(({ id }) => (
+      <Tabs defaultValue="1" className="flex-1 overflow-hidden flex flex-col items-stretch gap-4">
+        {personasArg.map(({ id }, index) => (
           <TabsContent
             key={id}
-            value={id.toString()}
+            value={(index + 1).toString()}
             className="flex-1 overflow-hidden flex flex-col items-stretch"
           >
             <SingleInterviewChat key={id} analyst={analyst} personaId={id}></SingleInterviewChat>
@@ -67,9 +66,9 @@ const InterviewChat = ({ toolInvocation }: { toolInvocation: ToolInvocation }) =
             </div>
           )}
           <TabsList className="ml-auto">
-            {personasArg.map(({ id, name }) => (
-              <TabsTrigger key={id} value={id.toString()} className="max-w-24">
-                {name}
+            {personasArg.map(({ id, name }, index) => (
+              <TabsTrigger key={id} value={(index + 1).toString()} className="max-w-24">
+                <HippyGhostAvatar seed={id} className="size-4" /> {name}
               </TabsTrigger>
             ))}
           </TabsList>
@@ -93,6 +92,7 @@ const InterviewChat = ({ toolInvocation }: { toolInvocation: ToolInvocation }) =
 const SingleInterviewChat = ({ analyst, personaId }: { analyst: Analyst; personaId: number }) => {
   const t = useTranslations("StudyPage.ToolConsole");
 
+  const [interviewId, setInterviewId] = useState<number | null>(null);
   const [interviewToken, setInterviewToken] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [conclusion, setConclusion] = useState<string | null>(null);
@@ -108,6 +108,7 @@ const SingleInterviewChat = ({ analyst, personaId }: { analyst: Analyst; persona
       setMessages(fixChatMessages(interview.messages));
       setPersona(persona);
       setInterviewToken(interview.interviewToken);
+      setInterviewId(interview.id);
       setConclusion(interview.conclusion);
     } catch (error) {
       console.log("Error fetching userChat:", error);
@@ -147,6 +148,10 @@ const SingleInterviewChat = ({ analyst, personaId }: { analyst: Analyst; persona
       {messagesDisplay.map((message) => (
         <StreamSteps
           key={`message-${message.id}`}
+          avatar={{
+            user: <HippyGhostAvatar seed={personaId} />,
+            assistant: <HippyGhostAvatar seed={interviewId || analyst.id} />,
+          }}
           nickname={message.role === "assistant" ? persona?.name : analyst.role}
           role={message.role}
           content={message.content}
