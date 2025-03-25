@@ -57,12 +57,9 @@ const InterviewChat = ({ toolInvocation }: { toolInvocation: ToolInvocation }) =
         ))}
         <div className="flex items-center gap-6">
           {toolInvocation.state !== "result" && (
-            <div className="flex py-2 gap-px items-center justify-start text-zinc-500 text-xs font-mono">
-              <span className="mr-2">{t("interviewing", { count: personasArg.length })} </span>
+            <div className="flex py-2 gap-px items-center justify-start text-zinc-500 dark:text-zinc-300 text-xs font-mono">
               <span className="animate-bounce">✨ </span>
-              {/* <span className="animate-bounce">·</span> */}
-              {/* <span className="animate-bounce [animation-delay:0.2s]">·</span> */}
-              {/* <span className="animate-bounce [animation-delay:0.4s]">·</span> */}
+              <span className="ml-2">{t("interviewing", { count: personasArg.length })} </span>
             </div>
           )}
           <TabsList className="ml-auto">

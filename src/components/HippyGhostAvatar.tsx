@@ -2,10 +2,16 @@ import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { FC, HTMLAttributes } from "react";
 
-const HippyGhostAvatar: FC<HTMLAttributes<HTMLDivElement> & { seed: number }> = ({
-  seed,
-  className,
-}) => {
+const HippyGhostAvatar: FC<
+  HTMLAttributes<HTMLDivElement> & { seed: number | string | undefined }
+> = ({ seed, className }) => {
+  // If seed is a string, convert it to a number
+  const numericSeed =
+    typeof seed === "string"
+      ? seed.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0)
+      : typeof seed === "number"
+        ? seed
+        : 524;
   // Map the seed to a number in the range [200, 1500) using prime number multiplication
   const mapSeedToValue = (seed: number): number => {
     const largePrime1 = 7919; // A large prime number
@@ -16,7 +22,7 @@ const HippyGhostAvatar: FC<HTMLAttributes<HTMLDivElement> & { seed: number }> = 
     // Map to the range [200, 1500)
     return Math.floor(200 + hashValue * range);
   };
-  const tokenId = mapSeedToValue(seed);
+  const tokenId = mapSeedToValue(numericSeed);
   const url = `https://api.hippyghosts.io/~/storage/images/raw/${tokenId}`;
   return (
     <div className={cn("relative size-8", className)}>

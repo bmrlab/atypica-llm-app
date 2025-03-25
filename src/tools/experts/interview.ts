@@ -110,7 +110,7 @@ async function chatWithInterviewer({
 }: ChatProps) {
   const result = await new Promise<Omit<Message, "role">>(async (resolve, reject) => {
     const response = streamText({
-      model: openai("claude-3-7-sonnet"),
+      model: openai("gpt-4o"),
       system: interviewerSystem(analyst),
       messages,
       tools: {
@@ -143,7 +143,7 @@ async function chatWithPersona({
 }: Omit<ChatProps, "interviewToken">) {
   const result = await new Promise<Omit<Message, "role">>(async (resolve, reject) => {
     const response = streamText({
-      model: openai("gpt-4o"),
+      model: openai("gpt-4o-mini"),
       system: personaAgentSystem(persona),
       messages,
       tools: {
