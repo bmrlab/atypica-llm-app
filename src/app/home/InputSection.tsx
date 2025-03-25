@@ -30,13 +30,13 @@ export function InputSection() {
   };
 
   return (
-    <div className="max-w-xl mx-auto">
+    <div className="max-w-2xl mx-auto">
       <form onSubmit={handleSubmit} className="relative">
         <Textarea
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder={t("placeholder")}
-          className="min-h-32 resize-none focus-visible:ring-primary rounded-3xl p-5"
+          className="min-h-48 resize-none focus-visible:border-primary/70 transition-colors rounded-none p-5"
           disabled={isLoading}
           onKeyDown={(e) => {
             if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {

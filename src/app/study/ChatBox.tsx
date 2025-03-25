@@ -1,4 +1,5 @@
 "use client";
+import { Textarea } from "@/components/ui/textarea";
 import { useScrollToBottom } from "@/components/use-scroll-to-bottom";
 import { createUserChat, deleteMessageFromUserChat, StudyUserChat, updateUserChat } from "@/data";
 import { cn, fixChatMessages } from "@/lib/utils";
@@ -134,14 +135,13 @@ export function ChatBox({ studyChat, readOnly }: { studyChat: StudyUserChat; rea
       {chatId && <StatusDisplay chatId={chatId} status={status} messages={messages} />}
 
       <form onSubmit={handleSubmitMessage}>
-        <textarea
+        <Textarea
           // ref={inputRef}
           className={cn(
-            "block bg-zinc-100 dark:bg-zinc-900 text-zinc-800 dark:text-zinc-100 rounded-md px-4 py-3.5 w-full outline-none text-sm",
+            "block min-h-24 resize-none focus-visible:border-primary/70 transition-colors rounded-lg py-3 px-4",
             inputDisabled ? "opacity-50 cursor-not-allowed" : "",
           )}
           placeholder="Ask a follow-up question or reply"
-          rows={3}
           value={input}
           disabled={inputDisabled}
           onChange={(event) => {

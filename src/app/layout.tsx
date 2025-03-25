@@ -2,26 +2,16 @@ import { AuthProvider } from "@/components/AuthProvider";
 import Stars from "@/components/Stars";
 import { Toaster } from "@/components/ui/sonner";
 import UserMenu from "@/components/UserMenu";
+import { cn } from "@/lib/utils";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import type { Metadata, Viewport } from "next";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale } from "next-intl/server";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
 <div className="flex items-center gap-4">
   <UserMenu />
 </div>;
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const viewport: Viewport = {
   themeColor: "black",
@@ -68,7 +58,7 @@ export default async function RootLayout({
 
   return (
     <html lang={locale} className="dark">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body className={cn("font-IBMPlexMonoRegular", "antialiased")}>
         <Stars />
         <NextIntlClientProvider>
           <AuthProvider>{children}</AuthProvider>

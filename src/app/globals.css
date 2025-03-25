@@ -4,7 +4,31 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@font-face {
+  font-family: "EuclidCircularA";
+  src: url("/_public/fonts/Euclid-Circular-A-Regular.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "IBMPlexMonoRegular";
+  src: url("/_public/fonts/IBMPlexMono-Regular.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "IBMPlexMonoLight";
+  src: url("/_public/fonts/IBMPlexMono-Light.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
 @theme inline {
+  --font-EuclidCircularA: "EuclidCircularA", "sans-serif";
+  --font-IBMPlexMonoRegular: "IBMPlexMonoRegular", "sans-serif";
+  --font-IBMPlexMonoLight: "IBMPlexMonoLight", "sans-serif";
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
@@ -96,7 +120,7 @@
   --accent-foreground: oklch(0.985 0 0);
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
+  --input: oklch(1 0 0 / 20%);
   --ring: oklch(0.556 0 0);
   --chart-1: oklch(0.488 0.243 264.376);
   --chart-2: oklch(0.696 0.17 162.48);
