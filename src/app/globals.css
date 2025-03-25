@@ -119,7 +119,7 @@
   }
   body {
     @apply bg-background text-foreground;
-    @apply dark:bg-[#24212a];
-    /* @apply dark:bg-black; */
+    /* @apply dark:bg-[#24212a]; */
+    @apply dark:bg-zinc-900;
   }
 }

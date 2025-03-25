@@ -50,7 +50,7 @@ export function StudyHistoryDrawer() {
         <DrawerHeader>
           <DrawerTitle className="text-center">{t("title")}</DrawerTitle>
         </DrawerHeader>
-        <div className="p-4 space-y-2">
+        <div className="p-4 space-y-2 overflow-y-scroll">
           {chats.map((chat) => (
             <div
               key={chat.id}
@@ -61,8 +61,8 @@ export function StudyHistoryDrawer() {
                 })
               }
               className={cn(
-                "px-3 py-2 text-sm truncate rounded cursor-pointer",
-                "text-zinc-500 dark:text-zinc-300 hover:bg-zinc-100 hover:dark:bg-zinc-800",
+                "px-3 py-2 text-sm truncate rounded-md cursor-pointer",
+                "text-zinc-500 dark:text-zinc-300 hover:bg-zinc-100 hover:dark:bg-zinc-800 transition-colors",
               )}
             >
               {chat.title || t("unnamedChat")}
