@@ -7,8 +7,7 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
-import { fetchUserChats, ScoutUserChat } from "@/data";
-import { fixChatMessages } from "@/lib/utils";
+import { fetchUserChatById, fetchUserChats, ScoutUserChat } from "@/data";
 import { HistoryIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
@@ -19,7 +18,7 @@ export function ScoutChatHistory({
   onSelectChat: (chat: ScoutUserChat | null) => void;
 }) {
   const t = useTranslations("ScoutPage.HistoryDrawer");
-  const [chats, setChats] = useState<ScoutUserChat[]>([]);
+  const [chats, setChats] = useState<Omit<ScoutUserChat, "messages">[]>([]);
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -38,8 +37,13 @@ export function ScoutChatHistory({
     return () => clearInterval(interval);
   }, []);
 
-  const handleSelectChat = (chat: ScoutUserChat | null) => {
-    onSelectChat(chat);
+  const handleSelectChat = async (chatId: number | null) => {
+    if (!chatId) {
+      onSelectChat(null);
+    } else {
+      const chat = await fetchUserChatById(chatId, "scout");
+      onSelectChat(chat);
+    }
     setOpen(false); // Close drawer when a chat is selected
   };
 
@@ -64,12 +68,7 @@ export function ScoutChatHistory({
           {chats.map((chat) => (
             <div
               key={chat.id}
-              onClick={() =>
-                handleSelectChat({
-                  ...chat,
-                  messages: fixChatMessages(chat.messages),
-                })
-              }
+              onClick={() => handleSelectChat(chat.id)}
               className="px-3 py-2 text-sm truncate text-zinc-500 hover:bg-zinc-100 rounded cursor-pointer"
             >
               {chat.title || t("unnamedChat")}

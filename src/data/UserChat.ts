@@ -80,7 +80,7 @@ export async function createUserChat<TKind extends UserChat["kind"]>(
 export async function fetchUserChats<Tkind extends UserChat["kind"]>(
   kind: Tkind,
 ): Promise<
-  (Omit<UserChat, "kind"> & {
+  (Omit<UserChat, "kind" | "messages"> & {
     kind: Tkind;
   })[]
 > {
@@ -94,12 +94,21 @@ export async function fetchUserChats<Tkind extends UserChat["kind"]>(
         orderBy: {
           createdAt: "desc",
         },
+        select: {
+          id: true,
+          token: true,
+          userId: true,
+          title: true,
+          kind: true,
+          createdAt: true,
+          updatedAt: true,
+          messages: false,
+        },
       });
       return userChats.map((chat) => {
         return {
           ...chat,
           kind: chat.kind as Tkind,
-          messages: chat.messages as unknown as Message[],
         };
       });
     } catch (error) {

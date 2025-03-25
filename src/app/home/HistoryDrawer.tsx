@@ -8,14 +8,14 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import { fetchUserChats, UserChat } from "@/data";
-import { cn, fixChatMessages } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { HistoryIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
 export function StudyHistoryDrawer() {
   const t = useTranslations("HomePage.HistoryDrawer");
-  const [chats, setChats] = useState<UserChat[]>([]);
+  const [chats, setChats] = useState<Omit<UserChat, "messages">[]>([]);
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -34,8 +34,9 @@ export function StudyHistoryDrawer() {
     return () => clearInterval(interval);
   }, []);
 
-  const handleSelectChat = (userChat: UserChat) => {
-    window.location.replace(`/study?id=${userChat.id}`);
+  const handleSelectChat = (userChatId: number) => {
+    // const chat = await fetchUserChatById(chatId, "scout");
+    window.location.replace(`/study?id=${userChatId}`);
     setOpen(false); // Close drawer when a chat is selected
   };
 
@@ -54,12 +55,7 @@ export function StudyHistoryDrawer() {
           {chats.map((chat) => (
             <div
               key={chat.id}
-              onClick={() =>
-                handleSelectChat({
-                  ...chat,
-                  messages: fixChatMessages(chat.messages),
-                })
-              }
+              onClick={() => handleSelectChat(chat.id)}
               className={cn(
                 "px-3 py-2 text-sm truncate rounded-md cursor-pointer",
                 "text-zinc-500 dark:text-zinc-300 hover:bg-zinc-100 hover:dark:bg-zinc-800 transition-colors",
