@@ -47,7 +47,7 @@ export function ChatBox({ studyChat, readOnly }: { studyChat: StudyUserChat; rea
       clearTimeout(timeoutRef.current);
     }
     timeoutRef.current = setTimeout(async () => {
-      console.log("Saving chat...", chatId, messages);
+      // console.log("Saving chat...", chatId, messages);
       await updateUserChat(chatId, fixChatMessages(messages));
       timeoutRef.current = null;
     }, 5000);

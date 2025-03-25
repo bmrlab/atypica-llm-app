@@ -65,7 +65,7 @@ export function ScoutChatMessages({
     }
     // this is debouncing, 5s 以后保存在这个过程中，如果新的出现，就保存新的，旧的被 clear
     timeoutRef.current = setTimeout(async () => {
-      console.log("Saving chat...", chatId, messages);
+      // console.log("Saving chat...", chatId, messages);
       // 保存之前先 fix 一下，清除异常的数据
       await updateUserChat(chatId, fixChatMessages(messages));
       timeoutRef.current = null;

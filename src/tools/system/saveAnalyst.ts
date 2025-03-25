@@ -8,7 +8,7 @@ export interface SaveAnalystToolResult extends PlainTextToolResult {
   plainText: string;
 }
 
-export const saveAnalystTool = (userId: number) =>
+export const saveAnalystTool = (userId: number, studyUserChatId: number) =>
   tool({
     description: "保存调研主题",
     parameters: z.object({
@@ -19,14 +19,29 @@ export const saveAnalystTool = (userId: number) =>
       return [{ type: "text", text: result.plainText }];
     },
     execute: async ({ role, topic }): Promise<SaveAnalystToolResult> => {
-      const analyst = await prisma.analyst.create({
-        data: { role, topic, report: "", studySummary: "" },
+      const analystExisting = await prisma.analyst.findUnique({ where: { studyUserChatId } });
+      if (analystExisting) {
+        return {
+          analystId: analystExisting.id,
+          plainText: JSON.stringify({
+            analystId: analystExisting.id,
+            role: analystExisting.role,
+            topic: analystExisting.topic,
+            hint: "Analyst already exists for this study, returning existing one",
+          }),
+        };
+      }
+      const analyst = await prisma.analyst.upsert({
+        where: { studyUserChatId },
+        create: { role, topic, report: "", studySummary: "", studyUserChatId },
+        update: {},
       });
-      await prisma.userAnalyst.create({
-        data: {
-          userId: userId,
-          analystId: analyst.id,
+      await prisma.userAnalyst.upsert({
+        where: {
+          userId_analystId: { userId, analystId: analyst.id },
         },
+        create: { userId, analystId: analyst.id },
+        update: {},
       });
       return {
         analystId: analyst.id,

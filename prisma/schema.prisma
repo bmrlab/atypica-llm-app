@@ -42,11 +42,13 @@ model Persona {
 }
 
 model Analyst {
-  id           Int    @id @default(autoincrement())
-  role         String @db.VarChar(255)
-  topic        String @db.Text
-  report       String @db.Text
-  studySummary String @db.Text
+  id              Int       @id @default(autoincrement())
+  role            String    @db.VarChar(255)
+  topic           String    @db.Text
+  report          String    @db.Text
+  studySummary    String    @db.Text
+  studyUserChatId Int?      @unique @db.Int
+  studyUserChat   UserChat? @relation(fields: [studyUserChatId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -102,4 +104,5 @@ model UserChat {
   updatedAt DateTime @updatedAt
 
   personas Persona[]
+  analysts Analyst[] // only 1 analyst will be assigned with each chat
 }

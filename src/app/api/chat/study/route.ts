@@ -3,7 +3,7 @@ import openai from "@/lib/openai";
 import { fixChatMessages } from "@/lib/utils";
 import { studySystem } from "@/prompt";
 import tools from "@/tools";
-import { streamText } from "ai";
+import { Message, streamText } from "ai";
 import { getServerSession } from "next-auth/next";
 import { NextResponse } from "next/server";
 
@@ -14,7 +14,10 @@ export async function POST(req: Request) {
   }
 
   const userId = session.user.id;
-  const { messages } = await req.json();
+
+  const payloadAwaited = await req.json();
+  const chatId = parseInt(payloadAwaited["chatId"]);
+  const messages = payloadAwaited["messages"] as Message[];
 
   const result = streamText({
     // model: openai("o3-mini"),
@@ -25,7 +28,7 @@ export async function POST(req: Request) {
       scoutTaskCreate: tools.scoutTaskCreate(userId),
       scoutTaskChat: tools.scoutTaskChat(),
       saveAnalystStudySummary: tools.saveAnalystStudySummary(),
-      saveAnalyst: tools.saveAnalyst(userId),
+      saveAnalyst: tools.saveAnalyst(userId, chatId),
       interview: tools.interview,
       analystReport: tools.analystReport,
       reasoningThinking: tools.reasoningThinking,
