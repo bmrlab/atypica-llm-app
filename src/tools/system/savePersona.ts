@@ -11,7 +11,7 @@ export interface SaveAnalystToolResult extends PlainTextToolResult {
   plainText: string;
 }
 
-export const savePersonaTool = (userChatId: number) =>
+export const savePersonaTool = (scoutUserChatId: number) =>
   tool({
     description: "将生成的 persona prompt 保存到数据库",
     parameters: z.object({
@@ -39,7 +39,7 @@ export const savePersonaTool = (userChatId: number) =>
           // samples: userids.map((id) => `https://www.xiaohongshu.com/user/profile/${id}`),
           samples: [],
           prompt: personaPrompt,
-          userChatId,
+          scoutUserChatId,
         },
       });
       const result = {

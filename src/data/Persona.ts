@@ -1,17 +1,17 @@
 "use server";
 import { prisma } from "@/lib/prisma";
-import { notFound } from "next/navigation";
 import { Persona as PersonaPrisma } from "@prisma/client";
+import { notFound } from "next/navigation";
 // import withAuth from "./withAuth";
 
 export type Persona = Omit<PersonaPrisma, "tags"> & {
   tags: string[];
 };
 
-export async function fetchPersonas(userChatId?: number): Promise<Persona[]> {
+export async function fetchPersonas(scoutUserChatId?: number): Promise<Persona[]> {
   try {
     const personas = await prisma.persona.findMany({
-      where: userChatId ? { userChatId } : undefined,
+      where: scoutUserChatId ? { scoutUserChatId } : undefined,
       orderBy: {
         createdAt: "desc",
       },

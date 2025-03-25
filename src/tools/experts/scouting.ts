@@ -128,7 +128,7 @@ async function scoutTaskChatStream({
   });
 
   const personasResult = await prisma.persona.findMany({
-    where: { userChatId: chatId },
+    where: { scoutUserChatId: chatId },
     orderBy: {
       createdAt: "desc",
     },

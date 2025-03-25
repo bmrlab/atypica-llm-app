@@ -26,14 +26,14 @@ model User {
 }
 
 model Persona {
-  id         Int       @id @default(autoincrement())
-  name       String    @db.VarChar(255)
-  source     String    @db.VarChar(255)
-  tags       Json // 存储标签数组
-  samples    Json // 存储小红书用户主页链接作为参考样本
-  prompt     String    @db.Text
-  userChatId Int?      @db.Int
-  userChat   UserChat? @relation(fields: [userChatId], references: [id])
+  id              Int       @id @default(autoincrement())
+  name            String    @db.VarChar(255)
+  source          String    @db.VarChar(255)
+  tags            Json // 存储标签数组
+  samples         Json // 存储小红书用户主页链接作为参考样本
+  prompt          String    @db.Text
+  scoutUserChatId Int?      @db.Int
+  scoutUserChat   UserChat? @relation(fields: [scoutUserChatId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
