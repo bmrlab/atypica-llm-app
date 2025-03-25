@@ -36,7 +36,7 @@ export function InputSection() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder={t("placeholder")}
-          className="min-h-48 resize-none focus-visible:border-primary/70 transition-colors rounded-none p-5"
+          className="min-h-48 resize-none focus-visible:border-primary/70 transition-colors rounded-none p-5 border-2"
           disabled={isLoading}
           onKeyDown={(e) => {
             if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
@@ -54,7 +54,7 @@ export function InputSection() {
           disabled={isLoading || !input.trim()}
           className="rounded-full size-9 absolute right-4 bottom-4"
         >
-          <ArrowRightIcon className="h-4 w-4 text-gray-400" />
+          <ArrowRightIcon className="h-4 w-4 text-zinc-600" />
         </Button>
       </form>
     </div>

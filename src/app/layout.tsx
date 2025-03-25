@@ -1,5 +1,6 @@
 import { AuthProvider } from "@/components/AuthProvider";
 import Stars from "@/components/Stars";
+import { ThemeProvider } from "@/components/ThemeProvider";
 import { Toaster } from "@/components/ui/sonner";
 import UserMenu from "@/components/UserMenu";
 import { cn } from "@/lib/utils";
@@ -57,13 +58,20 @@ export default async function RootLayout({
   const locale = await getLocale();
 
   return (
-    <html lang={locale} className="dark">
+    <html lang={locale} suppressHydrationWarning>
       <body className={cn("font-IBMPlexMonoRegular", "antialiased")}>
-        <Stars />
-        <NextIntlClientProvider>
-          <AuthProvider>{children}</AuthProvider>
-          <Toaster />
-        </NextIntlClientProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem={false}
+          disableTransitionOnChange
+        >
+          <Stars />
+          <NextIntlClientProvider>
+            <AuthProvider>{children}</AuthProvider>
+            <Toaster />
+          </NextIntlClientProvider>
+        </ThemeProvider>
       </body>
       {process.env.NODE_ENV === "production" && <GoogleAnalytics gaId="G-EJTF0VJKQP" />}
     </html>

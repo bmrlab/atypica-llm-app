@@ -1,7 +1,9 @@
 "use client";
+import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 
 export default function Stars() {
+  const { theme } = useTheme();
   const [stars, setStars] = useState<
     {
       left: string;
@@ -25,9 +27,12 @@ export default function Stars() {
       });
       setStars(starsArray);
     };
-
-    generateStars();
-  }, []);
+    if (theme === "dark") {
+      generateStars();
+    } else {
+      setStars([]);
+    }
+  }, [theme]);
 
   return (
     <div>
