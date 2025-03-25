@@ -64,8 +64,9 @@ const InterviewChat = ({ toolInvocation }: { toolInvocation: ToolInvocation }) =
           )}
           <TabsList className="ml-auto">
             {personasArg.map(({ id, name }, index) => (
-              <TabsTrigger key={id} value={(index + 1).toString()} className="max-w-24">
-                <HippyGhostAvatar seed={id} className="size-4" /> {name}
+              <TabsTrigger key={id} value={(index + 1).toString()}>
+                <HippyGhostAvatar seed={id} className="size-4" />
+                <div className="max-w-24 truncate">{name}</div>
               </TabsTrigger>
             ))}
           </TabsList>

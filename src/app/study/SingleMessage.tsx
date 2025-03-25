@@ -5,15 +5,33 @@ import { cn } from "@/lib/utils";
 import { Message as MessageType, ToolInvocation } from "ai";
 import { motion } from "framer-motion";
 import { BotIcon, ChevronRight, EyeIcon, LoaderIcon, XIcon } from "lucide-react";
-import { PropsWithChildren, ReactNode, useEffect } from "react";
+import { PropsWithChildren, ReactNode, useEffect, useRef, useState } from "react";
 import { useStudyContext } from "./hooks/StudyContext";
 
-const ToolInvocationMessage = ({ toolInvocation }: { toolInvocation: ToolInvocation }) => {
+const ToolInvocationMessage = ({
+  toolInvocation,
+  isLastPart,
+}: {
+  toolInvocation: ToolInvocation;
+  isLastPart?: boolean;
+}) => {
+  const [open, setOpen] = useState(false);
   const { setViewToolInvocation, setLastToolInvocation } = useStudyContext();
 
   useEffect(() => {
-    setLastToolInvocation(toolInvocation);
-  }, [toolInvocation, setLastToolInvocation]);
+    if (isLastPart) {
+      setLastToolInvocation(toolInvocation);
+    }
+  }, [toolInvocation, setLastToolInvocation, isLastPart]);
+
+  const prevIsLastPartRef = useRef(isLastPart);
+  useEffect(() => {
+    if (isLastPart) {
+      setOpen(true);
+    } else if (prevIsLastPartRef.current && !isLastPart) {
+      setOpen(false);
+    }
+  }, [isLastPart]);
 
   return (
     <div
@@ -22,7 +40,7 @@ const ToolInvocationMessage = ({ toolInvocation }: { toolInvocation: ToolInvocat
         "bg-zinc-50 dark:bg-zinc-800 border border-zinc-100 dark:border-zinc-700/50",
       )}
     >
-      <Collapsible className="w-full">
+      <Collapsible className="w-full" open={open} onOpenChange={setOpen}>
         <CollapsibleTrigger className="w-full flex items-center gap-1 hover:opacity-90 group">
           <ChevronRight className="h-3 w-3 transition-transform group-data-[state=open]:rotate-90 text-primary" />
           <div className="ml-1 my-2 font-bold text-xs text-primary">
@@ -81,6 +99,7 @@ export const SingleMessage = ({
   content,
   parts,
   onDelete,
+  isLastMessage,
 }: {
   avatar?: Partial<{ user: ReactNode; assistant: ReactNode; system: ReactNode }>;
   nickname?: string;
@@ -88,6 +107,7 @@ export const SingleMessage = ({
   content: string | ReactNode;
   parts?: MessageType["parts"];
   onDelete?: () => void;
+  isLastMessage?: boolean;
 }) => {
   function UserLargeMessage({ content }: { content: string }) {
     return (
@@ -151,7 +171,13 @@ export const SingleMessage = ({
                   case "source":
                     return <PlainText key={i}>{JSON.stringify(part.source)}</PlainText>;
                   case "tool-invocation":
-                    return <ToolInvocationMessage key={i} toolInvocation={part.toolInvocation} />;
+                    return (
+                      <ToolInvocationMessage
+                        key={i}
+                        toolInvocation={part.toolInvocation}
+                        isLastPart={isLastMessage && i === parts.length - 1}
+                      />
+                    );
                   default:
                     return null;
                 }

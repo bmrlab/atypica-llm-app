@@ -126,6 +126,7 @@ export function ChatBox({ studyChat, readOnly }: { studyChat: StudyUserChat; rea
                   }
                 : undefined
             }
+            isLastMessage={index === messages.length - 1}
           ></SingleMessage>
         ))}
         {error && (

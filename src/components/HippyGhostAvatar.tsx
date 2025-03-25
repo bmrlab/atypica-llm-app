@@ -26,7 +26,13 @@ const HippyGhostAvatar: FC<
   const url = `https://api.hippyghosts.io/~/storage/images/raw/${tokenId}`;
   return (
     <div className={cn("relative size-8", className)}>
-      <Image src={url} alt="Hippy Ghost Avatar" fill className="object-contain scale-150" />
+      <Image
+        src={url}
+        alt="Hippy Ghost Avatar"
+        fill
+        sizes="100%"
+        className="object-contain scale-150"
+      />
     </div>
   );
 };

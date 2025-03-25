@@ -17,13 +17,14 @@ export function ChatReplay({ studyChat }: { studyChat: StudyUserChat }) {
         ref={messagesContainerRef}
         className="flex-1 flex flex-col pb-24 w-full items-center overflow-y-scroll"
       >
-        {messagesDisplay.map((message) => (
+        {messagesDisplay.map((message, index) => (
           <SingleMessage
             key={message.id}
             avatar={{ assistant: <HippyGhostAvatar seed={studyChat.id} /> }}
             role={message.role}
             content={message.content}
             parts={message.parts}
+            isLastMessage={index === messagesDisplay.length - 1}
           ></SingleMessage>
         ))}
         <div ref={messagesEndRef} />
