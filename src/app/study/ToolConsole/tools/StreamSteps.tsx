@@ -27,7 +27,7 @@ const StreamStep = ({ toolInvocation }: { toolInvocation: ToolInvocation }) => {
   return (
     <div className={cn("text-xs whitespace-pre-wrap font-mono")}>
       <div className="ml-1 my-2 font-bold">exec {toolInvocation.toolName}</div>
-      <div className="ml-1 mt-1 mb-1 text-foreground/50">&gt;_ args</div>
+      <div className="ml-1 mt-1 mb-1 text-primary">&gt;_ args</div>
       <table className="text-left">
         <tbody>
           {Object.entries(toolInvocation.args).map(([key, value]) => (
@@ -40,7 +40,7 @@ const StreamStep = ({ toolInvocation }: { toolInvocation: ToolInvocation }) => {
           ))}
         </tbody>
       </table>
-      <div className="ml-1 mt-2 mb-2 text-foreground/50">&gt;_ result</div>
+      <div className="ml-1 mt-2 mb-2 text-primary">&gt;_ result</div>
       {toolInvocation.state === "result" ? (
         (() => {
           switch (toolInvocation.toolName) {

@@ -95,7 +95,7 @@ export function StudyPageClient({
           <div
             className={cn(
               "relative p-4 flex-1 overflow-hidden flex flex-col items-stretch justify-start",
-              "border rounded-lg bg-zinc-100 dark:bg-zinc-900 shadow-lg shadow-ring/70", // shadow-[0_0_10px_0]
+              "border rounded-lg bg-zinc-100 dark:bg-zinc-900 shadow-[0_0_10px_0] shadow-primary/80",
               "ml-10 max-lg:ml-0",
             )}
           >

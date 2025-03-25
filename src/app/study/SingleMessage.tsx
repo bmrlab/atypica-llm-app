@@ -16,13 +16,20 @@ const ToolInvocationMessage = ({ toolInvocation }: { toolInvocation: ToolInvocat
   }, [toolInvocation, setLastToolInvocation]);
 
   return (
-    <pre className="text-xs whitespace-pre-wrap bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-lg p-2 font-mono">
+    <div
+      className={cn(
+        "text-xs whitespace-pre-wrap rounded-lg p-2 font-mono",
+        "bg-zinc-50 dark:bg-zinc-800 border border-zinc-100 dark:border-zinc-700/50",
+      )}
+    >
       <Collapsible className="w-full">
-        <CollapsibleTrigger className="w-full flex items-center gap-1 text-xs font-bold hover:underline group">
-          <ChevronRight className="h-3 w-3 transition-transform group-data-[state=open]:rotate-90" />
-          <div className="ml-1 my-2 font-bold">exec {toolInvocation.toolName}</div>
+        <CollapsibleTrigger className="w-full flex items-center gap-1 hover:opacity-90 group">
+          <ChevronRight className="h-3 w-3 transition-transform group-data-[state=open]:rotate-90 text-primary" />
+          <div className="ml-1 my-2 font-bold text-xs text-primary">
+            exec {toolInvocation.toolName}
+          </div>
           <div
-            className="text-foreground/70 ml-auto mr-2 p-2 hover:bg-zinc-100 hover:dark:bg-zinc-800 rounded-md"
+            className="text-foreground/70 ml-auto mr-2 p-2 hover:bg-zinc-100 hover:dark:bg-zinc-900 rounded-md"
             onClick={(e) => {
               e.stopPropagation();
               setViewToolInvocation(toolInvocation);
@@ -31,8 +38,8 @@ const ToolInvocationMessage = ({ toolInvocation }: { toolInvocation: ToolInvocat
             <EyeIcon className="size-3.5" />
           </div>
         </CollapsibleTrigger>
-        <CollapsibleContent className="pl-5">
-          <div className="ml-1 mt-1 mb-1 text-foreground/50">&gt;_ args</div>
+        <CollapsibleContent className="pl-4">
+          <div className="ml-1 mt-1 mb-1 text-primary">&gt;_ args</div>
           <table className="text-left">
             <tbody>
               {Object.entries(toolInvocation.args).map(([key, value]) => (
@@ -45,7 +52,7 @@ const ToolInvocationMessage = ({ toolInvocation }: { toolInvocation: ToolInvocat
               ))}
             </tbody>
           </table>
-          <div className="ml-1 mt-2 mb-1 text-foreground/50">&gt;_ result</div>
+          <div className="ml-1 mt-2 mb-1 text-primary">&gt;_ result</div>
           {toolInvocation.state === "result" ? (
             <div className="text-xs whitespace-pre-wrap p-1">{toolInvocation.result.plainText}</div>
           ) : (
@@ -55,7 +62,7 @@ const ToolInvocationMessage = ({ toolInvocation }: { toolInvocation: ToolInvocat
           )}
         </CollapsibleContent>
       </Collapsible>
-    </pre>
+    </div>
   );
 };
 
@@ -84,8 +91,8 @@ export const SingleMessage = ({
     return (
       <div
         className={cn(
-          "w-full mt-8 mb-6",
-          "not-first-of-type:border-t not-first-of-type:border-zinc-100 not-first-of-type:dark:border-zinc-700 not-first-of-type:pt-12 flex items-center justify-between",
+          "w-full mt-8 mb-6 flex items-center justify-between",
+          "not-first-of-type:border-t not-first-of-type:border-zinc-100 not-first-of-type:dark:border-zinc-700/50 not-first-of-type:pt-12",
         )}
       >
         <span

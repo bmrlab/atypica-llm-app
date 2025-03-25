@@ -15,7 +15,7 @@ export const XHSSearchResultMessage: FC<{ result: XHSSearchResult }> = ({ result
     <div
       className={cn(
         "flex flex-row gap-3 w-full overflow-x-scroll p-3 rounded-md",
-        "bg-zinc-50 dark:bg-zinc-800 border border-zinc-100 dark:border-zinc-700",
+        "bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800",
       )}
     >
       {/* 只挑选 5 条展示 */}
@@ -62,7 +62,7 @@ export const XHSUserNotesResultMessage: FC<{ result: XHSUserNotesResult }> = ({
     <div
       className={cn(
         "flex flex-row gap-3 w-full overflow-x-scroll p-3 rounded-md",
-        "bg-zinc-50 dark:bg-zinc-800 border border-zinc-100 dark:border-zinc-700",
+        "bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800",
       )}
     >
       {/* 只挑选 5 条展示 */}
@@ -104,7 +104,7 @@ export const XHSNoteCommentsResultMessage: FC<{
   result: XHSNoteCommentsResult;
 }> = ({ result: { comments } }) => {
   return (
-    <div className="p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-100 dark:border-zinc-700 rounded-md">
+    <div className="p-3 bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-md">
       {/* 只挑选 10 条展示 */}
       {comments.slice(0, 10).map((comment) => (
         <div key={comment.id} className="flex items-start justify-start gap-3 mb-2">
