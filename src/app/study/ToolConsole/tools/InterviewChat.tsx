@@ -76,7 +76,9 @@ const InterviewChat = ({ toolInvocation }: { toolInvocation: ToolInvocation }) =
       </Tabs>
       <div className="bg-accent/40 rounded-lg p-6 border">
         <div className="flex items-start gap-3">
-          <div className="mt-1 rounded-md bg-background p-2 border">📝</div>
+          <div className="rounded-md bg-background border size-10 flex items-center justify-center">
+            📝
+          </div>
           <div className="flex-1">
             <div className="text-sm font-medium mb-2">{t("researchTopic")}</div>
             <p className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed">
