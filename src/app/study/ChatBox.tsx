@@ -1,9 +1,11 @@
 "use client";
+import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useScrollToBottom } from "@/components/use-scroll-to-bottom";
 import { createUserChat, deleteMessageFromUserChat, StudyUserChat, updateUserChat } from "@/data";
 import { cn, fixChatMessages } from "@/lib/utils";
 import { Message, useChat } from "@ai-sdk/react";
+import { ArrowRightIcon } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { SingleMessage } from "./SingleMessage";
 import { StatusDisplay } from "./StatusDisplay";
@@ -134,13 +136,14 @@ export function ChatBox({ studyChat, readOnly }: { studyChat: StudyUserChat; rea
 
       {chatId && <StatusDisplay chatId={chatId} status={status} messages={messages} />}
 
-      <form onSubmit={handleSubmitMessage}>
+      <form onSubmit={handleSubmitMessage} className="relative">
         <Textarea
           // ref={inputRef}
           className={cn(
             "block min-h-24 resize-none focus-visible:border-primary/70 transition-colors rounded-lg py-3 px-4",
             inputDisabled ? "opacity-50 cursor-not-allowed" : "",
           )}
+          enterKeyHint="enter"
           placeholder="Ask a follow-up question or reply"
           value={input}
           disabled={inputDisabled}
@@ -157,6 +160,14 @@ export function ChatBox({ studyChat, readOnly }: { studyChat: StudyUserChat; rea
             }
           }}
         />
+        <Button
+          type="submit"
+          variant="secondary"
+          disabled={!input.trim()}
+          className="rounded-full size-9 absolute right-4 bottom-4"
+        >
+          <ArrowRightIcon className="h-4 w-4 text-zinc-600" />
+        </Button>
       </form>
     </>
   );

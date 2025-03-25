@@ -37,6 +37,7 @@ export function InputSection() {
           onChange={(e) => setInput(e.target.value)}
           placeholder={t("placeholder")}
           className="min-h-48 resize-none focus-visible:border-primary/70 transition-colors rounded-none p-5 border-2"
+          enterKeyHint="enter"
           disabled={isLoading}
           onKeyDown={(e) => {
             if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
