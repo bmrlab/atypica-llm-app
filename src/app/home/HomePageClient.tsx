@@ -15,7 +15,7 @@ export default function HomePageClient({ anonymous }: { anonymous: boolean }) {
       <div className="text-center space-y-6">
         <h1
           className={cn(
-            "text-4xl sm:text-6xl font-mono font-light leading-tight tracking-wide bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent animate-in fade-in slide-in-from-bottom-4 duration-1000",
+            "mt-20 sm:mt-10 text-5xl sm:text-6xl font-mono font-light leading-tight tracking-wide bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent animate-in fade-in slide-in-from-bottom-4 duration-1000",
             "font-EuclidCircularA font-bold",
             "block dark:hidden",
           )}
@@ -44,7 +44,7 @@ export default function HomePageClient({ anonymous }: { anonymous: boolean }) {
           {t("tagline")}
         </p>
       </div>
-      <div className="mt-8 animate-in fade-in slide-in-from-bottom-8 duration-1000 p-3">
+      <div className="animate-in fade-in slide-in-from-bottom-8 duration-1000 px-8">
         <InputSection />
       </div>
       {!anonymous ? (

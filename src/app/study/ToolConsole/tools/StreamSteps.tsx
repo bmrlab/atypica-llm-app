@@ -59,7 +59,7 @@ const StreamStep = ({ toolInvocation }: { toolInvocation: ToolInvocation }) => {
                 <pre
                   className={cn(
                     "text-xs font-mono whitespace-pre-wrap p-4",
-                    "text-zinc-800 bg-zinc-300 dark:text-zinc-200 dark:bg-zinc-800",
+                    "text-zinc-800 bg-zinc-100 dark:text-zinc-200 dark:bg-zinc-800",
                     "border border-zinc-200 dark:border-zinc-700 rounded-lg",
                   )}
                 >
