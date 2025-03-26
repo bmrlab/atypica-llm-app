@@ -7,6 +7,7 @@ import { useProgressiveMessages } from "./hooks/useProgressiveMessages";
 
 export function ChatReplay({ studyChat }: { studyChat: StudyUserChat }) {
   const { partialMessages: messagesDisplay } = useProgressiveMessages({
+    uniqueId: `studyChat-${studyChat.id}`,
     messages: studyChat.messages,
     enabled: true,
   });

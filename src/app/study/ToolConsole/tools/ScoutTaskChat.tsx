@@ -24,6 +24,7 @@ const ScoutTaskChat = ({ toolInvocation }: { toolInvocation: ToolInvocation }) =
 
   const { replay } = useStudyContext();
   const { partialMessages: messagesDisplay } = useProgressiveMessages({
+    uniqueId: `toolInvocation-${toolInvocation.toolCallId}`,
     messages: messages,
     enabled: replay,
     fixedDuration: consoleStreamWaitTime(ToolName.scoutTaskChat),
@@ -38,8 +39,8 @@ const ScoutTaskChat = ({ toolInvocation }: { toolInvocation: ToolInvocation }) =
     }
     let timeoutId: NodeJS.Timeout;
     const poll = async () => {
+      timeoutId = setTimeout(poll, 2000); // 要放在前面，不然下面 return () 的时候如果 fetchUpdate 还没完成就不会 clearTimeout 了
       await fetchUpdate();
-      timeoutId = setTimeout(poll, 2000);
     };
     poll();
     return () => {

@@ -52,7 +52,12 @@ const InterviewChat = ({ toolInvocation }: { toolInvocation: ToolInvocation }) =
             value={(index + 1).toString()}
             className="flex-1 overflow-hidden flex flex-col items-stretch"
           >
-            <SingleInterviewChat key={id} analyst={analyst} personaId={id}></SingleInterviewChat>
+            <SingleInterviewChat
+              key={id}
+              analyst={analyst}
+              personaId={id}
+              toolInvocation={toolInvocation}
+            ></SingleInterviewChat>
           </TabsContent>
         ))}
         <div className="flex items-center gap-6">
@@ -89,7 +94,15 @@ const InterviewChat = ({ toolInvocation }: { toolInvocation: ToolInvocation }) =
   );
 };
 
-const SingleInterviewChat = ({ analyst, personaId }: { analyst: Analyst; personaId: number }) => {
+const SingleInterviewChat = ({
+  analyst,
+  personaId,
+  toolInvocation,
+}: {
+  analyst: Analyst;
+  personaId: number;
+  toolInvocation: ToolInvocation;
+}) => {
   const t = useTranslations("StudyPage.ToolConsole");
 
   const [interviewId, setInterviewId] = useState<number | null>(null);
@@ -117,6 +130,7 @@ const SingleInterviewChat = ({ analyst, personaId }: { analyst: Analyst; persona
 
   const { replay } = useStudyContext();
   const { partialMessages: messagesDisplay } = useProgressiveMessages({
+    uniqueId: `toolInvocation-${toolInvocation.toolCallId}`,
     messages: messages,
     enabled: replay,
     fixedDuration: consoleStreamWaitTime(ToolName.interview),
@@ -131,8 +145,8 @@ const SingleInterviewChat = ({ analyst, personaId }: { analyst: Analyst; persona
     }
     let timeoutId: NodeJS.Timeout;
     const poll = async () => {
+      timeoutId = setTimeout(poll, 2000); // 要放在前面，不然下面 return () 的时候如果 fetchUpdate 还没完成就不会 clearTimeout 了
       await fetchUpdate();
-      timeoutId = setTimeout(poll, 2000);
     };
     poll();
     return () => {

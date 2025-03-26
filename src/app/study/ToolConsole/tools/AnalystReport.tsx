@@ -31,8 +31,8 @@ const AnalystReport = ({ toolInvocation }: { toolInvocation: ToolInvocation }) =
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
     const poll = async () => {
+      timeoutId = setTimeout(poll, 5000); // 要放在前面，不然下面 return () 的时候如果 fetchUpdate 还没完成就不会 clearTimeout 了
       await checkReport();
-      timeoutId = setTimeout(poll, 5000);
     };
     poll();
     return () => {

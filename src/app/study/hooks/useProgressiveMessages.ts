@@ -11,10 +11,12 @@ export const consoleStreamWaitTime = (name?: ToolName) => {
 };
 
 export function useProgressiveMessages({
+  uniqueId,
   messages,
   fixedDuration,
   enabled,
 }: {
+  uniqueId: string; // 用于区分不同的消息流，比监听 messages 靠谱点
   messages: Message[];
   fixedDuration?: number;
   enabled: boolean;
@@ -57,7 +59,7 @@ export function useProgressiveMessages({
   useEffect(() => {
     setMessageIndex(0);
     setPartIndex(0);
-  }, [messages]);
+  }, [uniqueId]);
 
   // Progressive loading effect
   useEffect(() => {
