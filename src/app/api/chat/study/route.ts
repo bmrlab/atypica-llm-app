@@ -1,10 +1,10 @@
 import { authOptions } from "@/lib/auth";
 import openai from "@/lib/openai";
-import { prisma } from "@/lib/prisma";
 import { fixChatMessages } from "@/lib/utils";
 import { studySystem } from "@/prompt";
 import {
   analystReportTool,
+  initStatReporter,
   interviewTool,
   reasoningThinkingTool,
   requestInteractionTool,
@@ -12,27 +12,11 @@ import {
   saveAnalystTool,
   scoutTaskChatTool,
   scoutTaskCreateTool,
-  StatReporter,
   ToolName,
 } from "@/tools";
-import { InputJsonValue } from "@prisma/client/runtime/library";
 import { Message, streamText } from "ai";
 import { getServerSession } from "next-auth/next";
 import { NextResponse } from "next/server";
-
-export const initStatReporter = (studyUserChatId: number): { statReport: StatReporter } => {
-  const statReport: StatReporter = async (dimension, value, extra) => {
-    await prisma.chatStatistics.create({
-      data: {
-        userChatId: studyUserChatId,
-        dimension,
-        value,
-        extra: extra as InputJsonValue,
-      },
-    });
-  };
-  return { statReport };
-};
 
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);

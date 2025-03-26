@@ -1,9 +1,9 @@
 import { encryptAnalystReportUrl } from "@/app/analyst/report/encrypt";
-import { initStatReporter } from "@/app/api/chat/study/route";
 import { authOptions } from "@/lib/auth";
 import openai from "@/lib/openai";
 import { prisma } from "@/lib/prisma";
 import { reportHTMLPrologue, reportHTMLSystem } from "@/prompt";
+import { initStatReporter } from "@/tools";
 import { streamText } from "ai";
 import { getServerSession } from "next-auth";
 import { forbidden, redirect } from "next/navigation";

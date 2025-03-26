@@ -8,6 +8,7 @@ import { cn, fixChatMessages } from "@/lib/utils";
 import { Message, useChat } from "@ai-sdk/react";
 import { ArrowRightIcon } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { NerdStats } from "./NerdStats";
 import { SingleMessage } from "./SingleMessage";
 import { StatusDisplay } from "./StatusDisplay";
 
@@ -150,7 +151,14 @@ export function ChatBox({ studyChat, readOnly }: { studyChat: StudyUserChat; rea
         <div ref={messagesEndRef} />
       </div>
 
-      {chatId && <StatusDisplay chatId={chatId} status={status} messages={messages} />}
+      {chatId && (
+        <div className="relative">
+          <StatusDisplay chatId={chatId} status={status} messages={messages} />
+          <div className="absolute right-0 top-1/2 -translate-y-1/2">
+            <NerdStats studyUserChatId={chatId} />
+          </div>
+        </div>
+      )}
 
       <form onSubmit={handleSubmitMessage} className="relative">
         <Textarea

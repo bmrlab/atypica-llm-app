@@ -1,3 +1,5 @@
+import { prisma } from "@/lib/prisma";
+import { InputJsonValue } from "@prisma/client/runtime/library";
 import { requestInteractionTool } from "./experts/interaction";
 import { interviewTool } from "./experts/interview";
 import { reasoningThinkingTool } from "./experts/reasoning";
@@ -47,3 +49,17 @@ export type StatReporter = (
   value: number,
   extra?: unknown,
 ) => Promise<void>;
+
+export const initStatReporter = (studyUserChatId: number): { statReport: StatReporter } => {
+  const statReport: StatReporter = async (dimension, value, extra) => {
+    await prisma.chatStatistics.create({
+      data: {
+        userChatId: studyUserChatId,
+        dimension,
+        value,
+        extra: extra as InputJsonValue,
+      },
+    });
+  };
+  return { statReport };
+};
