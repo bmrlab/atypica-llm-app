@@ -28,6 +28,9 @@ export async function POST(req: Request) {
   const result = streamText({
     model: openai("gpt-4o"),
     // model: openai("claude-3-7-sonnet"),
+    providerOptions: {
+      openai: { stream_options: { include_usage: true } },
+    },
     system: systemPrompt,
     messages, // useChat 和 api 通信的时候，自己维护的这个 messages 会在每次请求的时候去掉 id
     tools: {

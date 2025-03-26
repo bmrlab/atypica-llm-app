@@ -103,6 +103,19 @@ model UserChat {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  personas Persona[]
-  analysts Analyst[] // only 1 analyst will be assigned with each chat
+  personas   Persona[]
+  analysts   Analyst[] // TODO: only 1 analyst will be assigned, should be like this `analyst Analyst?`
+  statistics ChatStatistics[]
+}
+
+model ChatStatistics {
+  id         Int      @id @default(autoincrement())
+  userChatId Int
+  userChat   UserChat @relation(fields: [userChatId], references: [id])
+  dimension  String   @db.VarChar(255) // tokens | duration | steps | words | personas | interviews
+  value      Int      @default(0)
+  extra      Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

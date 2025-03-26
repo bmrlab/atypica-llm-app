@@ -21,16 +21,19 @@ export async function POST(req: Request) {
   const result = streamText({
     // model: openai("o3-mini"),
     model: openai("claude-3-7-sonnet"),
+    providerOptions: {
+      openai: { stream_options: { include_usage: true } },
+    },
     system: scoutSystem({
       doNotStopUntilScouted: autoChat,
     }),
     messages: fixChatMessages(messages),
     tools: {
-      [ToolName.reasoningThinking]: reasoningThinkingTool,
+      [ToolName.reasoningThinking]: reasoningThinkingTool(),
       [ToolName.xhsSearch]: xhsSearchTool,
-      xhsUserNotes: xhsUserNotesTool,
-      xhsNoteComments: xhsNoteCommentsTool,
-      savePersona: savePersonaTool(chatId),
+      [ToolName.xhsUserNotes]: xhsUserNotesTool,
+      [ToolName.xhsNoteComments]: xhsNoteCommentsTool,
+      [ToolName.savePersona]: savePersonaTool({ scoutUserChatId: chatId }),
     },
     onError: async (error) => {
       console.log("Error occurred:", error);

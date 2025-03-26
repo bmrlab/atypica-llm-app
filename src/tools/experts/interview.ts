@@ -7,7 +7,7 @@ import { PlainTextToolResult } from "@/tools/utils";
 import { InputJsonValue } from "@prisma/client/runtime/library";
 import { generateId, Message, streamText, tool } from "ai";
 import { z } from "zod";
-import { ToolName } from "..";
+import { StatReporter, ToolName } from "..";
 import { saveInterviewConclusionTool } from "../system/saveInterviewConclusion";
 import { xhsSearchTool } from "../xhs/search";
 import { reasoningThinkingTool } from "./reasoning";
@@ -23,7 +23,13 @@ export interface InterviewResult extends PlainTextToolResult {
   plainText: string;
 }
 
-export const interviewTool = ({ abortSignal }: { abortSignal?: AbortSignal }) =>
+export const interviewTool = ({
+  abortSignal,
+  statReport,
+}: {
+  abortSignal: AbortSignal;
+  statReport: StatReporter;
+}) =>
   tool({
     description: "针对一个调研主题的一系列用户进行访谈，每次最多3人",
     parameters: z.object({
@@ -67,6 +73,7 @@ export const interviewTool = ({ abortSignal }: { abortSignal?: AbortSignal }) =>
             },
             analystInterviewId: interview.id,
             abortSignal,
+            statReport,
           });
           const updatedInterview = await prisma.analystInterview.findUniqueOrThrow({
             where: { id: interview.id },
@@ -105,7 +112,8 @@ type ChatProps = {
   analyst: Analyst;
   analystInterviewId: number;
   interviewToken: string;
-  abortSignal?: AbortSignal;
+  abortSignal: AbortSignal;
+  statReport: StatReporter;
 };
 
 async function chatWithInterviewer({
@@ -114,14 +122,18 @@ async function chatWithInterviewer({
   analystInterviewId,
   interviewToken,
   abortSignal,
+  statReport,
 }: ChatProps) {
   const result = await new Promise<Omit<Message, "role">>(async (resolve, reject) => {
     const response = streamText({
       model: openai("gpt-4o"),
+      providerOptions: {
+        openai: { stream_options: { include_usage: true } },
+      },
       system: interviewerSystem(analyst),
       messages,
       tools: {
-        [ToolName.reasoningThinking]: reasoningThinkingTool,
+        [ToolName.reasoningThinking]: reasoningThinkingTool({ abortSignal, statReport }),
         [ToolName.saveInterviewConclusion]: saveInterviewConclusionTool(
           analystInterviewId,
           interviewToken,
@@ -130,7 +142,16 @@ async function chatWithInterviewer({
       maxSteps: 3,
       onChunk: (chunk) =>
         console.log(`[${analystInterviewId}] Interviewer:`, JSON.stringify(chunk)),
-      onFinish: ({ steps }) => {
+      onStepFinish: async (step) => {
+        if (step.usage.totalTokens > 0) {
+          await statReport("tokens", step.usage.totalTokens, {
+            reportedBy: "interview tool",
+            analystInterviewId,
+            role: "interviewer",
+          });
+        }
+      },
+      onFinish: async ({ steps }) => {
         const message = streamStepsToUIMessage(steps);
         resolve(message);
       },
@@ -152,10 +173,14 @@ async function chatWithPersona({
   persona,
   analystInterviewId,
   abortSignal,
+  statReport,
 }: Omit<ChatProps, "interviewToken">) {
   const result = await new Promise<Omit<Message, "role">>(async (resolve, reject) => {
     const response = streamText({
       model: openai("gpt-4o-mini"),
+      providerOptions: {
+        openai: { stream_options: { include_usage: true } },
+      },
       system: personaAgentSystem(persona),
       messages,
       tools: {
@@ -163,6 +188,15 @@ async function chatWithPersona({
       },
       maxSteps: 3,
       onChunk: (chunk) => console.log(`[${analystInterviewId}] Persona:`, JSON.stringify(chunk)),
+      onStepFinish: async (step) => {
+        if (step.usage.totalTokens > 0) {
+          await statReport("tokens", step.usage.totalTokens, {
+            reportedBy: "interview tool",
+            analystInterviewId,
+            role: "persona",
+          });
+        }
+      },
       onFinish: ({ steps }) => {
         const message = streamStepsToUIMessage(steps);
         resolve(message);
@@ -210,6 +244,8 @@ async function backgroundRunInterview({
   persona,
   analystInterviewId,
   interviewToken,
+  abortSignal,
+  statReport,
 }: Omit<ChatProps, "messages">) {
   const personaAgent: {
     messages: Message[];
@@ -232,6 +268,8 @@ async function backgroundRunInterview({
         persona,
         analyst,
         analystInterviewId,
+        abortSignal,
+        statReport,
       });
       console.log(`\n[${analystInterviewId}] Persona:\n${message.content}\n`);
       personaAgent.messages.push({ ...message, role: "assistant" });
@@ -254,6 +292,8 @@ async function backgroundRunInterview({
         analyst,
         analystInterviewId,
         interviewToken,
+        abortSignal,
+        statReport,
       });
       console.log(`\n[${analystInterviewId}] Interviewer:\n${message.content}\n`);
       interviewer.messages.push({ ...message, role: "assistant" });
@@ -294,11 +334,13 @@ async function startInterview({
   persona,
   analystInterviewId,
   abortSignal,
+  statReport,
 }: {
   analyst: Analyst;
   persona: Persona;
   analystInterviewId: number;
-  abortSignal?: AbortSignal;
+  abortSignal: AbortSignal;
+  statReport: StatReporter;
 }) {
   const interviewToken = new Date().valueOf().toString();
   try {
@@ -341,6 +383,7 @@ async function startInterview({
       analystInterviewId,
       interviewToken,
       abortSignal,
+      statReport,
     });
 
     stop = true;

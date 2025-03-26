@@ -1,4 +1,5 @@
 import { encryptAnalystReportUrl } from "@/app/analyst/report/encrypt";
+import { initStatReporter } from "@/app/api/chat/study/route";
 import { authOptions } from "@/lib/auth";
 import openai from "@/lib/openai";
 import { prisma } from "@/lib/prisma";
@@ -70,8 +71,13 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
     redirect(publicReportUrl);
   }
 
+  const streamStartTime = Date.now();
+  const { statReport } = analyst.studyUserChatId ? initStatReporter(analyst.studyUserChatId) : {};
   const result = streamText({
     model: openai("claude-3-7-sonnet"),
+    providerOptions: {
+      openai: { stream_options: { include_usage: true } },
+    },
     system: reportHTMLSystem(),
     messages: [
       {
@@ -81,12 +87,20 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
     ],
     maxSteps: 10,
     maxTokens: 100000,
-    onFinish: async (message) => {
+    onFinish: async (result) => {
       await prisma.analyst.update({
         where: { id: analystId },
-        data: { report: message.text },
+        data: { report: result.text },
       });
+      if (result.usage.totalTokens > 0 && statReport) {
+        const seconds = Math.floor((Date.now() - streamStartTime) / 1000);
+        await Promise.all([
+          statReport("tokens", result.usage.totalTokens, { reportedBy: "live report" }),
+          statReport("duration", seconds, { reportedBy: "live report" }),
+        ]);
+      }
     },
+    abortSignal: req.signal,
   });
 
   const reader = result.textStream.getReader();

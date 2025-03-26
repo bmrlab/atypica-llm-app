@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { tool } from "ai";
 import { z } from "zod";
+import { StatReporter } from "..";
 import { PlainTextToolResult } from "../utils";
 
 export interface SaveAnalystToolResult extends PlainTextToolResult {
@@ -11,7 +12,13 @@ export interface SaveAnalystToolResult extends PlainTextToolResult {
   plainText: string;
 }
 
-export const savePersonaTool = (scoutUserChatId: number) =>
+export const savePersonaTool = ({
+  scoutUserChatId,
+  statReport,
+}: {
+  scoutUserChatId: number;
+  statReport?: StatReporter;
+}) =>
   tool({
     description: "将生成的 persona prompt 保存到数据库",
     parameters: z.object({
@@ -48,6 +55,13 @@ export const savePersonaTool = (scoutUserChatId: number) =>
         tags: persona.tags as string[],
         prompt: persona.prompt,
       };
+      if (statReport) {
+        await statReport("personas", 1, {
+          reportedBy: "savePersona tool",
+          scoutUserChatId,
+          personaId: persona.id,
+        });
+      }
       return {
         ...result,
         plainText: JSON.stringify(result),

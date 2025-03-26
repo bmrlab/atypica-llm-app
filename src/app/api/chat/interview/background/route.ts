@@ -31,10 +31,13 @@ async function chatWithInterviewer({
   const result = await new Promise<Omit<Message, "role">>(async (resolve, reject) => {
     const response = streamText({
       model: openai("claude-3-7-sonnet"),
+      providerOptions: {
+        openai: { stream_options: { include_usage: true } },
+      },
       system: interviewerSystem(analyst),
       messages,
       tools: {
-        [ToolName.reasoningThinking]: reasoningThinkingTool,
+        [ToolName.reasoningThinking]: reasoningThinkingTool(),
         [ToolName.saveInterviewConclusion]: saveInterviewConclusionTool(
           analystInterviewId,
           interviewToken,
@@ -66,6 +69,9 @@ async function chatWithPersona({
   const result = await new Promise<Omit<Message, "role">>(async (resolve, reject) => {
     const response = streamText({
       model: openai("gpt-4o"),
+      providerOptions: {
+        openai: { stream_options: { include_usage: true } },
+      },
       system: personaAgentSystem(persona),
       messages,
       tools: {

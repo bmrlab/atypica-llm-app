@@ -41,3 +41,9 @@ export {
   xhsSearchTool,
   xhsUserNotesTool,
 };
+
+export type StatReporter = (
+  dimension: "tokens" | "duration" | "steps" | "personas",
+  value: number,
+  extra?: unknown,
+) => Promise<void>;
