@@ -1,9 +1,10 @@
+import { encryptAnalystReportUrl } from "@/app/analyst/report/encrypt";
 import { authOptions } from "@/lib/auth";
 import openai from "@/lib/openai";
 import { prisma } from "@/lib/prisma";
 import { reportHTMLPrologue, reportHTMLSystem } from "@/prompt";
 import { streamText } from "ai";
-import { getServerSession } from "next-auth/next";
+import { getServerSession } from "next-auth";
 import { forbidden, redirect } from "next/navigation";
 
 const listenScript = (redirect: string) => `
@@ -38,6 +39,19 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
   const regenerate = searchParams.regenerate == "1" ? true : false;
   const analystId = parseInt((await params).id);
 
+  // live route 需要登录，并需要权限
+  const session = await getServerSession(authOptions);
+  if (!session?.user) {
+    redirect(`/auth/signin?callbackUrl=/analyst/${analystId}/live`);
+  }
+  const userAnalyst = await prisma.userAnalyst.findUnique({
+    where: { userId_analystId: { userId: session.user.id, analystId } },
+  });
+  if (!userAnalyst) {
+    // return new Response("Analyst not belong to user", { status: 403 });
+    forbidden();
+  }
+
   const analyst = await prisma.analyst.findUnique({
     where: { id: analystId },
     include: {
@@ -46,28 +60,14 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
       },
     },
   });
-
   if (!analyst) {
     return new Response("Analyst not found", { status: 404 });
   }
 
+  const publicReportUrl = await encryptAnalystReportUrl(analystId);
+
   if (analyst.report && !regenerate) {
-    redirect(`/analyst/${analystId}/html`);
-  }
-
-  // 只有没生成过报告的，才判断权限
-  const session = await getServerSession(authOptions);
-  if (!session?.user) {
-    redirect(`/auth/signin?callbackUrl=/analyst/${analystId}/live`);
-  }
-
-  // @AUTHTODO: 读取 Live Report, 如果已经生成，就公开可读，如果还没生成，则需要权限
-  const userAnalyst = await prisma.userAnalyst.findUnique({
-    where: { userId_analystId: { userId: session.user.id, analystId } },
-  });
-  if (!userAnalyst) {
-    // return new Response("Analyst not belong to user", { status: 403 });
-    forbidden();
+    redirect(publicReportUrl);
   }
 
   const result = streamText({
@@ -93,7 +93,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
 
   const readable = new ReadableStream({
     async start(controller) {
-      controller.enqueue(listenScript(`/analyst/${analystId}/html`));
+      controller.enqueue(listenScript(publicReportUrl));
       try {
         while (true) {
           const { done, value } = await reader.read();

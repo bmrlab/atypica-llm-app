@@ -148,6 +148,16 @@
       "errorMessage": "创建回放分享链接失败，请稍后再试",
       "copySuccess": "链接已复制到剪贴板"
     },
+    "AnalystReportShareButton": {
+      "shareReplay": "分享报告",
+      "title": "生成报告分享链接",
+      "successMessage": "报告分享链接已生成，其他人可以通过此链接访问：",
+      "copyButton": "复制",
+      "openInstructions": "您也可以点击下方的\"打开\"按钮在新标签页中查看。",
+      "closeButton": "关闭",
+      "openButton": "打开",
+      "copySuccess": "链接已复制到剪贴板"
+    },
     "ChatBox": {
       "placeholder": "提出后续问题或回复"
     },
@@ -161,7 +171,6 @@
     "ToolConsole": {
       "autoFollow": "自动跟随",
       "manualSelect": "手动选择",
-      "shareReport": "分享报告",
       "deepThinking": "深度思考",
       "interviewStarting": "访谈启动中..",
       "researchConclusion": "调研结论",

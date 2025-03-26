@@ -5,7 +5,6 @@ import { z } from "zod";
 
 export interface AnalystReportResult extends PlainTextToolResult {
   analystId: number;
-  url: string;
   plainText: string;
 }
 
@@ -30,13 +29,12 @@ export const analystReportTool = tool({
     if (analyst.report) {
       return {
         analystId: analyst.id,
-        url: `/analyst/${analyst.id}/html`,
         plainText: `Report for analyst ${analyst.id} is generated`,
+        // 如果已经生成，也可以直接访问 live，会自动跳转
       };
     } else {
       return {
         analystId: analyst.id,
-        url: `/analyst/${analyst.id}/live`,
         plainText: `Report for analyst ${analyst.id} is generated`,
         // 文本是一样的，都叫 generated，不然 study agent 会认为 report 还在生成中，会重复发起生成
       };

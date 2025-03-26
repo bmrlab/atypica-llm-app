@@ -148,6 +148,16 @@
       "errorMessage": "Failed to create replay share link, please try again later",
       "copySuccess": "Link copied to clipboard"
     },
+    "AnalystReportShareButton": {
+      "shareReplay": "Share Replay",
+      "title": "Generate Report Share Link",
+      "successMessage": "Report share link has been generated. Others can access the report through this link:",
+      "copyButton": "Copy",
+      "openInstructions": "You can also click the \"Open\" button below to view in a new tab.",
+      "closeButton": "Close",
+      "openButton": "Open",
+      "copySuccess": "Link copied to clipboard"
+    },
     "ChatBox": {
       "placeholder": "Ask a follow-up question or reply"
     },
@@ -161,7 +171,6 @@
     "ToolConsole": {
       "autoFollow": "Auto Follow",
       "manualSelect": "Manual Select",
-      "shareReport": "Share Report",
       "deepThinking": "Deep Thinking",
       "interviewStarting": "Interview starting..",
       "researchConclusion": "Research Conclusion",

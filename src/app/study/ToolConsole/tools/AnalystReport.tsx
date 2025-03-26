@@ -1,14 +1,12 @@
-import { Button } from "@/components/ui/button";
+import { encryptAnalystReportUrl } from "@/app/analyst/report/encrypt";
 import { fetchAnalystById } from "@/data";
 import { cn } from "@/lib/utils";
 import { AnalystReportResult } from "@/tools/experts/report";
 import { ToolInvocation } from "ai";
-import { useTranslations } from "next-intl";
-import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { AnalystReportShareButton } from "./AnalystReportShareButton";
 
 const AnalystReport = ({ toolInvocation }: { toolInvocation: ToolInvocation }) => {
-  const t = useTranslations("StudyPage.ToolConsole");
   const result = useMemo(() => {
     if (toolInvocation.state === "result") {
       return toolInvocation.result as AnalystReportResult;
@@ -16,6 +14,7 @@ const AnalystReport = ({ toolInvocation }: { toolInvocation: ToolInvocation }) =
   }, [toolInvocation]);
 
   const [hasReport, setHasReport] = useState(false);
+  const [publicReportUrl, setPublicReportUrl] = useState<string | null>(null);
   const checkReport = useCallback(async () => {
     if (!result?.analystId) {
       return;
@@ -23,6 +22,8 @@ const AnalystReport = ({ toolInvocation }: { toolInvocation: ToolInvocation }) =
     try {
       const analyst = await fetchAnalystById(result.analystId);
       setHasReport(!!analyst.report);
+      const url = await encryptAnalystReportUrl(analyst.id);
+      setPublicReportUrl(url);
     } catch (error) {
       console.log("Error fetching analyst:", error);
     }
@@ -52,11 +53,13 @@ const AnalystReport = ({ toolInvocation }: { toolInvocation: ToolInvocation }) =
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [containerRef.current]);
 
-  return result ? (
+  if (!result || !publicReportUrl) return null;
+
+  return (
     <div className="h-full relative pb-10">
       <div className="h-full" ref={containerRef}>
         <iframe
-          src={result.url}
+          src={`/analyst/${result.analystId}/live`}
           className={cn("w-[1200px]")}
           style={{
             transform: `scale(${ratio / 100})`,
@@ -67,15 +70,16 @@ const AnalystReport = ({ toolInvocation }: { toolInvocation: ToolInvocation }) =
       </div>
       <div className="absolute right-0 bottom-0">
         {hasReport && (
-          <Button asChild variant="ghost" size="sm">
-            <Link href={`/analyst/${result.analystId}/html`} target="_blank">
-              {t("shareReport")}
-            </Link>
-          </Button>
+          // <Button asChild variant="ghost" size="sm">
+          //   <Link href={publicReportUrl} target="_blank">
+          //     {t("shareReport")}
+          //   </Link>
+          // </Button>
+          <AnalystReportShareButton publicReportUrl={publicReportUrl} />
         )}
       </div>
     </div>
-  ) : null;
+  );
 };
 
 export default AnalystReport;
