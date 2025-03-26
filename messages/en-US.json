@@ -111,6 +111,17 @@
       "submittingButton": "Signing up...",
       "haveAccountText": "Already have an account?",
       "signInLink": "Sign in now"
+    },
+    "Verify": {
+      "title": "Verify Your Email",
+      "description": "We've sent a verification code to {email}. Please enter it below.",
+      "codePlaceholder": "Enter 6-digit verification code",
+      "submitButton": "Verify Email",
+      "submittingButton": "Verifying...",
+      "noCodeText": "Didn't receive a code?",
+      "resendButton": "Resend",
+      "successMessage": "Email verified successfully! You can now sign in.",
+      "alreadyVerifiedMessage": "Email already verified"
     }
   },
   "Components": {

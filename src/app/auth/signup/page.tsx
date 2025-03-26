@@ -1,12 +1,13 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { signIn } from "next-auth/react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function SignUpPage() {
+  const router = useRouter();
   const t = useTranslations("Auth.SignUp");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -36,11 +37,12 @@ export default function SignUpPage() {
       }
 
       // Sign in automatically after successful registration
-      await signIn("credentials", {
-        email,
-        password,
-        callbackUrl: "/",
-      });
+      // await signIn("credentials", {
+      //   email,
+      //   password,
+      //   callbackUrl: "/",
+      // });
+      router.push("/auth/verify?email=" + email);
     } catch (error) {
       setError((error as Error).message);
     } finally {

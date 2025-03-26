@@ -111,6 +111,17 @@
       "submittingButton": "注册中...",
       "haveAccountText": "已有账号？",
       "signInLink": "立即登录"
+    },
+    "Verify": {
+      "title": "验证您的邮箱",
+      "description": "我们已向 {email} 发送了验证码。请在下方输入。",
+      "codePlaceholder": "输入6位验证码",
+      "submitButton": "验证邮箱",
+      "submittingButton": "验证中...",
+      "noCodeText": "没有收到验证码？",
+      "resendButton": "重新发送",
+      "successMessage": "邮箱验证成功！现在可以登录了。",
+      "alreadyVerifiedMessage": "邮箱已验证"
     }
   },
   "Components": {

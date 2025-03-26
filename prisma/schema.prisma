@@ -14,15 +14,25 @@ datasource db {
 }
 
 model User {
-  id       Int    @id @default(autoincrement())
-  email    String @unique
-  password String
+  id            Int       @id @default(autoincrement())
+  email         String    @unique
+  password      String
+  emailVerified DateTime?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   userAnalysts UserAnalyst[]
   userChats    UserChat[]
+}
+
+model VerificationCode {
+  id    Int    @id @default(autoincrement())
+  email String
+  code  String @db.VarChar(16)
+
+  createdAt DateTime  @default(now())
+  expiresAt DateTime?
 }
 
 model Persona {

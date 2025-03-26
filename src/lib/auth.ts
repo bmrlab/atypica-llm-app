@@ -1,3 +1,4 @@
+import { sendVerificationEmail } from "@/app/api/auth/signup/email";
 import { prisma } from "@/lib/prisma";
 import { compare } from "bcryptjs";
 import { type NextAuthOptions } from "next-auth";
@@ -31,13 +32,15 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
-        const isPasswordValid = await compare(
-          credentials.password,
-          user.password,
-        );
+        const isPasswordValid = await compare(credentials.password, user.password);
 
         if (!isPasswordValid) {
           return null;
+        }
+
+        if (!user.emailVerified) {
+          await sendVerificationEmail(user.email);
+          throw new Error("EMAIL_NOT_VERIFIED");
         }
 
         return {

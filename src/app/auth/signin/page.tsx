@@ -40,7 +40,12 @@ function SignIn() {
       if (!result?.error) {
         router.replace(callbackUrl);
       } else {
-        setError(t("errorMessage"));
+        if (result.error === "EMAIL_NOT_VERIFIED") {
+          setError(result.error);
+          router.push("/auth/verify?email=" + email);
+        } else {
+          setError(t("errorMessage"));
+        }
       }
     } catch (error) {
       setError((error as Error).message);
