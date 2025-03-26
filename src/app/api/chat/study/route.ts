@@ -26,10 +26,10 @@ export async function POST(req: Request) {
     messages: fixChatMessages(messages),
     tools: {
       scoutTaskCreate: tools.scoutTaskCreate(userId),
-      scoutTaskChat: tools.scoutTaskChat(),
+      scoutTaskChat: tools.scoutTaskChat({ abortSignal: req.signal }),
       saveAnalystStudySummary: tools.saveAnalystStudySummary(),
       saveAnalyst: tools.saveAnalyst(userId, chatId),
-      interview: tools.interview,
+      interview: tools.interview({ abortSignal: req.signal }),
       analystReport: tools.analystReport,
       reasoningThinking: tools.reasoningThinking,
       // xhsSearch: tools.xhsSearch,

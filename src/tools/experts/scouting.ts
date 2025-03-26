@@ -46,7 +46,7 @@ export const scoutTaskCreateTool = (userId: number) =>
     },
   });
 
-export const scoutTaskChatTool = () =>
+export const scoutTaskChatTool = ({ abortSignal }: { abortSignal?: AbortSignal }) =>
   tool({
     description: "开始执行用户画像搜索任务",
     parameters: z.object({
@@ -65,16 +65,18 @@ export const scoutTaskChatTool = () =>
         messages = messages.slice(0, -1);
       }
       messages.push({ id: generateId(), role: "user", content: description });
-      return await scoutTaskChatStream({ chatId, messages });
+      return await scoutTaskChatStream({ chatId, messages, abortSignal });
     },
   });
 
 async function scoutTaskChatStream({
   chatId,
   messages,
+  abortSignal,
 }: {
   chatId: number;
   messages: Message[];
+  abortSignal?: AbortSignal;
 }): Promise<ScoutTaskChatResult> {
   const saveToolMessages = (
     (chatId: number, initialMessages: Message[]) => async (message: Omit<Message, "role">) => {
@@ -123,6 +125,7 @@ async function scoutTaskChatStream({
         console.log(error);
         reject(error);
       },
+      abortSignal,
     });
     await response.consumeStream();
   });

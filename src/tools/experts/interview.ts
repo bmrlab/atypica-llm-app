@@ -20,79 +20,81 @@ export interface InterviewResult extends PlainTextToolResult {
   plainText: string;
 }
 
-export const interviewTool = tool({
-  description: "针对一个调研主题的一系列用户进行访谈，每次最多3人",
-  parameters: z.object({
-    analystId: z.number().describe("调研主题的ID"),
-    personas: z
-      .array(
-        z.object({
-          id: z.number().describe("调研对象的ID"),
-          name: z.string().describe("调研对象的姓名"),
-        }),
-      )
-      .describe("调研对象的列表，最多3人"),
-  }),
-  experimental_toToolResultContent: (result: PlainTextToolResult) => {
-    return [{ type: "text", text: result.plainText }];
-  },
-  execute: async ({ analystId, personas }): Promise<InterviewResult> => {
-    const single = async ({ id: personaId, name: personaName }: { id: number; name: string }) => {
-      const [interview, persona, analyst] = await Promise.all([
-        prisma.analystInterview.upsert({
-          where: { analystId_personaId: { analystId, personaId } },
-          update: {},
-          create: {
+export const interviewTool = ({ abortSignal }: { abortSignal?: AbortSignal }) =>
+  tool({
+    description: "针对一个调研主题的一系列用户进行访谈，每次最多3人",
+    parameters: z.object({
+      analystId: z.number().describe("调研主题的ID"),
+      personas: z
+        .array(
+          z.object({
+            id: z.number().describe("调研对象的ID"),
+            name: z.string().describe("调研对象的姓名"),
+          }),
+        )
+        .describe("调研对象的列表，最多3人"),
+    }),
+    experimental_toToolResultContent: (result: PlainTextToolResult) => {
+      return [{ type: "text", text: result.plainText }];
+    },
+    execute: async ({ analystId, personas }): Promise<InterviewResult> => {
+      const single = async ({ id: personaId, name: personaName }: { id: number; name: string }) => {
+        const [interview, persona, analyst] = await Promise.all([
+          prisma.analystInterview.upsert({
+            where: { analystId_personaId: { analystId, personaId } },
+            update: {},
+            create: {
+              analystId,
+              personaId,
+              personaPrompt: "",
+              interviewerPrompt: "",
+              messages: [],
+              conclusion: "",
+            },
+          }),
+          prisma.persona.findUniqueOrThrow({ where: { id: personaId } }),
+          prisma.analyst.findUniqueOrThrow({ where: { id: analystId } }),
+        ]);
+        try {
+          await startInterview({
+            analyst,
+            persona: {
+              ...persona,
+              tags: persona.tags as string[],
+            },
+            analystInterviewId: interview.id,
+            abortSignal,
+          });
+          const updatedInterview = await prisma.analystInterview.findUniqueOrThrow({
+            where: { id: interview.id },
+          });
+          return {
             analystId,
             personaId,
-            personaPrompt: "",
-            interviewerPrompt: "",
-            messages: [],
-            conclusion: "",
-          },
-        }),
-        prisma.persona.findUniqueOrThrow({ where: { id: personaId } }),
-        prisma.analyst.findUniqueOrThrow({ where: { id: analystId } }),
-      ]);
-      try {
-        await startInterview({
-          analyst,
-          persona: {
-            ...persona,
-            tags: persona.tags as string[],
-          },
-          analystInterviewId: interview.id,
-        });
-        const updatedInterview = await prisma.analystInterview.findUniqueOrThrow({
-          where: { id: interview.id },
-        });
-        return {
-          analystId,
-          personaId,
-          personaName,
-          conclusion: updatedInterview.conclusion,
-          result: "访谈结束",
-        };
-      } catch (error) {
-        return {
-          analystId,
-          personaId,
-          personaName,
-          result: `访谈遇到问题 ${(error as Error).message}`,
-        };
-      }
-    };
-    const interviewResults = await Promise.all(personas.map(single));
-    await new Promise((resolve) => {
-      // 等 5s, 确保前端可以把 conclusion 显示出来
-      setTimeout(() => resolve(null), 5000);
-    });
-    return {
-      interviews: interviewResults,
-      plainText: JSON.stringify(interviewResults),
-    };
-  },
-});
+            personaName,
+            conclusion: updatedInterview.conclusion,
+            result: "访谈结束",
+          };
+        } catch (error) {
+          return {
+            analystId,
+            personaId,
+            personaName,
+            result: `访谈遇到问题 ${(error as Error).message}`,
+          };
+        }
+      };
+      const interviewResults = await Promise.all(personas.map(single));
+      await new Promise((resolve) => {
+        // 等 5s, 确保前端可以把 conclusion 显示出来
+        setTimeout(() => resolve(null), 5000);
+      });
+      return {
+        interviews: interviewResults,
+        plainText: JSON.stringify(interviewResults),
+      };
+    },
+  });
 
 type ChatProps = {
   messages: Message[];
@@ -100,6 +102,7 @@ type ChatProps = {
   analyst: Analyst;
   analystInterviewId: number;
   interviewToken: string;
+  abortSignal?: AbortSignal;
 };
 
 async function chatWithInterviewer({
@@ -107,6 +110,7 @@ async function chatWithInterviewer({
   analyst,
   analystInterviewId,
   interviewToken,
+  abortSignal,
 }: ChatProps) {
   const result = await new Promise<Omit<Message, "role">>(async (resolve, reject) => {
     const response = streamText({
@@ -128,6 +132,7 @@ async function chatWithInterviewer({
         console.log(error);
         reject(error);
       },
+      abortSignal,
     });
     await response.consumeStream();
     // 必须写这个 await，把 stream 消费完，也可以使用 consumeStream 方法
@@ -140,6 +145,7 @@ async function chatWithPersona({
   messages,
   persona,
   analystInterviewId,
+  abortSignal,
 }: Omit<ChatProps, "interviewToken">) {
   const result = await new Promise<Omit<Message, "role">>(async (resolve, reject) => {
     const response = streamText({
@@ -159,6 +165,7 @@ async function chatWithPersona({
         console.log(error);
         reject(error);
       },
+      abortSignal,
     });
     await response.consumeStream();
   });
@@ -280,10 +287,12 @@ async function startInterview({
   analyst,
   persona,
   analystInterviewId,
+  abortSignal,
 }: {
   analyst: Analyst;
   persona: Persona;
   analystInterviewId: number;
+  abortSignal?: AbortSignal;
 }) {
   const interviewToken = new Date().valueOf().toString();
   try {
@@ -325,6 +334,7 @@ async function startInterview({
       persona,
       analystInterviewId,
       interviewToken,
+      abortSignal,
     });
 
     stop = true;
