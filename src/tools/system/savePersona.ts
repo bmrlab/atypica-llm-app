@@ -4,7 +4,7 @@ import { z } from "zod";
 import { StatReporter } from "..";
 import { PlainTextToolResult } from "../utils";
 
-export interface SaveAnalystToolResult extends PlainTextToolResult {
+export interface SavePersonaToolResult extends PlainTextToolResult {
   personaId: number;
   name: string;
   tags: string[];
@@ -31,13 +31,7 @@ export const savePersonaTool = ({
     experimental_toToolResultContent: (result: PlainTextToolResult) => {
       return [{ type: "text", text: result.plainText }];
     },
-    execute: async ({
-      name,
-      source,
-      tags,
-      // userids,
-      personaPrompt,
-    }): Promise<SaveAnalystToolResult> => {
+    execute: async ({ name, source, tags, personaPrompt }): Promise<SavePersonaToolResult> => {
       const persona = await prisma.persona.create({
         data: {
           name,

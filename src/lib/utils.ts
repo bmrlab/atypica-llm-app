@@ -60,6 +60,7 @@ export function streamStepsToUIMessage<T extends ToolSet>(
       parts.push({ type: "text", text: step.text });
     } else if (step.stepType === "tool-result") {
       contents.push(step.text);
+      parts.push({ type: "text", text: step.text }); // text 要放在前面，规则是这样的，先文本再执行。
       for (const toolResult of step.toolResults) {
         parts.push({
           type: "tool-invocation",
@@ -72,7 +73,6 @@ export function streamStepsToUIMessage<T extends ToolSet>(
           },
         });
       }
-      parts.push({ type: "text", text: step.text });
     }
   }
   return {
@@ -96,6 +96,7 @@ export function appendStreamStepToUIMessage<T extends ToolSet>(
     parts.push({ type: "text", text: step.text });
   } else if (step.stepType === "tool-result") {
     contents.push(step.text);
+    parts.push({ type: "text", text: step.text }); // text 要放在前面，规则是这样的，先文本再执行。
     for (const toolResult of step.toolResults) {
       parts.push({
         type: "tool-invocation",
@@ -108,7 +109,6 @@ export function appendStreamStepToUIMessage<T extends ToolSet>(
         },
       });
     }
-    parts.push({ type: "text", text: step.text });
   }
   message.content = contents.join("\n");
   message.parts = parts;
