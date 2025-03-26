@@ -2,7 +2,17 @@ import { authOptions } from "@/lib/auth";
 import openai from "@/lib/openai";
 import { fixChatMessages } from "@/lib/utils";
 import { studySystem } from "@/prompt";
-import tools from "@/tools";
+import {
+  analystReportTool,
+  interviewTool,
+  reasoningThinkingTool,
+  requestInteractionTool,
+  saveAnalystStudySummaryTool,
+  saveAnalystTool,
+  scoutTaskChatTool,
+  scoutTaskCreateTool,
+  ToolName,
+} from "@/tools";
 import { Message, streamText } from "ai";
 import { getServerSession } from "next-auth/next";
 import { NextResponse } from "next/server";
@@ -25,16 +35,17 @@ export async function POST(req: Request) {
     system: studySystem(),
     messages: fixChatMessages(messages),
     tools: {
-      scoutTaskCreate: tools.scoutTaskCreate(userId),
-      scoutTaskChat: tools.scoutTaskChat({ abortSignal: req.signal }),
-      saveAnalystStudySummary: tools.saveAnalystStudySummary(),
-      saveAnalyst: tools.saveAnalyst(userId, chatId),
-      interview: tools.interview({ abortSignal: req.signal }),
-      analystReport: tools.analystReport,
-      reasoningThinking: tools.reasoningThinking,
-      // xhsSearch: tools.xhsSearch,
-      // xhsUserNotes: tools.xhsUserNotes,
-      // xhsNoteComments: tools.xhsNoteComments,
+      [ToolName.scoutTaskCreate]: scoutTaskCreateTool(userId),
+      [ToolName.scoutTaskChat]: scoutTaskChatTool({ abortSignal: req.signal }),
+      [ToolName.saveAnalystStudySummary]: saveAnalystStudySummaryTool(),
+      [ToolName.saveAnalyst]: saveAnalystTool(userId, chatId),
+      [ToolName.interview]: interviewTool({ abortSignal: req.signal }),
+      [ToolName.analystReport]: analystReportTool,
+      [ToolName.reasoningThinking]: reasoningThinkingTool,
+      [ToolName.requestInteraction]: requestInteractionTool,
+      // [ToolName.xhsSearch]: xhsSearchTool,
+      // [ToolName.xhsUserNotes]: xhsUserNotesTool,
+      // [ToolName.xhsNoteComments]: xhsNoteCommentsTool,
     },
     maxSteps: 3,
     onError: async (error) => {

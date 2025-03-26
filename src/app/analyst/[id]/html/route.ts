@@ -6,7 +6,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   const analystId = parseInt((await params).id);
 
   // 只有老的 report 支持，新的 report 不再支持这个方式访问
-  if (analystId >= 240) {
+  if (analystId >= 220) {
     notFound();
   }
 

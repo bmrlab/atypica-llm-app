@@ -3,7 +3,12 @@ import openai from "@/lib/openai";
 import { prisma } from "@/lib/prisma";
 import { streamStepsToUIMessage } from "@/lib/utils";
 import { interviewerPrologue, interviewerSystem, personaAgentSystem } from "@/prompt";
-import tools from "@/tools";
+import {
+  reasoningThinkingTool,
+  saveInterviewConclusionTool,
+  ToolName,
+  xhsSearchTool,
+} from "@/tools";
 import { InputJsonValue } from "@prisma/client/runtime/library";
 import { waitUntil } from "@vercel/functions";
 import { generateId, Message, streamText } from "ai";
@@ -29,8 +34,11 @@ async function chatWithInterviewer({
       system: interviewerSystem(analyst),
       messages,
       tools: {
-        reasoningThinking: tools.reasoningThinking,
-        saveInterviewConclusion: tools.saveInterviewConclusion(analystInterviewId, interviewToken),
+        [ToolName.reasoningThinking]: reasoningThinkingTool,
+        [ToolName.saveInterviewConclusion]: saveInterviewConclusionTool(
+          analystInterviewId,
+          interviewToken,
+        ),
       },
       onChunk: (chunk) =>
         console.log(`[${analystInterviewId}] Interviewer:`, JSON.stringify(chunk)),
@@ -61,7 +69,7 @@ async function chatWithPersona({
       system: personaAgentSystem(persona),
       messages,
       tools: {
-        xhsSearch: tools.xhsSearch,
+        [ToolName.xhsSearch]: xhsSearchTool,
       },
       maxSteps: 1,
       onChunk: (chunk) => console.log(`[${analystInterviewId}] Persona:`, JSON.stringify(chunk)),

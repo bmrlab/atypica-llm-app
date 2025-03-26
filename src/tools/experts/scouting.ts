@@ -6,7 +6,12 @@ import { PlainTextToolResult } from "@/tools/utils";
 import { InputJsonValue } from "@prisma/client/runtime/library";
 import { generateId, Message, streamText, tool } from "ai";
 import { z } from "zod";
-import tools from "..";
+import { ToolName } from "..";
+import { savePersonaTool } from "../system/savePersona";
+import { xhsNoteCommentsTool } from "../xhs/noteComments";
+import { xhsSearchTool } from "../xhs/search";
+import { xhsUserNotesTool } from "../xhs/userNotes";
+import { reasoningThinkingTool } from "./reasoning";
 
 export interface ScoutTaskCreateResult extends PlainTextToolResult {
   chatId: number;
@@ -103,11 +108,11 @@ async function scoutTaskChatStream({
       }),
       messages: fixChatMessages(messages as unknown as Message[]),
       tools: {
-        reasoningThinking: tools.reasoningThinking,
-        xhsSearch: tools.xhsSearch,
-        xhsUserNotes: tools.xhsUserNotes,
-        xhsNoteComments: tools.xhsNoteComments,
-        savePersona: tools.savePersona(chatId),
+        [ToolName.reasoningThinking]: reasoningThinkingTool,
+        [ToolName.xhsSearch]: xhsSearchTool,
+        xhsUserNotes: xhsUserNotesTool,
+        xhsNoteComments: xhsNoteCommentsTool,
+        savePersona: savePersonaTool(chatId),
       },
       maxSteps: 30,
       onChunk: (chunk) => console.log(`[${chatId}] ScoutTaskChat:`, JSON.stringify(chunk)),

@@ -2,8 +2,6 @@
 // 给 chat 类型的 tool call 用的组件，比如 scout chat 和 interview chat
 import { Markdown } from "@/components/markdown";
 import {
-  ReasoningThinkingResultMessage,
-  SaveAnalystToolResultMessage,
   XHSNoteCommentsResultMessage,
   XHSSearchResultMessage,
   XHSUserNotesResultMessage,
@@ -14,6 +12,7 @@ import { Message as MessageType, ToolInvocation } from "ai";
 import { motion } from "framer-motion";
 import { BotIcon, CpuIcon, LoaderIcon, UserIcon } from "lucide-react";
 import { PropsWithChildren, ReactNode } from "react";
+import ReasoningThinking from "./ReasoningThinking";
 
 const PlainText = ({ children }: PropsWithChildren) => {
   return (
@@ -51,9 +50,7 @@ const StreamStep = ({ toolInvocation }: { toolInvocation: ToolInvocation }) => {
             case ToolName.xhsNoteComments:
               return <XHSNoteCommentsResultMessage result={toolInvocation.result} />;
             case ToolName.reasoningThinking:
-              return <ReasoningThinkingResultMessage result={toolInvocation.result} />;
-            case ToolName.saveAnalyst:
-              return <SaveAnalystToolResultMessage result={toolInvocation.result} />;
+              return <ReasoningThinking toolInvocation={toolInvocation} />;
             default:
               return (
                 <pre

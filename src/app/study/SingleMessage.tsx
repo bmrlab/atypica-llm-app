@@ -1,7 +1,9 @@
 "use client";
 import { Markdown } from "@/components/markdown";
+import { RequestIteractionResultMessage } from "@/components/ToolMessage";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
+import { ToolName } from "@/tools";
 import { Message as MessageType, ToolInvocation } from "ai";
 import { motion } from "framer-motion";
 import { BotIcon, ChevronRight, EyeIcon, LoaderIcon, XIcon } from "lucide-react";
@@ -10,9 +12,11 @@ import { useStudyContext } from "./hooks/StudyContext";
 
 const ToolInvocationMessage = ({
   toolInvocation,
+  onUserReply,
   isLastPart,
 }: {
   toolInvocation: ToolInvocation;
+  onUserReply?: (content: string) => void;
   isLastPart?: boolean;
 }) => {
   const [open, setOpen] = useState(false);
@@ -32,6 +36,20 @@ const ToolInvocationMessage = ({
       setOpen(false);
     }
   }, [isLastPart]);
+
+  if (toolInvocation.state === "result") {
+    switch (toolInvocation.toolName) {
+      case ToolName.requestInteraction:
+        return (
+          <RequestIteractionResultMessage
+            result={toolInvocation.result}
+            onSelectAnswer={(content) => {
+              if (onUserReply) onUserReply(content);
+            }}
+          />
+        );
+    }
+  }
 
   return (
     <div
@@ -99,6 +117,7 @@ export const SingleMessage = ({
   content,
   parts,
   onDelete,
+  onUserReply,
   isLastMessage,
 }: {
   avatar?: Partial<{ user: ReactNode; assistant: ReactNode; system: ReactNode }>;
@@ -107,9 +126,11 @@ export const SingleMessage = ({
   content: string | ReactNode;
   parts?: MessageType["parts"];
   onDelete?: () => void;
+  onUserReply?: (content: string) => void;
   isLastMessage?: boolean;
 }) => {
-  function UserLargeMessage({ content }: { content: string }) {
+  if (role === "user") {
+    const contentLength = (content?.toString() ?? "").length;
     return (
       <div
         className={cn(
@@ -119,13 +140,13 @@ export const SingleMessage = ({
       >
         <span
           className={cn(
-            content.length < 20
+            contentLength < 20
               ? "text-2xl"
-              : content.length < 50
+              : contentLength < 50
                 ? "text-xl"
-                : content.length < 80
+                : contentLength < 80
                   ? "text-lg"
-                  : content.length < 100
+                  : contentLength < 100
                     ? "text-base"
                     : "text-sm",
             "font-medium",
@@ -145,49 +166,46 @@ export const SingleMessage = ({
     );
   }
 
-  return role === "user" ? (
-    <UserLargeMessage content={content?.toString() ?? ""} />
-  ) : (
+  return (
     <motion.div
       className={cn("flex flex-row gap-2 w-full")}
       initial={{ y: 15, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
     >
-      <>
-        {avatar?.assistant || <BotIcon className="size-6" />}
-        <div className="flex flex-col gap-6 flex-1 overflow-hidden">
-          {nickname && (
-            <div className="leading-[24px] text-zinc-800 text-sm font-medium">{nickname}</div>
-          )}
-          {parts ? (
-            <div className="flex flex-col gap-4">
-              {parts.map((part, i) => {
-                switch (part.type) {
-                  case "text":
-                    return <PlainText key={i}>{part.text}</PlainText>;
-                  case "reasoning":
-                    return <PlainText key={i}>{part.reasoning}</PlainText>;
-                  case "source":
-                    return <PlainText key={i}>{JSON.stringify(part.source)}</PlainText>;
-                  case "tool-invocation":
-                    return (
-                      <ToolInvocationMessage
-                        key={i}
-                        toolInvocation={part.toolInvocation}
-                        isLastPart={isLastMessage && i === parts.length - 1}
-                      />
-                    );
-                  default:
-                    return null;
-                }
-              })}
-            </div>
-          ) : (
-            <PlainText>{content}</PlainText>
-          )}
-        </div>
-      </>
+      {avatar?.assistant || <BotIcon className="size-6" />}
+      <div className="flex flex-col gap-6 flex-1 overflow-hidden">
+        {nickname && (
+          <div className="leading-[24px] text-zinc-800 text-sm font-medium">{nickname}</div>
+        )}
+        {parts ? (
+          <div className="flex flex-col gap-4">
+            {parts.map((part, i) => {
+              switch (part.type) {
+                case "text":
+                  return <PlainText key={i}>{part.text}</PlainText>;
+                case "reasoning":
+                  return <PlainText key={i}>{part.reasoning}</PlainText>;
+                case "source":
+                  return <PlainText key={i}>{JSON.stringify(part.source)}</PlainText>;
+                case "tool-invocation":
+                  return (
+                    <ToolInvocationMessage
+                      key={i}
+                      toolInvocation={part.toolInvocation}
+                      isLastPart={isLastMessage && i === parts.length - 1}
+                      onUserReply={onUserReply}
+                    />
+                  );
+                default:
+                  return null;
+              }
+            })}
+          </div>
+        ) : (
+          <PlainText>{content}</PlainText>
+        )}
+      </div>
     </motion.div>
   );
 };

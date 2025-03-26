@@ -3,11 +3,14 @@ import openai from "@/lib/openai";
 import { prisma } from "@/lib/prisma";
 import { streamStepsToUIMessage } from "@/lib/utils";
 import { interviewerPrologue, interviewerSystem, personaAgentSystem } from "@/prompt";
-import tools from "@/tools";
 import { PlainTextToolResult } from "@/tools/utils";
 import { InputJsonValue } from "@prisma/client/runtime/library";
 import { generateId, Message, streamText, tool } from "ai";
 import { z } from "zod";
+import { ToolName } from "..";
+import { saveInterviewConclusionTool } from "../system/saveInterviewConclusion";
+import { xhsSearchTool } from "../xhs/search";
+import { reasoningThinkingTool } from "./reasoning";
 
 export interface InterviewResult extends PlainTextToolResult {
   interviews: {
@@ -118,8 +121,11 @@ async function chatWithInterviewer({
       system: interviewerSystem(analyst),
       messages,
       tools: {
-        reasoningThinking: tools.reasoningThinking,
-        saveInterviewConclusion: tools.saveInterviewConclusion(analystInterviewId, interviewToken),
+        [ToolName.reasoningThinking]: reasoningThinkingTool,
+        [ToolName.saveInterviewConclusion]: saveInterviewConclusionTool(
+          analystInterviewId,
+          interviewToken,
+        ),
       },
       maxSteps: 3,
       onChunk: (chunk) =>
@@ -153,7 +159,7 @@ async function chatWithPersona({
       system: personaAgentSystem(persona),
       messages,
       tools: {
-        xhsSearch: tools.xhsSearch,
+        [ToolName.xhsSearch]: xhsSearchTool,
       },
       maxSteps: 3,
       onChunk: (chunk) => console.log(`[${analystInterviewId}] Persona:`, JSON.stringify(chunk)),

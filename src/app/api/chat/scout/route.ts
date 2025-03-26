@@ -1,7 +1,14 @@
 import openai from "@/lib/openai";
 import { fixChatMessages } from "@/lib/utils";
 import { scoutSystem } from "@/prompt";
-import tools from "@/tools";
+import {
+  reasoningThinkingTool,
+  savePersonaTool,
+  ToolName,
+  xhsNoteCommentsTool,
+  xhsSearchTool,
+  xhsUserNotesTool,
+} from "@/tools";
 import { Message, streamText } from "ai";
 
 export async function POST(req: Request) {
@@ -19,11 +26,11 @@ export async function POST(req: Request) {
     }),
     messages: fixChatMessages(messages),
     tools: {
-      reasoningThinking: tools.reasoningThinking,
-      xhsSearch: tools.xhsSearch,
-      xhsUserNotes: tools.xhsUserNotes,
-      xhsNoteComments: tools.xhsNoteComments,
-      savePersona: tools.savePersona(chatId),
+      [ToolName.reasoningThinking]: reasoningThinkingTool,
+      [ToolName.xhsSearch]: xhsSearchTool,
+      xhsUserNotes: xhsUserNotesTool,
+      xhsNoteComments: xhsNoteCommentsTool,
+      savePersona: savePersonaTool(chatId),
     },
     onError: async (error) => {
       console.log("Error occurred:", error);

@@ -24,21 +24,31 @@ function popLastUserMessage(messages: Message[]) {
 export function ChatBox({ studyChat, readOnly }: { studyChat: StudyUserChat; readOnly: boolean }) {
   const [chatId, setChatId] = useState<number>(studyChat.id);
 
-  const { messages, setMessages, error, handleSubmit, input, setInput, status, stop, reload } =
-    useChat({
-      // id: `userChat-${studyChat.id}`,  // 和 ToolConsole 不再使用 messages 通信，使用 context 通信
-      maxSteps: 30,
-      api: "/api/chat/study",
-      body: {
-        chatId: chatId,
-      },
-      // onFinish: async (message, { finishReason }) => {
-      //   console.log(message, finishReason);
-      // },
-    });
+  const {
+    messages,
+    setMessages,
+    error,
+    handleSubmit,
+    input,
+    setInput,
+    status,
+    stop,
+    reload,
+    append,
+  } = useChat({
+    // id: `userChat-${studyChat.id}`,  // 和 ToolConsole 不再使用 messages 通信，使用 context 通信
+    maxSteps: 30,
+    api: "/api/chat/study",
+    body: {
+      chatId: chatId,
+    },
+    // onFinish: async (message, { finishReason }) => {
+    //   console.log(message, finishReason);
+    // },
+  });
 
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const useChatRef = useRef({ reload, stop, setMessages });
+  const useChatRef = useRef({ reload, append, stop, setMessages });
 
   // 监听最新的 message
   useEffect(() => {
@@ -126,6 +136,9 @@ export function ChatBox({ studyChat, readOnly }: { studyChat: StudyUserChat; rea
                   }
                 : undefined
             }
+            onUserReply={(content) => {
+              useChatRef.current.append({ role: "user", content });
+            }}
             isLastMessage={index === messages.length - 1}
           ></SingleMessage>
         ))}

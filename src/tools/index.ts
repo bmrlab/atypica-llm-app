@@ -1,3 +1,4 @@
+import { requestInteractionTool } from "./experts/interaction";
 import { interviewTool } from "./experts/interview";
 import { reasoningThinkingTool } from "./experts/reasoning";
 import { analystReportTool } from "./experts/report";
@@ -9,36 +10,34 @@ import { xhsNoteCommentsTool } from "./xhs/noteComments";
 import { xhsSearchTool } from "./xhs/search";
 import { xhsUserNotesTool } from "./xhs/userNotes";
 
-const tools = {
-  reasoningThinking: reasoningThinkingTool,
-  scoutTaskChat: scoutTaskChatTool,
-  scoutTaskCreate: scoutTaskCreateTool,
-  interview: interviewTool,
-  analystReport: analystReportTool,
-
-  xhsSearch: xhsSearchTool,
-  xhsUserNotes: xhsUserNotesTool,
-  xhsNoteComments: xhsNoteCommentsTool,
-
-  savePersona: savePersonaTool,
-  saveInterviewConclusion: saveInterviewConclusionTool,
-  saveAnalyst: saveAnalystTool,
-  saveAnalystStudySummary: saveAnalystStudySummaryTool,
-};
-
 export enum ToolName {
-  reasoningThinking = "reasoningThinking",
-  scoutTaskChat = "scoutTaskChat",
-  scoutTaskCreate = "scoutTaskCreate",
-  interview = "interview",
   analystReport = "analystReport",
-  xhsSearch = "xhsSearch",
-  xhsUserNotes = "xhsUserNotes",
-  xhsNoteComments = "xhsNoteComments",
-  savePersona = "savePersona",
-  saveInterviewConclusion = "saveInterviewConclusion",
+  interview = "interview",
+  reasoningThinking = "reasoningThinking",
+  requestInteraction = "requestInteraction",
   saveAnalyst = "saveAnalyst",
   saveAnalystStudySummary = "saveAnalystStudySummary",
+  saveInterviewConclusion = "saveInterviewConclusion",
+  savePersona = "savePersona",
+  scoutTaskChat = "scoutTaskChat",
+  scoutTaskCreate = "scoutTaskCreate",
+  xhsNoteComments = "xhsNoteComments",
+  xhsSearch = "xhsSearch",
+  xhsUserNotes = "xhsUserNotes",
 }
 
-export default tools;
+export {
+  analystReportTool,
+  interviewTool,
+  reasoningThinkingTool,
+  requestInteractionTool,
+  saveAnalystStudySummaryTool,
+  saveAnalystTool,
+  saveInterviewConclusionTool,
+  savePersonaTool,
+  scoutTaskChatTool,
+  scoutTaskCreateTool,
+  xhsNoteCommentsTool,
+  xhsSearchTool,
+  xhsUserNotesTool,
+};

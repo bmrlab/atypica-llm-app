@@ -2,7 +2,7 @@ import { Persona } from "@/data";
 import openai from "@/lib/openai";
 import { prisma } from "@/lib/prisma";
 import { personaAgentSystem } from "@/prompt";
-import tools from "@/tools";
+import { ToolName, xhsSearchTool } from "@/tools";
 import { Message, streamText } from "ai";
 
 export async function POST(req: Request) {
@@ -31,7 +31,7 @@ export async function POST(req: Request) {
     system: systemPrompt,
     messages, // useChat 和 api 通信的时候，自己维护的这个 messages 会在每次请求的时候去掉 id
     tools: {
-      xhsSearch: tools.xhsSearch,
+      [ToolName.xhsSearch]: xhsSearchTool,
     },
     onError: async (error) => {
       console.log("Error occurred:", error);

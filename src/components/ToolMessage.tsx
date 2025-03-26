@@ -1,10 +1,12 @@
 import { Markdown } from "@/components/markdown";
 import { cn } from "@/lib/utils";
+import { RequestInteractionResult } from "@/tools/experts/interaction";
 import { ReasoningThinkingResult } from "@/tools/experts/reasoning";
 import { SaveAnalystToolResult } from "@/tools/system/saveAnalyst";
 import { XHSNoteCommentsResult } from "@/tools/xhs/noteComments";
 import { XHSSearchResult } from "@/tools/xhs/search";
 import { XHSUserNotesResult } from "@/tools/xhs/userNotes";
+import { MessageCircleQuestionIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { FC } from "react";
@@ -148,6 +150,31 @@ export const SaveAnalystToolResultMessage: FC<{
         点击查看研究主题
       </Link>
       <span className="ml-4 text-muted-foreground">这个功能还在开发中...</span>
+    </div>
+  );
+};
+
+export const RequestIteractionResultMessage: FC<{
+  result: RequestInteractionResult;
+  onSelectAnswer: (answer: string) => void;
+}> = ({ result: { question, options }, onSelectAnswer }) => {
+  return (
+    <div className="p-4 bg-zinc-50 dark:bg-zinc-800 border border-zinc-100 dark:border-zinc-700 rounded-lg">
+      <div className="text-sm text-foreground/80 mb-3 flex items-center justify-start gap-1">
+        <strong>{question}</strong>
+        <MessageCircleQuestionIcon className="size-4" />
+      </div>
+      <div className="flex flex-col gap-2">
+        {options.map((option, index) => (
+          <div
+            key={index}
+            onClick={() => onSelectAnswer(option)}
+            className="text-xs p-2 rounded-md border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-700 cursor-pointer"
+          >
+            {option}
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

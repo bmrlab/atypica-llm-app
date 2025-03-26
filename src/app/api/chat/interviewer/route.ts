@@ -2,7 +2,7 @@ import { Analyst } from "@/data";
 import openai from "@/lib/openai";
 import { prisma } from "@/lib/prisma";
 import { interviewerSystem } from "@/prompt";
-import tools from "@/tools";
+import { reasoningThinkingTool, saveInterviewConclusionTool, ToolName } from "@/tools";
 import { streamText } from "ai";
 
 export async function POST(req: Request) {
@@ -32,8 +32,8 @@ export async function POST(req: Request) {
     system: systemPrompt,
     messages,
     tools: {
-      reasoningThinking: tools.reasoningThinking,
-      saveInterviewConclusion: tools.saveInterviewConclusion(analystInterviewId),
+      [ToolName.reasoningThinking]: reasoningThinkingTool,
+      [ToolName.saveInterviewConclusion]: saveInterviewConclusionTool(analystInterviewId),
     },
     onError: async (error) => {
       console.log("Error occurred:", error);
