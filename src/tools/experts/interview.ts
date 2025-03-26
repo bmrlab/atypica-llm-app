@@ -31,7 +31,7 @@ export const interviewTool = ({
   statReport: StatReporter;
 }) =>
   tool({
-    description: "针对一个调研主题的一系列用户进行访谈，每次最多3人",
+    description: "针对一个调研主题的一系列用户进行访谈，每次最多5人",
     parameters: z.object({
       analystId: z.number().describe("调研主题的ID"),
       personas: z
@@ -41,7 +41,7 @@ export const interviewTool = ({
             name: z.string().describe("调研对象的姓名"),
           }),
         )
-        .describe("调研对象的列表，最多3人"),
+        .describe("调研对象的列表，最多5人"),
     }),
     experimental_toToolResultContent: (result: PlainTextToolResult) => {
       return [{ type: "text", text: result.plainText }];

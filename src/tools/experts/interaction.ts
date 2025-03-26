@@ -12,7 +12,7 @@ export const requestInteractionTool = tool({
   description: "向用户以选择题的形式提问以获得回复",
   parameters: z.object({
     question: z.string().describe("问题"),
-    options: z.array(z.string()).describe("选项").default([]),
+    options: z.array(z.string()).describe("选项，最少2个，最多3个").default([]),
   }),
   experimental_toToolResultContent: (result: PlainTextToolResult) => {
     return [{ type: "text", text: result.plainText }];

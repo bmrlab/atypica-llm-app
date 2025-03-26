@@ -87,7 +87,6 @@ export const StreamSteps = ({
   content: string | ReactNode;
   parts?: MessageType["parts"];
 }) => {
-  console.log(parts);
   return (
     <motion.div
       className={cn("flex flex-col w-full")}
