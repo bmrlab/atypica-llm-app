@@ -2,8 +2,8 @@
 import HippyGhostAvatar from "@/components/HippyGhostAvatar";
 import { useScrollToBottom } from "@/components/use-scroll-to-bottom";
 import { StudyUserChat } from "@/data";
-import { SingleMessage } from "./SingleMessage";
 import { useProgressiveMessages } from "./hooks/useProgressiveMessages";
+import { SingleMessage } from "./SingleMessage";
 
 export function ChatReplay({ studyChat }: { studyChat: StudyUserChat }) {
   const { partialMessages: messagesDisplay } = useProgressiveMessages({

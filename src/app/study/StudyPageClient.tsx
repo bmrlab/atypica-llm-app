@@ -10,6 +10,7 @@ import { useState } from "react";
 import { ChatBox } from "./ChatBox";
 import { ChatReplay } from "./ChatReplay";
 import { StudyProvider, useStudyContext } from "./hooks/StudyContext";
+import { NerdStats } from "./NerdStats";
 import { ShareReplayButton } from "./ShareReplayButton";
 import { ToolConsole } from "./ToolConsole/ToolConsole";
 
@@ -28,7 +29,11 @@ function Header({ studyChat }: { studyChat: StudyUserChat }) {
         {studyChat.title || t("research")}
       </h1>
       {/* <div className="absolute right-0 top-1/2 -translate-y-1/2"> */}
-      {!replay ? <ShareReplayButton studyChat={studyChat} /> : null}
+      {!replay ? (
+        <ShareReplayButton studyChat={studyChat} />
+      ) : (
+        <NerdStats studyUserChatId={studyChat.id} />
+      )}
     </div>
   );
 }
