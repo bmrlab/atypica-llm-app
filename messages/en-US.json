@@ -186,7 +186,8 @@
       "interviewStarting": "Interview starting..",
       "researchConclusion": "Research Conclusion",
       "researchTopic": "Research Topic",
-      "interviewing": "Interviewing with {count} people"
+      "interviewing": "Interviewing with {count} people",
+      "reportBeingGenerated": "Report being generated..."
     }
   },
   "InterviewPage": {
