@@ -30,6 +30,14 @@ const nextConfig: NextConfig = {
     //     : [],
     // },
   },
+  async rewrites() {
+    return [
+      {
+        source: "/changelog.html",
+        destination: "/_public/changelog.html",
+      },
+    ];
+  },
 };
 
 const withNextIntl = createNextIntlPlugin();

@@ -1,0 +1,841 @@
+<!doctype html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>atypica.LLM - 主观世界建模之旅</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&display=swap");
+
+      :root {
+        --primary: oklch(0.87 0.29 142.57);
+        --primary-glow: oklch(0.87 0.29 142.57 / 0.35);
+        --terminal-bg: #121212;
+        --terminal-border: #333;
+      }
+
+      body {
+        font-family: "Fira Code", monospace;
+        background-color: #0a0a0a;
+        color: #e0e0e0;
+      }
+
+      .primary-text {
+        color: var(--primary);
+      }
+
+      .primary-border {
+        border-color: var(--primary);
+      }
+
+      .terminal {
+        background-color: var(--terminal-bg);
+        border: 1px solid var(--terminal-border);
+        border-radius: 8px;
+        padding: 1rem;
+        position: relative;
+      }
+
+      .terminal-header {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2rem;
+        background-color: #1a1a1a;
+        border-top-left-radius: 8px;
+        border-top-right-radius: 8px;
+        display: flex;
+        padding: 0 1rem;
+        align-items: center;
+        border-bottom: 1px solid var(--terminal-border);
+      }
+
+      .terminal-body {
+        margin-top: 2rem;
+        max-height: 400px;
+        overflow-y: auto;
+      }
+
+      .terminal-dots {
+        display: flex;
+        gap: 0.5rem;
+      }
+
+      .dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+      }
+
+      .dot-red {
+        background-color: #ff5f56;
+      }
+      .dot-yellow {
+        background-color: #ffbd2e;
+      }
+      .dot-green {
+        background-color: #27c93f;
+      }
+
+      .command {
+        color: var(--primary);
+        margin-bottom: 0.5rem;
+      }
+
+      .command::before {
+        content: "$ ";
+        opacity: 0.7;
+      }
+
+      .response {
+        margin-bottom: 1rem;
+        opacity: 0.9;
+      }
+
+      .timeline-container {
+        position: relative;
+        padding-left: 2rem;
+      }
+
+      .timeline-line {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        width: 2px;
+        background-color: var(--primary);
+      }
+
+      .timeline-item {
+        position: relative;
+        padding-bottom: 2.5rem;
+      }
+
+      .timeline-dot {
+        position: absolute;
+        left: -2.5rem;
+        width: 1rem;
+        height: 1rem;
+        border-radius: 50%;
+        background-color: var(--primary);
+        box-shadow: 0 0 8px var(--primary-glow);
+        transform: translateX(0.75rem);
+      }
+
+      .agent-card {
+        background-color: rgba(30, 30, 30, 0.7);
+        backdrop-filter: blur(4px);
+        border: 1px solid #333;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+      }
+
+      .agent-card:hover {
+        border-color: var(--primary);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+      }
+
+      .code-title {
+        font-weight: 600;
+        color: #e0e0e0;
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.5rem;
+      }
+
+      .code-title::before {
+        content: "{";
+        color: var(--primary);
+        margin-right: 0.5rem;
+      }
+
+      .code-title::after {
+        content: "}";
+        color: var(--primary);
+        margin-left: 0.5rem;
+      }
+
+      .typing-animation {
+        display: inline-block;
+        overflow: hidden;
+        white-space: nowrap;
+        animation: typing 4s steps(40, end);
+      }
+
+      @keyframes typing {
+        from {
+          width: 0;
+        }
+        to {
+          width: 100%;
+        }
+      }
+
+      .cursor {
+        display: inline-block;
+        width: 0.5rem;
+        height: 1.2rem;
+        background-color: var(--primary);
+        animation: blink 1s step-end infinite;
+        margin-left: 2px;
+        vertical-align: text-bottom;
+      }
+
+      @keyframes blink {
+        from,
+        to {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0;
+        }
+      }
+
+      .glow-text {
+        text-shadow: 0 0 8px var(--primary-glow);
+      }
+    </style>
+  </head>
+  <body class="min-h-screen">
+    <header class="py-12 relative overflow-hidden">
+      <div class="max-w-6xl mx-auto px-4">
+        <h1 class="text-4xl md:text-6xl font-bold mb-4 typing-animation">
+          <span class="primary-text">atypica</span>.LLM
+        </h1>
+        <p class="text-xl opacity-80 max-w-2xl">
+          一场从<span class="primary-text glow-text">用户发掘</span>到<span
+            class="primary-text glow-text"
+            >分步研究</span
+          >， 最终成为<span class="primary-text glow-text">对话式研究助手</span>的演进之旅
+        </p>
+      </div>
+      <div class="absolute top-0 right-0 opacity-20 text-xs overflow-hidden h-full w-1/2">
+        <pre class="text-gray-500">
+import { fetchUserChatById } from "@/data";
+import { authOptions } from "@/lib/auth";
+import { getServerSession } from "next-auth/next";
+import { forbidden, redirect } from "next/navigation";
+import { Metadata } from "next/types";
+import { StudyPageClient } from "./StudyPageClient";
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise&lt;{ id?: string }>;
+}): Promise&lt;Metadata> {
+  const id = (await searchParams).id;
+  if (!id) {
+    return {};
+  }
+  const chatId = parseInt(id);
+  const userChat = await fetchUserChatById(chatId, "study");
+  return userChat.title ? { title: userChat.title } : {};
+}
+
+export const dynamic = "force-dynamic";
+
+export default async function StudyPage({
+  searchParams,
+}: {
+  searchParams: Promise&lt;{ id?: string }>;
+}) {
+  const { id } = await searchParams;
+  if (!id) {
+    redirect("/");
+  }
+  const chatId = parseInt(id);
+  const userChat = await fetchUserChatById(chatId, "study");
+
+  const session = await getServerSession(authOptions);
+  if (!session?.user) {
+    redirect("/auth/signin?callbackUrl=/study");
+  }
+  if (userChat.userId !== session.user.id) {
+    forbidden();
+  }
+
+  return &lt;StudyPageClient studyChat={userChat} readOnly={false} replay={false} />;
+}
+            </pre
+        >
+      </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 pb-20">
+      <section class="mb-20">
+        <div class="terminal mb-12">
+          <div class="terminal-header">
+            <div class="terminal-dots mr-auto">
+              <div class="dot dot-red"></div>
+              <div class="dot dot-yellow"></div>
+              <div class="dot dot-green"></div>
+            </div>
+            <div class="text-sm opacity-60">atypica@localhost:~</div>
+          </div>
+          <div class="terminal-body">
+            <p class="command">git log --oneline | head -3</p>
+            <pre class="response">
+001f205 update readme
+51b2a74 update prompt
+78dabc4 Bump next from 15.2.1 to 15.2.3
+                    </pre
+            >
+            <p class="command">cat README.md | grep -i "atypica"</p>
+            <pre class="response">
+# atypica.LLM
+
+atypica.LLM 是一个面向主观世界建模的用户研究平台，通过大语言模型驱动研究流程，帮助研究者快速获取洞察并生成研究报告。
+
+欢迎提交Issue和PR，一起改进atypica.LLM！
+                    </pre
+            >
+            <p class="command">./storytell.sh --format timeline</p>
+            <pre class="response">
+正在讲述 atypica.LLM 的演进故事...
+                    </pre
+            >
+          </div>
+        </div>
+
+        <h2
+          class="text-2xl font-bold mb-8 primary-text border-b border-dashed pb-2 inline-block border-gray-700"
+        >
+          $ ./story --highlight "journey"
+        </h2>
+
+        <div class="mb-10">
+          <p class="mb-4">atypica.LLM 的故事始于2025年3月初，当时我们面临一个问题：</p>
+          <div class="bg-gray-900 p-6 rounded-lg mb-6 border-l-4 primary-border">
+            <p class="italic opacity-80">
+              "用户研究太耗时了，从寻找目标用户，到进行访谈，再到整理报告，通常需要几周甚至几个月。能否利用AI来加速这个过程？"
+            </p>
+          </div>
+          <p class="mb-2">
+            带着这个问题，我们开始了一段为期20天的高速迭代开发，演进出了三个不同阶段的产品形态，每一个都比前一个更加强大和易用。
+          </p>
+        </div>
+
+        <div class="timeline-container">
+          <div class="timeline-line"></div>
+
+          <!-- 第一阶段 -->
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <h3 class="text-xl font-semibold mb-3 primary-text">
+              版本一：用户发掘工具
+              <span class="text-gray-400 text-sm font-normal ml-2">2025.3.8-3.13</span>
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4">
+              <div class="col-span-2">
+                <p class="mb-4">
+                  一切始于一个简单的功能：使用AI来搜索和分析小红书用户数据，自动生成用户画像。
+                </p>
+                <div class="code-title">产品形态</div>
+                <ul class="list-disc pl-6 mb-5 space-y-1">
+                  <li>单一的scout页面，用户输入研究目标</li>
+                  <li>AI自动搜索相关用户数据并分析</li>
+                  <li>生成并保存用户画像(personas)</li>
+                </ul>
+                <div class="bg-gray-900 p-4 rounded-lg mb-4 border-l-4 primary-border">
+                  <p class="italic opacity-80 text-sm">
+                    "第一次看到AI能自动从网上收集用户信息并生成画像时，我简直不敢相信自己的眼睛。这个过程通常要花我一整天。"
+                    — 早期测试用户
+                  </p>
+                </div>
+              </div>
+              <div>
+                <div class="terminal h-full">
+                  <div class="terminal-header">
+                    <div class="terminal-dots mr-auto">
+                      <div class="dot dot-red"></div>
+                      <div class="dot dot-yellow"></div>
+                      <div class="dot dot-green"></div>
+                    </div>
+                    <div class="text-sm opacity-60">scout.tsx</div>
+                  </div>
+                  <div class="terminal-body">
+                    <pre class="text-xs">
+<span class="primary-text">import</span> { fetchUserChats } <span class="primary-text">from</span> <span class="text-yellow-300">"@/data"</span>;
+<span class="primary-text">import</span> { Message, useChat } <span class="primary-text">from</span> <span class="text-yellow-300">"@ai-sdk/react"</span>;
+
+<span class="primary-text">export function</span> <span class="text-yellow-300">ScoutChat</span>() {
+  <span class="primary-text">const</span> {
+    messages,
+    input,
+    handleSubmit,
+    status,
+  } = <span class="text-yellow-300">useChat</span>({
+    api: <span class="text-yellow-300">"/api/chat/scout"</span>,
+    <span class="text-blue-400">body</span>: {
+      <span class="text-blue-400">chatId</span>: chatId,
+    },
+  });
+
+  <span class="primary-text">return</span> (
+    <span class="text-blue-300">&lt;div&gt;</span>
+      <span class="text-blue-300">&lt;div&gt;</span>
+        {messages.map((message) => (
+          <span class="text-blue-300">&lt;ChatMessage</span>
+            <span class="text-blue-400">key</span>={message.id}
+            <span class="text-blue-400">role</span>={message.role}
+            <span class="text-blue-400">content</span>={message.content}
+          <span class="text-blue-300">/&gt;</span>
+        ))}
+      <span class="text-blue-300">&lt;/div&gt;</span>
+      <span class="text-blue-300">&lt;form</span> <span class="text-blue-400">onSubmit</span>={handleSubmit}<span class="text-blue-300">&gt;</span>
+        <span class="text-blue-300">&lt;textarea</span>
+          <span class="text-blue-400">value</span>={input}
+          <span class="text-blue-400">placeholder</span>="输入你的研究主题..."
+        <span class="text-blue-300">/&gt;</span>
+      <span class="text-blue-300">&lt;/form&gt;</span>
+    <span class="text-blue-300">&lt;/div&gt;</span>
+  );
+}
+                                    </pre>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="bg-gradient-to-r from-gray-900 to-gray-800 rounded-lg p-1">
+              <div class="text-center py-2">
+                <span class="primary-text font-semibold">里程碑：</span>
+                2025年3月12日首次成功从小红书数据自动生成用户画像
+              </div>
+            </div>
+          </div>
+
+          <!-- 第二阶段 -->
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <h3 class="text-xl font-semibold mb-3 primary-text">
+              版本二：分步式研究流程
+              <span class="text-gray-400 text-sm font-normal ml-2">2025.3.14-3.19</span>
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4">
+              <div class="col-span-2">
+                <p class="mb-4">
+                  基于第一版的成功，我们扩展了功能边界，构建了完整的用户研究流程，每一步都有AI辅助和引导。
+                </p>
+                <div class="code-title">产品形态</div>
+                <div class="bg-gray-900 p-4 rounded-lg mb-4 flex justify-between items-center">
+                  <div class="text-sm primary-text">scout</div>
+                  <div class="text-gray-500">→</div>
+                  <div class="text-sm primary-text">personas</div>
+                  <div class="text-gray-500">→</div>
+                  <div class="text-sm primary-text">analyst</div>
+                  <div class="text-gray-500">→</div>
+                  <div class="text-sm primary-text">interview</div>
+                  <div class="text-gray-500">→</div>
+                  <div class="text-sm primary-text">report</div>
+                </div>
+                <ul class="list-disc pl-6 mb-5 space-y-1">
+                  <li>多页面分步流程，每步都有详细引导</li>
+                  <li>研究者在一页完成一个任务，再进入下一步</li>
+                  <li>AI辅助每个环节，减少手动操作</li>
+                  <li>研究结果在各步骤间无缝传递</li>
+                </ul>
+                <div class="bg-gray-900 p-4 rounded-lg mb-4 border-l-4 primary-border">
+                  <p class="italic opacity-80 text-sm">
+                    "分步式的设计非常直观，我只需按照流程一步步走就能完成整个研究。每个页面的引导提示也很贴心，让我这个新手也能轻松上手。"
+                    — 市场研究员
+                  </p>
+                </div>
+              </div>
+              <div>
+                <div class="grid grid-cols-1 gap-4">
+                  <div class="agent-card p-4">
+                    <div class="flex items-center mb-2">
+                      <div class="w-2 h-2 rounded-full bg-purple-500 mr-2"></div>
+                      <div class="text-sm font-medium">Analyst</div>
+                    </div>
+                    <p class="text-xs opacity-80 mb-2">研究主题创建与管理</p>
+                    <div class="h-1 w-full bg-gray-800 rounded-full overflow-hidden">
+                      <div class="h-1 bg-purple-500 rounded-full" style="width: 75%"></div>
+                    </div>
+                  </div>
+                  <div class="agent-card p-4">
+                    <div class="flex items-center mb-2">
+                      <div class="w-2 h-2 rounded-full bg-blue-500 mr-2"></div>
+                      <div class="text-sm font-medium">Interview</div>
+                    </div>
+                    <p class="text-xs opacity-80 mb-2">AI驱动的用户访谈模拟</p>
+                    <div class="h-1 w-full bg-gray-800 rounded-full overflow-hidden">
+                      <div class="h-1 bg-blue-500 rounded-full" style="width: 85%"></div>
+                    </div>
+                  </div>
+                  <div class="agent-card p-4">
+                    <div class="flex items-center mb-2">
+                      <div class="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
+                      <div class="text-sm font-medium">Report</div>
+                    </div>
+                    <p class="text-xs opacity-80 mb-2">HTML报告生成与渲染</p>
+                    <div class="h-1 w-full bg-gray-800 rounded-full overflow-hidden">
+                      <div class="h-1 bg-green-500 rounded-full" style="width: 65%"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="bg-gradient-to-r from-gray-900 to-gray-800 rounded-lg p-1">
+              <div class="text-center py-2">
+                <span class="primary-text font-semibold">里程碑：</span>
+                2025年3月15日实现了完整的分步研究流程，通过引导减少用户操作负担
+              </div>
+            </div>
+          </div>
+
+          <!-- 第三阶段 -->
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <h3 class="text-xl font-semibold mb-3 primary-text">
+              版本三：对话式研究助手
+              <span class="text-gray-400 text-sm font-normal ml-2">2025.3.20-3.27</span>
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+              <div>
+                <p class="mb-4">
+                  最终，我们实现了革命性的突破：将整个研究流程集成到单一的对话界面中，用户只需与Study
+                  Agent对话，所有步骤都会自动在背后完成。
+                </p>
+                <div class="code-title">产品形态</div>
+                <ul class="list-disc pl-6 mb-5 space-y-1">
+                  <li>单一对话界面完成全部研究流程</li>
+                  <li>分屏设计：左侧对话，右侧工具控制台</li>
+                  <li>实时展示AI执行过程与结果</li>
+                  <li>无需跳转页面，一站式完成研究</li>
+                </ul>
+                <div class="bg-gray-900 p-4 rounded-lg mb-4 border-l-4 primary-border">
+                  <p class="italic opacity-80 text-sm">
+                    "这简直是魔法！我只需要告诉AI我想研究什么，然后就可以看着它自动完成所有工作，从寻找用户到生成报告，一切都在我眼前实时发生。"
+                    — 产品经理
+                  </p>
+                </div>
+              </div>
+              <div>
+                <div
+                  class="bg-gray-900 rounded-lg overflow-hidden border border-gray-800 shadow-xl h-full"
+                >
+                  <div
+                    class="bg-gray-800 p-3 flex items-center justify-between border-b border-gray-700"
+                  >
+                    <div class="text-sm font-medium">study.tsx</div>
+                    <div class="flex space-x-2">
+                      <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                      <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                      <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                    </div>
+                  </div>
+                  <div class="p-4 grid grid-cols-2 gap-4 h-96">
+                    <div class="bg-gray-950 rounded-lg p-3 border border-gray-800 flex flex-col">
+                      <div class="text-xs text-gray-500 mb-2">对话界面</div>
+                      <div class="flex items-start mb-3">
+                        <div class="w-6 h-6 rounded-full bg-gray-700 flex-shrink-0 mr-2"></div>
+                        <div class="text-xs bg-gray-800 p-2 rounded-lg">
+                          我想了解年轻妈妈对婴儿奶粉的选择因素
+                        </div>
+                      </div>
+                      <div class="flex items-start mb-3">
+                        <div
+                          class="w-6 h-6 rounded-full bg-primary flex-shrink-0 mr-2 flex items-center justify-center text-xs text-black"
+                        >
+                          AI
+                        </div>
+                        <div class="text-xs bg-gray-800 p-2 rounded-lg">
+                          我将帮您研究年轻妈妈选择婴儿奶粉的关键因素。我会<span class="primary-text"
+                            >自动进行以下步骤</span
+                          >： <br /><br />
+                          1. 寻找目标用户群体
+                          <br />
+                          2. 生成用户画像
+                          <br />
+                          3. 设计并执行访谈
+                          <br />
+                          4. 分析结果并生成报告
+                        </div>
+                      </div>
+                      <div class="mt-auto">
+                        <div class="bg-gray-900 p-2 rounded-lg text-xs flex items-center">
+                          <input
+                            type="text"
+                            placeholder="输入您的问题..."
+                            class="bg-transparent border-none outline-none flex-1"
+                          />
+                          <button
+                            class="p-1 rounded-full bg-primary text-black ml-2 flex items-center justify-center w-6 h-6"
+                          >
+                            →
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="bg-gray-950 rounded-lg p-3 border border-gray-800 flex flex-col">
+                      <div class="text-xs text-gray-500 mb-2">工具控制台</div>
+                      <div class="text-xs p-2 mb-3 border-b border-gray-800">
+                        <div class="flex items-center mb-1">
+                          <div class="mr-2 text-primary">$</div>
+                          <div>scoutTaskChat</div>
+                        </div>
+                        <div class="pl-4 text-gray-400">
+                          在小红书搜索年轻妈妈关于婴儿奶粉的讨论...
+                        </div>
+                      </div>
+                      <div class="text-xs p-2 mb-3 border-b border-gray-800">
+                        <div class="flex items-center mb-1">
+                          <div class="mr-2 text-primary">$</div>
+                          <div>savePersona</div>
+                        </div>
+                        <div class="pl-4 text-gray-400">
+                          已保存3个典型用户画像：
+                          <br />
+                          - 25岁初次当妈妈，关注安全性
+                          <br />
+                          - 28岁二孩妈妈，注重性价比
+                          <br />
+                          - 32岁职场妈妈，优先考虑便利性
+                        </div>
+                      </div>
+                      <div class="text-xs p-2">
+                        <div class="flex items-center mb-1">
+                          <div class="mr-2 text-primary">$</div>
+                          <div>interview <span class="animate-pulse">●</span></div>
+                        </div>
+                        <div class="pl-4 text-gray-400">正在进行访谈...1/3 完成</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="bg-gradient-to-r from-gray-900 to-gray-800 rounded-lg p-1">
+              <div class="text-center py-2">
+                <span class="primary-text font-semibold">里程碑：</span>
+                2025年3月20日推出统一对话界面，实现了study agent协调其他agent的工作模式
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="mb-16">
+        <h2
+          class="text-2xl font-bold mb-8 primary-text border-b border-dashed pb-2 inline-block border-gray-700"
+        >
+          $ ./analyze --type "evolutionary_leaps"
+        </h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div
+            class="bg-gray-900 p-6 rounded-lg border border-gray-800 transition-all hover:border-primary"
+          >
+            <h3 class="text-lg font-semibold mb-4 flex items-center">
+              <span class="primary-text mr-2">01</span> 操作方式的演进
+            </h3>
+            <ul class="space-y-3">
+              <li class="flex items-start">
+                <span class="primary-text mr-2">v1</span>
+                <span>多步骤手动操作</span>
+              </li>
+              <li class="flex items-start">
+                <span class="primary-text mr-2">v2</span>
+                <span>分步引导式操作，减少用户负担</span>
+              </li>
+              <li class="flex items-start">
+                <span class="primary-text mr-2">v3</span>
+                <span>对话式一站操作，AI自动执行全流程</span>
+              </li>
+            </ul>
+          </div>
+
+          <div
+            class="bg-gray-900 p-6 rounded-lg border border-gray-800 transition-all hover:border-primary"
+          >
+            <h3 class="text-lg font-semibold mb-4 flex items-center">
+              <span class="primary-text mr-2">02</span> 界面形态的变化
+            </h3>
+            <ul class="space-y-3">
+              <li class="flex items-start">
+                <span class="primary-text mr-2">v1</span>
+                <span>单功能页面</span>
+              </li>
+              <li class="flex items-start">
+                <span class="primary-text mr-2">v2</span>
+                <span>多页面串联流程</span>
+              </li>
+              <li class="flex items-start">
+                <span class="primary-text mr-2">v3</span>
+                <span>单页面分屏设计，左对话右执行</span>
+              </li>
+            </ul>
+          </div>
+
+          <div
+            class="bg-gray-900 p-6 rounded-lg border border-gray-800 transition-all hover:border-primary"
+          >
+            <h3 class="text-lg font-semibold mb-4 flex items-center">
+              <span class="primary-text mr-2">03</span> AI协作模式的升级
+            </h3>
+            <ul class="space-y-3">
+              <li class="flex items-start">
+                <span class="primary-text mr-2">v1</span>
+                <span>单一AI助手</span>
+              </li>
+              <li class="flex items-start">
+                <span class="primary-text mr-2">v2</span>
+                <span>多个独立AI功能点</span>
+              </li>
+              <li class="flex items-start">
+                <span class="primary-text mr-2">v3</span>
+                <span>指挥官模式，Study Agent统筹协调</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="mb-12">
+        <h2
+          class="text-2xl font-bold mb-8 primary-text border-b border-dashed pb-2 inline-block border-gray-700"
+        >
+          $ ./architecture --visualize
+        </h2>
+
+        <div class="bg-gray-900 p-6 rounded-lg border border-gray-800 mb-8">
+          <h3 class="text-lg font-semibold mb-6">多Agent协作系统</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="relative">
+              <div class="agent-card p-5 border-primary mb-4 border-2">
+                <div class="flex items-center mb-2">
+                  <div class="w-3 h-3 rounded-full bg-primary mr-2"></div>
+                  <div class="font-medium">Study Agent</div>
+                </div>
+                <p class="text-sm opacity-80">全流程协调者，引导用户明确研究需求</p>
+              </div>
+
+              <div class="grid grid-cols-3 gap-4">
+                <div class="agent-card p-4">
+                  <div class="flex items-center mb-2">
+                    <div class="w-2 h-2 rounded-full bg-blue-500 mr-2"></div>
+                    <div class="text-sm font-medium">Scout</div>
+                  </div>
+                  <p class="text-xs opacity-80">发现目标用户</p>
+                </div>
+                <div class="agent-card p-4">
+                  <div class="flex items-center mb-2">
+                    <div class="w-2 h-2 rounded-full bg-purple-500 mr-2"></div>
+                    <div class="text-sm font-medium">Interviewer</div>
+                  </div>
+                  <p class="text-xs opacity-80">执行专业访谈</p>
+                </div>
+                <div class="agent-card p-4">
+                  <div class="flex items-center mb-2">
+                    <div class="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
+                    <div class="text-sm font-medium">Persona</div>
+                  </div>
+                  <p class="text-xs opacity-80">模拟用户回答</p>
+                </div>
+              </div>
+
+              <!-- 连接线 -->
+              <div class="absolute top-[5.5rem] left-1/2 w-px h-6 bg-primary"></div>
+              <div class="absolute top-[5.5rem] left-1/6 w-px h-6 bg-primary"></div>
+              <div class="absolute top-[5.5rem] left-1/2 w-px h-6 bg-primary"></div>
+              <div class="absolute top-[5.5rem] left-5/6 w-px h-6 bg-primary"></div>
+              <div class="absolute top-[5.5rem] left-1/6 w-2/3 h-px bg-primary"></div>
+            </div>
+
+            <div>
+              <div class="code-title">工具集成</div>
+              <div class="grid grid-cols-2 gap-4">
+                <div class="bg-gray-950 p-3 rounded-lg border border-gray-800">
+                  <div class="text-sm mb-2 primary-text">reasoningThinking</div>
+                  <p class="text-xs opacity-80">深度思考分析工具</p>
+                </div>
+                <div class="bg-gray-950 p-3 rounded-lg border border-gray-800">
+                  <div class="text-sm mb-2 primary-text">interview</div>
+                  <p class="text-xs opacity-80">自动化访谈管理</p>
+                </div>
+                <div class="bg-gray-950 p-3 rounded-lg border border-gray-800">
+                  <div class="text-sm mb-2 primary-text">scoutTaskChat</div>
+                  <p class="text-xs opacity-80">用户发现与画像构建</p>
+                </div>
+                <div class="bg-gray-950 p-3 rounded-lg border border-gray-800">
+                  <div class="text-sm mb-2 primary-text">analystReport</div>
+                  <p class="text-xs opacity-80">报告生成与渲染</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2
+          class="text-2xl font-bold mb-8 primary-text border-b border-dashed pb-2 inline-block border-gray-700"
+        >
+          $ ./conclusion
+        </h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div>
+            <p class="mb-4">
+              在短短20天内，atypica.LLM完成了从单一功能工具到完整研究平台的蜕变，核心演进是从"多步骤操作"到"分步引导式操作"，最终达到"对话式一站操作"的境界。
+            </p>
+            <p class="mb-4">
+              最终版本中，用户只需在单一对话界面与研究助手交流，AI会自动协调多个专业Agent在右侧控制台可视化地完成全部研究流程，大幅简化了用户体验。
+            </p>
+            <div class="bg-gray-900 p-4 rounded-lg mb-4 border-l-4 primary-border">
+              <p class="italic opacity-80 text-sm">
+                "atypica.LLM的发展历程体现了我们团队的核心理念：通过技术创新持续降低用户研究的门槛，让每个人都能轻松获取深度洞察。"
+                — 项目负责人
+              </p>
+            </div>
+          </div>
+
+          <div class="terminal">
+            <div class="terminal-header">
+              <div class="terminal-dots mr-auto">
+                <div class="dot dot-red"></div>
+                <div class="dot dot-yellow"></div>
+                <div class="dot dot-green"></div>
+              </div>
+              <div class="text-sm opacity-60">atypica@localhost:~</div>
+            </div>
+            <div class="terminal-body">
+              <p class="command">cat roadmap.txt</p>
+              <pre class="response">
+未来计划:
+- 集成更多数据源，包括问卷和定量数据分析
+- 优化访谈质量和深度
+- 增强数据可视化能力
+- 支持更多行业特定研究模板
+- 优化团队协作功能
+                        </pre
+              >
+              <p class="command">git commit -m "Continue the journey..."</p>
+              <div class="response">
+                [main 3a7b56c] Continue the journey...
+                <div class="mt-3 flex items-center">
+                  <span class="text-sm opacity-80">Ready for next chapter</span>
+                  <span class="cursor ml-1"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="max-w-6xl mx-auto px-4 py-8 border-t border-gray-800 mt-12">
+      <div class="flex flex-col md:flex-row justify-between items-center">
+        <div class="mb-4 md:mb-0">
+          <div class="text-lg font-bold"><span class="primary-text">atypica</span>.LLM</div>
+          <div class="text-sm opacity-60">为「主观世界」建模</div>
+        </div>
+        <div class="text-sm opacity-60">© 2025 Tezign Technology</div>
+      </div>
+    </footer>
+  </body>
+</html>

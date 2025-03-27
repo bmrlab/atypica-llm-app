@@ -75,7 +75,7 @@
       "tip1": {
         "1": "In the",
         "2": "🔍 User Discovery",
-        "3": "page, AI can help you find more potential target users"
+        "3": "page, atypica can help you find more potential target users"
       },
       "tip2": {
         "1": "Each user persona can be used in",
@@ -173,11 +173,11 @@
       "placeholder": "Ask a follow-up question or reply"
     },
     "StatusDisplay": {
-      "thinking": "AI is thinking...",
+      "thinking": "atypica is thinking...",
       "processing": "Processing your request...",
       "complete": "Processing complete ✨",
       "error": "An error occurred, please try again",
-      "ready": "AI is ready"
+      "ready": "atypica is ready"
     },
     "ToolConsole": {
       "autoFollow": "Auto Follow",
@@ -217,18 +217,18 @@
       "title": "Usage Tips:",
       "tip1": "More specific descriptions lead to more accurate user matches",
       "tip2": "Include users' interests, behaviors, consumption habits, etc.",
-      "tip3": "AI will automatically search and summarize the most suitable target user personas",
+      "tip3": "atypica will automatically search and summarize the most suitable target user personas",
       "tip4": "Results will automatically be added to the",
       "tip4Link": "User Persona Library",
       "tip4End": "for subsequent analysis and research"
     },
     "inputPlaceholder": "Describe the user characteristics you're looking for, e.g.: Help me find 3 bloggers who frequently share handmade chocolates, have tasting experience, and are knowledgeable about food",
     "status": {
-      "thinking": "AI is thinking...",
+      "thinking": "atypica is thinking...",
       "processing": "Processing your request...",
       "complete": "Processing complete ✨",
       "error": "An error occurred, please try again",
-      "ready": "AI is ready",
+      "ready": "atypica is ready",
       "viewPersonas": "🔍 View personas found in this search"
     }
   }
