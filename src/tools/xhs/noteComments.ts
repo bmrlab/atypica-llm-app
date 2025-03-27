@@ -55,18 +55,29 @@ function parseXHSNoteComments(data: {
 
 async function xhsNoteComments({ noteid }: { noteid: string }) {
   try {
-    const params = {
-      token: process.env.XHS_API_TOKEN!,
-      noteId: noteid,
+    for (let i = 0; i < 3; i++) {
+      const params = {
+        token: process.env.XHS_API_TOKEN!,
+        noteId: noteid,
+      };
+      const queryString = new URLSearchParams(params).toString();
+      const response = await fetch(
+        `${process.env.XHS_API_BASE_URL}/get-note-comment/v2?${queryString}`,
+      );
+      const data = await response.json();
+      console.log("Response text:", JSON.stringify(data).slice(0, 100));
+      if (data.code === 0) {
+        const result = parseXHSNoteComments(data);
+        return result;
+      } else {
+        console.log("Failed to fetch XHS note comments, retrying...", i + 1);
+        continue;
+      }
+    }
+    return {
+      notes: [],
+      plainText: "Failed to fetch XHS note comments after 3 attempts",
     };
-    const queryString = new URLSearchParams(params).toString();
-    const response = await fetch(
-      `${process.env.XHS_API_BASE_URL}/get-note-comment/v2?${queryString}`,
-    );
-    const data = await response.json();
-    console.log("Response text:", JSON.stringify(data).slice(0, 100));
-    const result = parseXHSNoteComments(data);
-    return result;
   } catch (error) {
     console.log("Error fetching XHS note comments:", error);
     throw error;

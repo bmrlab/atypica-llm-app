@@ -21,7 +21,7 @@ export const requestInteractionTool = tool({
     return {
       question,
       options,
-      plainText: JSON.stringify({ question, options }),
+      plainText: "等待用户输入或选择答案", // 这样让 llm 知道可以停下来
     };
   },
 });

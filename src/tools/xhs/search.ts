@@ -38,8 +38,11 @@ function parseXHSSearchResult(data: {
   };
 }): XHSSearchResult {
   const notes: XHSNote[] = [];
-  const items = (data?.data?.items ?? []).filter((item) => item.model_type === "note");
-  items.forEach(({ note }) => {
+  // 过滤并取前十条
+  const topNotes = (data?.data?.items ?? [])
+    .filter((item) => item.model_type === "note")
+    .slice(0, 10);
+  topNotes.forEach(({ note }) => {
     notes.push({
       id: note.id,
       title: note.title,
@@ -80,19 +83,30 @@ function parseXHSSearchResult(data: {
 
 async function xhsSearch({ keyword }: { keyword: string }) {
   try {
-    const params = {
-      token: process.env.XHS_API_TOKEN!,
-      keyword,
-      page: "1",
-      sort: "general",
-      noteType: "_0",
+    for (let i = 0; i < 3; i++) {
+      const params = {
+        token: process.env.XHS_API_TOKEN!,
+        keyword,
+        page: "1",
+        sort: "general",
+        noteType: "_0",
+      };
+      const queryString = new URLSearchParams(params).toString();
+      const response = await fetch(`${process.env.XHS_API_BASE_URL}/search-note/v2?${queryString}`);
+      const data = await response.json();
+      console.log("Response text:", JSON.stringify(data).slice(0, 100));
+      if (data.code === 0) {
+        const result = parseXHSSearchResult(data);
+        return result;
+      } else {
+        console.log("Failed to fetch XHS feed, retrying...", i + 1);
+        continue;
+      }
+    }
+    return {
+      notes: [],
+      plainText: "Failed to fetch XHS feed after 3 retries",
     };
-    const queryString = new URLSearchParams(params).toString();
-    const response = await fetch(`${process.env.XHS_API_BASE_URL}/search-note/v2?${queryString}`);
-    const data = await response.json();
-    console.log("Response text:", JSON.stringify(data).slice(0, 100));
-    const result = parseXHSSearchResult(data);
-    return result;
   } catch (error) {
     console.log("Error fetching XHS feed:", error);
     throw error;
