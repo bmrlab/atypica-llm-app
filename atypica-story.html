@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>atypica.LLM的演变之旅</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --primary: #85CFF6;
+            --primary-dark: #6BA7C7;
+            --secondary: #E46EF7;
+            --dark: #24212A;
+            --light: #F8FAFC;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .timeline-dot::before {
+            content: '';
+            position: absolute;
+            left: -36px;
+            top: 12px;
+            height: 12px;
+            width: 12px;
+            border-radius: 50%;
+            background: var(--primary);
+            box-shadow: 0 0 0 4px rgba(133, 207, 246, 0.3);
+        }
+        
+        .timeline-connector::before {
+            content: '';
+            position: absolute;
+            left: -30px;
+            top: 30px;
+            bottom: -10px;
+            width: 1px;
+            background: #CBD5E1;
+        }
+        
+        .quote-mark::before {
+            content: '"';
+            font-size: 5rem;
+            line-height: 0;
+            position: absolute;
+            top: 2.5rem;
+            left: -1.5rem;
+            color: rgba(133, 207, 246, 0.3);
+        }
+        
+        .parallax-card {
+            transform-style: preserve-3d;
+            transition: transform 0.1s ease;
+        }
+        
+        .glow {
+            box-shadow: 0 0 15px rgba(133, 207, 246, 0.5);
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Parallax effect for cards
+            const cards = document.querySelectorAll('.parallax-card');
+            
+            cards.forEach(card => {
+                card.addEventListener('mousemove', e => {
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    
+                    const xPercent = (x / rect.width - 0.5) * 2;
+                    const yPercent = (y / rect.height - 0.5) * 2;
+                    
+                    card.style.transform = `perspective(1000px) rotateY(${xPercent * 5}deg) rotateX(${yPercent * -5}deg)`;
+                });
+                
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0)';
+                });
+            });
+            
+            // Intersection Observer for animations
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('animate__animated', entry.target.dataset.animation);
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.2 });
+            
+            document.querySelectorAll('[data-animation]').forEach(el => {
+                observer.observe(el);
+            });
+        });
+    </script>
+</head>
+<body class="bg-slate-900 text-slate-100 font-['Inter',sans-serif] leading-relaxed">
+    <header class="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-slate-900 to-slate-800 relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-full opacity-20">
+            <div class="absolute top-[10%] left-[15%] w-40 h-40 rounded-full bg-blue-500 blur-[100px]"></div>
+            <div class="absolute top-[50%] left-[75%] w-60 h-60 rounded-full bg-purple-500 blur-[100px]"></div>
+            <div class="absolute top-[70%] left-[30%] w-40 h-40 rounded-full bg-pink-500 blur-[100px]"></div>
+        </div>
+        
+        <div class="z-10 text-center px-6 max-w-4xl" data-animation="animate__fadeIn">
+            <h1 class="text-6xl md:text-7xl font-bold mb-8 gradient-text tracking-tight">atypica.LLM</h1>
+            <p class="text-2xl md:text-3xl text-slate-300 mb-12">从数据到洞察的旅程</p>
+            <p class="text-lg md:text-xl text-slate-400 mb-8 max-w-3xl mx-auto">探索一个为主观世界建模的产品如何在短短20天内从概念走向现实，改变了用户研究的方式。</p>
+            <div class="inline-block animate-bounce mt-16">
+                <svg class="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                </svg>
+            </div>
+        </div>
+    </header>
+
+    <section class="py-24 bg-slate-800">
+        <div class="container mx-auto px-6 max-w-5xl">
+            <h2 class="text-4xl font-bold mb-12 text-center gradient-text" data-animation="animate__fadeInUp">一切的开始</h2>
+            
+            <div class="prose prose-lg prose-invert mx-auto text-slate-300" data-animation="animate__fadeIn">
+                <p>2025年3月初，一个简单的想法在我们团队中萌芽：</p>
+                <blockquote class="relative pl-10 italic border-l-4 border-primary-dark p-4 my-8 bg-slate-700/30 rounded quote-mark">
+                    如果我们能让AI理解人类的主观世界，我们就能让用户研究变得更容易、更深入、更普及。
+                </blockquote>
+                <p>这个想法源于我们日常工作中的痛点。作为设计师和产品经理，我们总是需要理解用户，但传统的用户研究方法费时费力。访谈需要招募受访者、安排时间、准备问题、记录整理，每一步都充满挑战。</p>
+                <p>我们相信，大语言模型可以改变这一切。它不仅能帮助我们找到合适的用户，还能模拟真实用户进行访谈，甚至自动生成洞察报告。</p>
+                <p>于是，atypica.LLM的旅程正式开始。</p>
+            </div>
+        </div>
+    </section>
+    
+    <section class="py-24 bg-slate-900 relative">
+        <div class="absolute top-0 left-0 w-full h-full opacity-10">
+            <div class="absolute top-[30%] left-[65%] w-60 h-60 rounded-full bg-blue-500 blur-[100px]"></div>
+        </div>
+        
+        <div class="container mx-auto px-6 max-w-5xl relative z-10">
+            <h2 class="text-4xl font-bold mb-16 text-center gradient-text" data-animation="animate__fadeInUp">三个阶段的演变</h2>
+            
+            <div class="relative ml-10 pl-10 border-l border-slate-700">
+                <!-- Version 1 -->
+                <div class="mb-24 relative timeline-dot timeline-connector" data-animation="animate__fadeInLeft">
+                    <h3 class="text-2xl font-bold mb-4 text-primary">第一阶段：用户发掘工具</h3>
+                    <div class="text-slate-400 mb-2">2025年3月8日-3月13日</div>
+                    
+                    <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="parallax-card bg-slate-800 p-6 rounded-xl border border-slate-700 hover:border-primary/50 transition-all duration-300 hover:glow">
+                            <div class="text-primary text-4xl mb-4">🔍</div>
+                            <h4 class="font-bold mb-2">数据采集</h4>
+                            <p class="text-slate-400">集成小红书API，实现自动搜索、笔记获取和评论分析功能</p>
+                        </div>
+                        <div class="parallax-card bg-slate-800 p-6 rounded-xl border border-slate-700 hover:border-primary/50 transition-all duration-300 hover:glow">
+                            <div class="text-primary text-4xl mb-4">👤</div>
+                            <h4 class="font-bold mb-2">用户画像</h4>
+                            <p class="text-slate-400">AI驱动的用户画像生成，基于社交媒体数据构建真实用户模型</p>
+                        </div>
+                        <div class="parallax-card bg-slate-800 p-6 rounded-xl border border-slate-700 hover:border-primary/50 transition-all duration-300 hover:glow">
+                            <div class="text-primary text-4xl mb-4">💾</div>
+                            <h4 class="font-bold mb-2">数据存储</h4>
+                            <p class="text-slate-400">构建Persona数据库，支持画像的保存和管理</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8 bg-slate-800/50 p-6 rounded-xl border border-slate-700">
+                        <div class="flex items-start">
+                            <div class="text-2xl mr-4">💡</div>
+                            <div>
+                                <h4 class="font-medium mb-2">关键突破</h4>
+                                <p class="text-slate-400">2025年3月12日，我们首次通过AI自动从小红书数据生成了一个完整、立体的用户画像。这个画像不仅包含基本信息，还具备了性格特点、消费偏好和行为习惯等多维度特征。</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <blockquote class="italic text-slate-400 pl-5 border-l-2 border-primary mt-8">
+                        "当我们看到AI能够从一堆零散的社交媒体数据中提炼出一个栩栩如生的用户形象时，我们知道我们走对了方向。"<br/>
+                        — 项目团队成员
+                    </blockquote>
+                </div>
+                
+                <!-- Version 2 -->
+                <div class="mb-24 relative timeline-dot timeline-connector" data-animation="animate__fadeInLeft">
+                    <h3 class="text-2xl font-bold mb-4 text-primary">第二阶段：分步式研究流程</h3>
+                    <div class="text-slate-400 mb-2">2025年3月14日-3月19日</div>
+                    
+                    <div class="mt-8 flex flex-col md:flex-row gap-4 overflow-x-auto pb-4">
+                        <div class="flex-none w-[250px] bg-slate-800 p-4 rounded-xl border border-slate-700 relative">
+                            <div class="absolute -top-2 -left-2 w-8 h-8 rounded-full bg-primary flex items-center justify-center font-bold text-slate-900">1</div>
+                            <h4 class="font-bold mt-4 mb-2">Scout</h4>
+                            <p class="text-slate-400 text-sm">发现并筛选目标用户</p>
+                        </div>
+                        <div class="flex items-center justify-center text-slate-500">→</div>
+                        <div class="flex-none w-[250px] bg-slate-800 p-4 rounded-xl border border-slate-700 relative">
+                            <div class="absolute -top-2 -left-2 w-8 h-8 rounded-full bg-primary flex items-center justify-center font-bold text-slate-900">2</div>
+                            <h4 class="font-bold mt-4 mb-2">Personas</h4>
+                            <p class="text-slate-400 text-sm">选择合适的用户画像</p>
+                        </div>
+                        <div class="flex items-center justify-center text-slate-500">→</div>
+                        <div class="flex-none w-[250px] bg-slate-800 p-4 rounded-xl border border-slate-700 relative">
+                            <div class="absolute -top-2 -left-2 w-8 h-8 rounded-full bg-primary flex items-center justify-center font-bold text-slate-900">3</div>
+                            <h4 class="font-bold mt-4 mb-2">Analyst</h4>
+                            <p class="text-slate-400 text-sm">创建研究主题和问题</p>
+                        </div>
+                        <div class="flex items-center justify-center text-slate-500">→</div>
+                        <div class="flex-none w-[250px] bg-slate-800 p-4 rounded-xl border border-slate-700 relative">
+                            <div class="absolute -top-2 -left-2 w-8 h-8 rounded-full bg-primary flex items-center justify-center font-bold text-slate-900">4</div>
+                            <h4 class="font-bold mt-4 mb-2">Interview</h4>
+                            <p class="text-slate-400 text-sm">执行模拟用户访谈</p>
+                        </div>
+                        <div class="flex items-center justify-center text-slate-500">→</div>
+                        <div class="flex-none w-[250px] bg-slate-800 p-4 rounded-xl border border-slate-700 relative">
+                            <div class="absolute -top-2 -left-2 w-8 h-8 rounded-full bg-primary flex items-center justify-center font-bold text-slate-900">5</div>
+                            <h4 class="font-bold mt-4 mb-2">Report</h4>
+                            <p class="text-slate-400 text-sm">生成研究报告</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-12 grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-slate-800 p-6 rounded-xl border border-slate-700">
+                            <h4 class="font-bold mb-4 flex items-center">
+                                <span class="text-primary mr-2">✨</span> 关键改进
+                            </h4>
+                            <ul class="space-y-3 text-slate-400">
+                                <li class="flex items-start">
+                                    <span class="text-primary mr-2">•</span>
+                                    <span>引入步骤引导，降低用户操作难度</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="text-primary mr-2">•</span>
+                                    <span>添加用户认证，实现数据隔离与安全</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="text-primary mr-2">•</span>
+                                    <span>实现HTML报告自动生成与渲染</span>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div class="bg-slate-800 p-6 rounded-xl border border-slate-700">
+                            <h4 class="font-bold mb-4 flex items-center">
+                                <span class="text-primary mr-2">🎯</span> 用户体验
+                            </h4>
+                            <p class="text-slate-400 mb-4">这一阶段，我们为每个步骤添加了详细的引导提示，帮助用户理解每步的目的和操作方法。</p>
+                            <p class="text-slate-400">虽然仍需在多个页面间切换，但通过减少必要操作和自动化数据传递，大幅降低了学习成本。</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8 bg-slate-800/50 p-6 rounded-xl border border-slate-700">
+                        <div class="flex items-start">
+                            <div class="text-2xl mr-4">💡</div>
+                            <div>
+                                <h4 class="font-medium mb-2">关键突破</h4>
+                                <p class="text-slate-400">2025年3月15日，我们实现了完整的分步研究流程，用户可以从发掘目标人群到生成研究报告，一步步完成整个研究过程，而每一步都有AI辅助。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Version 3 -->
+                <div class="relative timeline-dot" data-animation="animate__fadeInLeft">
+                    <h3 class="text-2xl font-bold mb-4 text-primary">第三阶段：对话式研究助手</h3>
+                    <div class="text-slate-400 mb-2">2025年3月20日-3月27日</div>
+                    
+                    <div class="mt-8 bg-slate-800 p-6 rounded-xl border border-slate-700 overflow-hidden relative">
+                        <div class="absolute top-0 right-0 w-40 h-40 bg-primary/10 blur-3xl rounded-full -translate-y-1/2 translate-x-1/4"></div>
+                        <div class="relative">
+                            <div class="flex flex-col md:flex-row gap-6">
+                                <div class="flex-1 border border-slate-700 rounded-lg p-4 bg-slate-900/70">
+                                    <h4 class="font-bold mb-3 text-primary">左侧对话面板</h4>
+                                    <div class="space-y-4">
+                                        <div class="flex items-start gap-3">
+                                            <div class="w-8 h-8 rounded-full bg-slate-700 flex-shrink-0"></div>
+                                            <div class="p-3 bg-slate-700/50 rounded-lg text-sm flex-1">
+                                                我想了解年轻人对可持续时尚的看法
+                                            </div>
+                                        </div>
+                                        <div class="flex items-start gap-3">
+                                            <div class="w-8 h-8 rounded-full bg-primary flex-shrink-0"></div>
+                                            <div class="p-3 bg-slate-700/50 rounded-lg text-sm flex-1">
+                                                我会帮您研究这个话题。首先需要找到对可持续时尚有兴趣的年轻用户群体，然后进行深入访谈。您希望重点了解哪些方面？消费意愿、品牌认知还是价格敏感度？
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex-1 border border-slate-700 rounded-lg p-4 bg-slate-900/70">
+                                    <h4 class="font-bold mb-3 text-primary">右侧工具控制台</h4>
+                                    <div class="text-xs font-mono p-2 bg-slate-800 rounded border border-slate-700 text-slate-300">
+                                        <div class="text-primary">执行用户搜索...</div>
+                                        <div class="opacity-70 mt-1">搜索关键词: 可持续时尚, 环保服装, Gen Z</div>
+                                        <div class="mt-2">找到相关用户: 23</div>
+                                        <div class="mt-2 text-primary">分析用户数据...</div>
+                                        <div class="mt-2">创建用户画像中...</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-6 text-slate-400">
+                                <p>通过全新的分屏设计，用户只需在左侧对话框中与研究助手交流，系统会自动在右侧控制台执行相应操作并实时展示进度和结果。</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 hover:border-primary/40 transition-all duration-300">
+                            <div class="text-lg font-bold mb-2">Study Agent</div>
+                            <p class="text-slate-400 text-sm">作为"指挥官"，协调整个研究流程</p>
+                        </div>
+                        <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 hover:border-primary/40 transition-all duration-300">
+                            <div class="text-lg font-bold mb-2">Scout Agent</div>
+                            <p class="text-slate-400 text-sm">专注寻找目标用户群体</p>
+                        </div>
+                        <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 hover:border-primary/40 transition-all duration-300">
+                            <div class="text-lg font-bold mb-2">Interviewer Agent</div>
+                            <p class="text-slate-400 text-sm">设计问题并执行访谈</p>
+                        </div>
+                        <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 hover:border-primary/40 transition-all duration-300">
+                            <div class="text-lg font-bold mb-2">Persona Agent</div>
+                            <p class="text-slate-400 text-sm">模拟用户回答访谈问题</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8 bg-slate-800/50 p-6 rounded-xl border border-slate-700">
+                        <div class="flex items-start">
+                            <div class="text-2xl mr-4">💡</div>
+                            <div>
+                                <h4 class="font-medium mb-2">关键突破</h4>
+                                <p class="text-slate-400">2025年3月20日，我们推出了以Study为核心的统一对话界面，实现了多Agent协同工作模式。用户只需描述研究需求，系统会自动完成全流程，将研究成本从几天降低到几分钟。</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <blockquote class="italic text-slate-400 pl-5 border-l-2 border-primary mt-8">
+                        "这就像拥有了一个完整的用研团队，随时待命，而你只需要与一个人对话。"<br/>
+                        — 产品测试用户反馈
+                    </blockquote>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <section class="py-24 bg-slate-800">
+        <div class="container mx-auto px-6 max-w-5xl">
+            <h2 class="text-4xl font-bold mb-16 text-center gradient-text" data-animation="animate__fadeInUp">关键产品转变</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-10" data-animation="animate__fadeIn">
+                <div class="bg-slate-900 p-8 rounded-xl border border-slate-700 hover:border-primary/40 transition-all duration-300">
+                    <div class="text-3xl mb-6 text-primary">01</div>
+                    <h3 class="text-xl font-bold mb-4">操作方式的演进</h3>
+                    <ul class="space-y-4 text-slate-400">
+                        <li class="flex items-start gap-3">
+                            <div class="w-6 h-6 rounded-full bg-slate-800 flex items-center justify-center text-xs flex-shrink-0">1</div>
+                            <div>
+                                <div class="font-medium text-slate-300">多步骤手动操作</div>
+                                <p class="text-sm mt-1">用户需要在多个页面间切换，完成每个步骤</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <div class="w-6 h-6 rounded-full bg-slate-800 flex items-center justify-center text-xs flex-shrink-0">2</div>
+                            <div>
+                                <div class="font-medium text-slate-300">分步引导式操作</div>
+                                <p class="text-sm mt-1">每一步都有详细引导，减少用户学习成本</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <div class="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-xs flex-shrink-0 text-slate-900">3</div>
+                            <div>
+                                <div class="font-medium text-slate-300">对话式一站操作</div>
+                                <p class="text-sm mt-1">用户只需对话，AI自动完成全流程</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="bg-slate-900 p-8 rounded-xl border border-slate-700 hover:border-primary/40 transition-all duration-300">
+                    <div class="text-3xl mb-6 text-primary">02</div>
+                    <h3 class="text-xl font-bold mb-4">界面形态的变化</h3>
+                    <ul class="space-y-4 text-slate-400">
+                        <li class="flex items-start gap-3">
+                            <div class="w-6 h-6 rounded-full bg-slate-800 flex items-center justify-center text-xs flex-shrink-0">1</div>
+                            <div>
+                                <div class="font-medium text-slate-300">单功能页面</div>
+                                <p class="text-sm mt-1">各功能模块独立，界面简单但缺乏连贯性</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <div class="w-6 h-6 rounded-full bg-slate-800 flex items-center justify-center text-xs flex-shrink-0">2</div>
+                            <div>
+                                <div class="font-medium text-slate-300">多页面串联流程</div>
+                                <p class="text-sm mt-1">通过页面间的跳转完成整个研究流程</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <div class="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-xs flex-shrink-0 text-slate-900">3</div>
+                            <div>
+                                <div class="font-medium text-slate-300">单页面分屏设计</div>
+                                <p class="text-sm mt-1">左侧对话，右侧执行，一屏完成全流程</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="bg-slate-900 p-8 rounded-xl border border-slate-700 hover:border-primary/40 transition-all duration-300">
+                    <div class="text-3xl mb-6 text-primary">03</div>
+                    <h3 class="text-xl font-bold mb-4">AI协作模式的升级</h3>
+                    <ul class="space-y-4 text-slate-400">
+                        <li class="flex items-start gap-3">
+                            <div class="w-6 h-6 rounded-full bg-slate-800 flex items-center justify-center text-xs flex-shrink-0">1</div>
+                            <div>
+                                <div class="font-medium text-slate-300">单一AI助手</div>
+                                <p class="text-sm mt-1">每个功能使用独立的AI，缺乏协作</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <div class="w-6 h-6 rounded-full bg-slate-800 flex items-center justify-center text-xs flex-shrink-0">2</div>
+                            <div>
+                                <div class="font-medium text-slate-300">多个独立AI功能点</div>
+                                <p class="text-sm mt-1">多个AI协同工作，但需要用户手动协调</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <div class="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-xs flex-shrink-0 text-slate-900">3</div>
+                            <div>
+                                <div class="font-medium text-slate-300">指挥官模式</div>
+                                <p class="text-sm mt-1">Study Agent作为指挥官统筹其他专业Agent</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <section class="py-24 bg-slate-900 relative">
+        <div class="absolute top-0 left-0 w-full h-full opacity-10">
+            <div class="absolute top-[40%] right-[20%] w-80 h-80 rounded-full bg-purple-500 blur-[120px]"></div>
+        </div>
+        
+        <div class="container mx-auto px-6 max-w-5xl relative z-10">
+            <h2 class="text-4xl font-bold mb-16 text-center gradient-text" data-animation="animate__fadeInUp">关键时间节点</h2>
+            
+            <div class="relative overflow-x-auto" data-animation="animate__fadeIn">
+                <div class="h-1 bg-slate-800 absolute top-10 left-0 right-0 z-0"></div>
+                <div class="flex justify-between min-w-[900px]">
+                    <div class="relative z-10 w-32 text-center">
+                        <div class="w-5 h-5 rounded-full bg-primary mx-auto mb-2"></div>
+                        <div class="font-bold">3月8日</div>
+                        <div class="text-sm text-slate-400 mt-1">项目启动</div>
+                    </div>
+                    <div class="relative z-10 w-32 text-center">
+                        <div class="w-5 h-5 rounded-full bg-slate-700 mx-auto mb-2"></div>
+                        <div class="font-bold">3月13日</div>
+                        <div class="text-sm text-slate-400 mt-1">用户画像系统</div>
+                    </div>
+                    <div class="relative z-10 w-32 text-center">
+                        <div class="w-5 h-5 rounded-full bg-slate-700 mx-auto mb-2"></div>
+                        <div class="font-bold">3月15日</div>
+                        <div class="text-sm text-slate-400 mt-1">分步研究流程</div>
+                    </div>
+                    <div class="relative z-10 w-32 text-center">
+                        <div class="w-5 h-5 rounded-full bg-primary mx-auto mb-2"></div>
+                        <div class="font-bold">3月20日</div>
+                        <div class="text-sm text-slate-400 mt-1">统一对话界面</div>
+                    </div>
+                    <div class="relative z-10 w-32 text-center">
+                        <div class="w-5 h-5 rounded-full bg-slate-700 mx-auto mb-2"></div>
+                        <div class="font-bold">3月26日</div>
+                        <div class="text-sm text-slate-400 mt-1">数据统计</div>
+                    </div>
+                    <div class="relative z-10 w-32 text-center">
+                        <div class="w-5 h-5 rounded-full bg-primary mx-auto mb-2"></div>
+                        <div class="font-bold">3月27日</div>
+                        <div class="text-sm text-slate-400 mt-1">项目完成</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-20 bg-slate-800 p-8 rounded-xl border border-slate-700" data-animation="animate__fadeInUp">
+                <h3 class="text-xl font-bold mb-4 gradient-text">20天的惊人旅程</h3>
+                <p class="text-slate-400">从3月8日的第一行代码，到3月27日的成熟产品，atypica.LLM在短短20天内完成了从概念到现实的跨越。</p>
+                <p class="text-slate-400 mt-3">这个过程中最关键的拐点是3月20日，当我们确立Study为平台核心，并实现了多Agent协作系统，使得用户体验得到质的飞跃。</p>
+            </div>
+        </div>
+    </section>
+    
+    <section class="py-24 bg-slate-800">
+        <div class="container mx-auto px-6 max-w-5xl">
+            <h2 class="text-4xl font-bold mb-12 text-center gradient-text" data-animation="animate__fadeInUp">用户反馈</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8" data-animation="animate__fadeIn">
+                <div class="bg-slate-900 p-6 rounded-xl border border-slate-700">
+                    <div class="flex items-center mb-4">
+                        <div class="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center text-primary">A</div>
+                        <div class="ml-4">
+                            <div class="font-medium">产品设计师</div>
+                            <div class="text-sm text-slate-400">某科技公司</div>
+                        </div>
+                    </div>
+                    <blockquote class="text-slate-300 italic">
+                        "我过去需要花费一周时间来完成用户访谈，现在只需要几分钟就能获得类似的洞察。这不仅仅是效率的提升，更是研究方法的革新。"
+                    </blockquote>
+                </div>
+                
+                <div class="bg-slate-900 p-6 rounded-xl border border-slate-700">
+                    <div class="flex items-center mb-4">
+                        <div class="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center text-primary">B</div>
+                        <div class="ml-4">
+                            <div class="font-medium">市场研究员</div>
+                            <div class="text-sm text-slate-400">品牌咨询公司</div>
+                        </div>
+                    </div>
+                    <blockquote class="text-slate-300 italic">
+                        "对话式界面让研究变得异常简单，即使是没有专业背景的人也能迅速上手。我们团队的研究效率提升了至少300%。"
+                    </blockquote>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <section class="py-24 bg-slate-900 relative">
+        <div class="absolute top-0 left-0 w-full h-full opacity-20">
+            <div class="absolute bottom-[10%] left-[35%] w-60 h-60 rounded-full bg-blue-500 blur-[120px]"></div>
+        </div>
+        
+        <div class="container mx-auto px-6 max-w-5xl relative z-10">
+            <h2 class="text-4xl font-bold mb-12 text-center gradient-text" data-animation="animate__fadeInUp">当前功能概览</h2>
+            
+            <div class="flex flex-col md:flex-row gap-8 md:gap-4" data-animation="animate__fadeIn">
+                <div class="flex-1 bg-slate-800/50 p-6 rounded-xl border border-slate-700 hover:border-primary/40 transition-all duration-300">
+                    <div class="text-2xl text-primary mb-4">研究助手 (Study)</div>
+                    <ul class="space-y-2 text-slate-400">
+                        <li class="flex items-start gap-2">
+                            <span>•</span>
+                            <span>对话式研究设计与执行</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span>•</span>
+                            <span>自动化用户访谈与分析</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span>•</span>
+                            <span>报告生成与分享</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="flex-1 bg-slate-800/50 p-6 rounded-xl border border-slate-700 hover:border-primary/40 transition-all duration-300">
+                    <div class="text-2xl text-primary mb-4">用户发掘 (Scout)</div>
+                    <ul class="space-y-2 text-slate-400">
+                        <li class="flex items-start gap-2">
+                            <span>•</span>
+                            <span>社交媒体数据采集</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span>•</span>
+                            <span>用户画像自动生成</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span>•</span>
+                            <span>目标用户群体分析</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="flex-1 bg-slate-800/50 p-6 rounded-xl border border-slate-700 hover:border-primary/40 transition-all duration-300">
+                    <div class="text-2xl text-primary mb-4">访谈系统</div>
+                    <ul class="space-y-2 text-slate-400">
+                        <li class="flex items-start gap-2">
+                            <span>•</span>
+                            <span>AI驱动的用户访谈</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span>•</span>
+                            <span>多用户批量访谈</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span>•</span>
+                            <span>访谈结果自动总结</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <section class="py-24 bg-slate-800">
+        <div class="container mx-auto px-6 max-w-5xl">
+            <h2 class="text-4xl font-bold mb-16 text-center gradient-text" data-animation="animate__fadeInUp">结语</h2>
+            
+            <div class="prose prose-lg prose-invert mx-auto text-slate-300" data-animation="animate__fadeIn">
+                <p>atypica.LLM的故事远未结束。从最初的用户发掘工具，到分步式研究流程，再到如今的对话式研究助手，每一步演进都代表着我们对用户研究方式的重新思考。</p>
+                
+                <p>最让我们自豪的是，我们不仅仅创造了一个工具，更开创了一种方法——让AI成为研究者的得力助手，让洞察变得更加普及和民主化。</p>
+                
+                <blockquote class="relative pl-10 italic border-l-4 border-primary-dark p-4 my-8 bg-slate-700/30 rounded quote-mark">
+                    当研究不再是少数人的特权，而是每个人都能轻松获取的能力，我们相信会有更多好的产品被创造出来。
+                </blockquote>
+                
+                <p>在未来，我们计划进一步扩展数据源，提升访谈质量，增强数据可视化能力，并支持更多行业特定的研究模板。</p>
+                
+                <p>感谢每一位参与这段旅程的人，无论是开发者、设计师还是早期用户。正是因为你们的贡献，atypica.LLM才能在短短20天内从想法变成现实。</p>
+                
+                <p>这只是开始。</p>
+            </div>
+        </div>
+    </section>
+    
+    <footer class="py-12 bg-slate-900 border-t border-slate-800">
+        <div class="container mx-auto px-6 text-center">
+            <h2 class="text-2xl font-bold mb-6 gradient-text">atypica.LLM</h2>
+            <p class="text-slate-400 max-w-2xl mx-auto">为主观世界建模的用户研究平台</p>
+            <div class="mt-8 text-sm text-slate-500">© 2025 atypica.LLM Team</div>
+        </div>
+    </footer>
+</body>
+</html>
