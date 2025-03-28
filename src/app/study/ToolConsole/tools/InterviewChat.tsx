@@ -133,7 +133,7 @@ const SingleInterviewChat = ({
     uniqueId: `toolInvocation-${toolInvocation.toolCallId}`,
     messages: messages,
     enabled: replay,
-    fixedDuration: consoleStreamWaitTime(ToolName.interview),
+    fixedDuration: consoleStreamWaitTime(ToolName.interviewChat),
   });
 
   // 添加定时器效果

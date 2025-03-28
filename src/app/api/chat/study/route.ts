@@ -5,7 +5,7 @@ import { studySystem } from "@/prompt";
 import {
   analystReportTool,
   initStatReporter,
-  interviewTool,
+  interviewChatTool,
   reasoningThinkingTool,
   requestInteractionTool,
   saveAnalystStudySummaryTool,
@@ -47,7 +47,7 @@ export async function POST(req: Request) {
       [ToolName.scoutTaskChat]: scoutTaskChatTool({ abortSignal, statReport }),
       [ToolName.saveAnalystStudySummary]: saveAnalystStudySummaryTool(),
       [ToolName.saveAnalyst]: saveAnalystTool(userId, studyUserChatId),
-      [ToolName.interview]: interviewTool({ abortSignal, statReport }),
+      [ToolName.interviewChat]: interviewChatTool({ abortSignal, statReport }),
       [ToolName.analystReport]: analystReportTool,
       [ToolName.reasoningThinking]: reasoningThinkingTool({ abortSignal, statReport }),
       [ToolName.requestInteraction]: requestInteractionTool,

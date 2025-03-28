@@ -4,7 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 
 export const consoleStreamWaitTime = (name?: ToolName) => {
   const vals = {
-    [ToolName.interview]: 15 * 1000,
+    [ToolName.interview]: 15 * 1000, // legacy tool name
+    [ToolName.interviewChat]: 15 * 1000,
     [ToolName.scoutTaskChat]: 30 * 1000,
   } as Record<ToolName, number>;
   return name && vals[name] ? vals[name] : 1000;

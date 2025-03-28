@@ -23,7 +23,7 @@ export interface InterviewResult extends PlainTextToolResult {
   plainText: string;
 }
 
-export const interviewTool = ({
+export const interviewChatTool = ({
   abortSignal,
   statReport,
 }: {
