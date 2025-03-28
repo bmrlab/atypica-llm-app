@@ -63,7 +63,7 @@ export const scoutTaskChatTool = ({
   tool({
     description: "开始执行用户画像搜索任务",
     parameters: z.object({
-      scoutUserChatId: z.number().describe("用户画像搜索任务 (scoutTask) 的 chatId"),
+      scoutUserChatId: z.number().describe("用户画像搜索任务 (scoutTask) 的 id"),
       description: z.string().describe('用户画像搜索需求描述，用"帮我寻找"开头'),
     }),
     experimental_toToolResultContent: (result: PlainTextToolResult) => {

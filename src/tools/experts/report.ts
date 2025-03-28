@@ -116,7 +116,9 @@ async function generateReport({
     messages: [{ role: "user", content: reportHTMLPrologue(analyst) }],
     maxSteps: 10,
     maxTokens: 100000,
+    onError: (error) => console.log(`[${report.id}] One Page HTML Error:`, error),
     onChunk: async ({ chunk }) => {
+      console.log(`[${report.id}] One Page HTML:`, JSON.stringify(chunk));
       if (chunk.type === "text-delta") {
         onePageHtml += chunk.textDelta.toString();
         await prisma.analystReport.update({
@@ -166,6 +168,8 @@ async function generateCover({
     messages: [{ role: "user", content: reportCoverPrologue(analyst, report) }],
     maxSteps: 10,
     maxTokens: 50000,
+    onError: (error) => console.log(`[${report.id}] Cover SVG Error:`, error),
+    onChunk: (chunk) => console.log(`[${report.id}] Cover SVG:`, JSON.stringify(chunk)),
     onFinish: async (result) => {
       console.log(`Report cover SVG generated for ${report.id}`);
       await prisma.analystReport.update({
