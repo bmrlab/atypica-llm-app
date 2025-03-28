@@ -160,9 +160,9 @@
       "copySuccess": "链接已复制到剪贴板"
     },
     "AnalystReportShareButton": {
-      "shareReplay": "分享报告",
-      "title": "生成报告分享链接",
-      "successMessage": "报告分享链接已生成，其他人可以通过此链接访问：",
+      "viewReport": "查看报告",
+      "title": "报告链接",
+      "successMessage": "报告链接已生成，可以通过此链接访问或分享他人：",
       "copyButton": "复制",
       "openInstructions": "您也可以点击下方的\"打开\"按钮在新标签页中查看。",
       "closeButton": "关闭",
@@ -188,6 +188,9 @@
       "researchTopic": "研究主题",
       "interviewing": "正在与{count}人访谈",
       "reportBeingGenerated": "报告正在生成中"
+    },
+    "ToolMessage": {
+      "reportGenerated": "报告已生成，点击查看"
     }
   },
   "InterviewPage": {

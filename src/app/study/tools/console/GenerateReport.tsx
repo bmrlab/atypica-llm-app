@@ -4,7 +4,7 @@ import { GenerateReportResult } from "@/tools/experts/report";
 import { ToolInvocation } from "ai";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { AnalystReportShareButton } from "./AnalystReportShareButton";
+import { AnalystReportShareButton } from "../AnalystReportShareButton";
 
 const GenerateReport = ({ toolInvocation }: { toolInvocation: ToolInvocation }) => {
   const t = useTranslations("StudyPage.ToolConsole");

@@ -160,9 +160,9 @@
       "copySuccess": "Link copied to clipboard"
     },
     "AnalystReportShareButton": {
-      "shareReplay": "Share Replay",
-      "title": "Generate Report Share Link",
-      "successMessage": "Report share link has been generated. Others can access the report through this link:",
+      "viewReport": "Share Report",
+      "title": "Report URL",
+      "successMessage": "Report URL is ready. You can access the report at this address or share it with others:",
       "copyButton": "Copy",
       "openInstructions": "You can also click the \"Open\" button below to view in a new tab.",
       "closeButton": "Close",
@@ -188,6 +188,9 @@
       "researchTopic": "Research Topic",
       "interviewing": "Interviewing with {count} people",
       "reportBeingGenerated": "Report being generated..."
+    },
+    "ToolMessage": {
+      "reportGenerated": "Report is generated, click to view"
     }
   },
   "InterviewPage": {

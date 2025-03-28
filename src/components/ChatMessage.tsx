@@ -12,85 +12,51 @@ import { Message as MessageType, ToolInvocation } from "ai";
 import { motion } from "framer-motion";
 import { BotIcon, CpuIcon, UserIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { FC, HTMLAttributes, PropsWithChildren, ReactNode } from "react";
+import { PropsWithChildren, ReactNode } from "react";
 import { Markdown } from "./markdown";
-
-const ToolArgs: FC<
-  HTMLAttributes<HTMLPreElement> & {
-    toolName: string;
-    args: ToolInvocation["args"];
-  }
-> = ({ toolName, args, className }) => {
-  const t = useTranslations("Components.ChatMessage");
-
-  return (
-    <pre
-      className={cn(
-        "text-xs whitespace-pre-wrap bg-gray-50 border border-gray-100 rounded-lg p-2 font-mono",
-        className,
-      )}
-    >
-      <div className="ml-2 mt-1 font-bold">
-        {toolName} {t("toolExecution")}
-      </div>
-      <table className="text-left mt-2">
-        <tbody>
-          {Object.entries(args).map(([key, value]) => (
-            <tr key={key}>
-              <td className="p-2 align-top">{key}:</td>
-              <td className="p-2 whitespace-pre-wrap">
-                {typeof value === "object" ? JSON.stringify(value, null, 2) : value?.toString()}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </pre>
-  );
-};
+import ToolArgsTable from "./ToolArgsTable";
 
 const ToolInvocationMessage = ({ toolInvocation }: { toolInvocation: ToolInvocation }) => {
   const t = useTranslations("Components.ChatMessage");
 
-  if (toolInvocation.state === "call" || toolInvocation.state === "partial-call") {
-    const { toolName, args } = toolInvocation;
-    return (
-      <div>
-        <ToolArgs toolName={toolName} args={args} />
-      </div>
-    );
-  } else if (toolInvocation.state === "result") {
-    const { toolName, args, result } = toolInvocation;
-    const renderResult = () => {
-      switch (toolName) {
-        case ToolName.xhsSearch:
-          return <XHSSearchResultMessage result={result} />;
-        case ToolName.xhsUserNotes:
-          return <XHSUserNotesResultMessage result={result} />;
-        case ToolName.xhsNoteComments:
-          return <XHSNoteCommentsResultMessage result={result} />;
-        case ToolName.reasoningThinking:
-          return <ReasoningThinkingResultMessage result={result} />;
-        case ToolName.saveAnalyst:
-          return <SaveAnalystToolResultMessage result={result} />;
-        default:
-          return (
-            <pre className="text-xs whitespace-pre-wrap p-4 text-muted-foreground bg-gray-50 border border-gray-100 rounded-lg font-mono">
-              {result.plainText ?? "-"}
-            </pre>
-          );
-      }
-    };
-    return (
-      <div>
-        <ToolArgs toolName={toolName} args={args} />
-        <div className="text-sm text-zinc-800 my-4">{t("executionResult")}</div>
-        {renderResult()}
-      </div>
-    );
-  } else {
-    return null;
-  }
+  const renderResult = (toolInvocation: ToolInvocation & { state: "result" }) => {
+    const { toolName, result } = toolInvocation;
+    switch (toolName) {
+      case ToolName.xhsSearch:
+        return <XHSSearchResultMessage result={result} />;
+      case ToolName.xhsUserNotes:
+        return <XHSUserNotesResultMessage result={result} />;
+      case ToolName.xhsNoteComments:
+        return <XHSNoteCommentsResultMessage result={result} />;
+      case ToolName.reasoningThinking:
+        return <ReasoningThinkingResultMessage result={result} />;
+      case ToolName.saveAnalyst:
+        return <SaveAnalystToolResultMessage result={result} />;
+      default:
+        return (
+          <pre className="text-xs whitespace-pre-wrap p-4 text-muted-foreground bg-gray-50 border border-gray-100 rounded-lg font-mono">
+            {result.plainText ?? "-"}
+          </pre>
+        );
+    }
+  };
+
+  return (
+    <div>
+      <pre className="text-xs whitespace-pre-wrap bg-gray-50 border border-gray-100 rounded-lg p-2 font-mono">
+        <div className="ml-2 mt-1 font-bold">
+          {toolInvocation.toolName} {t("toolExecution")}
+        </div>
+        <ToolArgsTable toolInvocation={toolInvocation} />
+      </pre>
+      {toolInvocation.state === "result" ? (
+        <>
+          <div className="text-sm text-zinc-800 my-4">{t("executionResult")}</div>
+          {renderResult(toolInvocation)}
+        </>
+      ) : null}
+    </div>
+  );
 };
 
 const PlainText = ({ children }: PropsWithChildren) => {

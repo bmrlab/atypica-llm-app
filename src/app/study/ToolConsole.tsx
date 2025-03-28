@@ -1,31 +1,21 @@
+import ToolArgsTable from "@/components/ToolArgsTable";
 import { cn } from "@/lib/utils";
 import { ToolName } from "@/tools";
 import { ToolInvocation } from "ai";
 import { LoaderIcon } from "lucide-react";
 import { useMemo } from "react";
-import { useStudyContext } from "../hooks/StudyContext";
-import GenerateReport from "./tools/GenerateReport";
-import InterviewChat from "./tools/InterviewChat";
-import ReasoningThinking from "./tools/ReasoningThinking";
-import ScoutTaskChat from "./tools/ScoutTaskChat";
+import { useStudyContext } from "./hooks/StudyContext";
+import GenerateReport from "./tools/console/GenerateReport";
+import InterviewChat from "./tools/console/InterviewChat";
+import ReasoningThinking from "./tools/console/ReasoningThinking";
+import ScoutTaskChat from "./tools/console/ScoutTaskChat";
 
 const FallbackToolDisplay = ({ toolInvocation }: { toolInvocation: ToolInvocation }) => {
   return (
     <div className={cn("text-xs whitespace-pre-wrap p-2 font-mono")}>
       <div className="ml-1 my-2 font-bold">exec {toolInvocation.toolName}</div>
       <div className="ml-1 mt-1 mb-1 text-primary">&gt;_ args</div>
-      <table className="text-left">
-        <tbody>
-          {Object.entries(toolInvocation.args).map(([key, value]) => (
-            <tr key={key}>
-              <td className="p-1 align-top">{key}:</td>
-              <td className="p-1 whitespace-pre-wrap">
-                {typeof value === "object" ? JSON.stringify(value, null, 2) : value?.toString()}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <ToolArgsTable toolInvocation={toolInvocation} />
       <div className="ml-1 mt-2 mb-2 text-primary">&gt;_ result</div>
       {toolInvocation.state === "result" ? (
         <div className="text-xs whitespace-pre-wrap p-1">{toolInvocation.result.plainText}</div>

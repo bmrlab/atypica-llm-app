@@ -15,7 +15,13 @@ import { useTranslations } from "next-intl";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
 
-export function AnalystReportShareButton({ publicReportUrl }: { publicReportUrl: string }) {
+export function AnalystReportShareButton({
+  publicReportUrl,
+  children,
+}: {
+  publicReportUrl: string;
+  children?: React.ReactNode;
+}) {
   const t = useTranslations("StudyPage.AnalystReportShareButton");
   const [open, setOpen] = useState(false);
   const fullUrl = `${window.location.origin}${publicReportUrl}`;
@@ -33,16 +39,18 @@ export function AnalystReportShareButton({ publicReportUrl }: { publicReportUrl:
       }}
     >
       <AlertDialogTrigger asChild>
-        <Button variant="ghost" size="sm">
-          <RotateCcwIcon size={16} /> {t("shareReplay")}
-        </Button>
+        {children || (
+          <Button variant="ghost" size="sm">
+            <RotateCcwIcon size={16} /> {t("viewReport")}
+          </Button>
+        )}
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>{t("title")}</AlertDialogTitle>
           <AlertDialogDescription></AlertDialogDescription>
         </AlertDialogHeader>
-        <div className="mt-3 space-y-3 overflow-hidden">
+        <div className="space-y-3 overflow-hidden">
           <p className="text-sm text-muted-foreground mb-2">{t("successMessage")}</p>
           <div className="flex items-center gap-2 mt-1">
             <div className="bg-muted p-2 rounded-md text-xs flex-1 overflow-hidden break-words">

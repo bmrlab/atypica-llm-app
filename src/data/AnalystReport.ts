@@ -40,19 +40,20 @@ export async function fetchFirstReportByAnalystId(analystId: number) {
 }
 
 export async function fetchAnalystReportById(id: number) {
-  return withAuth(async (user) => {
-    const report = await prisma.analystReport.findUnique({
-      where: { id },
-    });
-    if (!report) notFound();
-    const userAnalyst = await prisma.userAnalyst.findUnique({
-      where: {
-        userId_analystId: { userId: user.id, analystId: report.analystId },
-      },
-    });
-    if (!userAnalyst) forbidden();
-    return report as AnalystReport;
+  // @TODO[AUTH]: 读取 AnalystReport 暂时不需要 user 有 AnalystReport 权限
+  // return withAuth(async (user) => {
+  const report = await prisma.analystReport.findUnique({
+    where: { id },
   });
+  if (!report) notFound();
+  // const userAnalyst = await prisma.userAnalyst.findUnique({
+  //   where: {
+  //     userId_analystId: { userId: user.id, analystId: report.analystId },
+  //   },
+  // });
+  // if (!userAnalyst) forbidden();
+  return report as AnalystReport;
+  // });
 }
 
 export async function fetchAnalystReportByToken(token: string) {

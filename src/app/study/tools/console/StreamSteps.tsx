@@ -1,6 +1,7 @@
 "use client";
 // 给 chat 类型的 tool call 用的组件，比如 scout chat 和 interview chat
 import { Markdown } from "@/components/markdown";
+import ToolArgsTable from "@/components/ToolArgsTable";
 import {
   XHSNoteCommentsResultMessage,
   XHSSearchResultMessage,
@@ -27,18 +28,7 @@ const StreamStep = ({ toolInvocation }: { toolInvocation: ToolInvocation }) => {
     <div className={cn("text-xs whitespace-pre-wrap font-mono")}>
       <div className="ml-1 my-2 font-bold">exec {toolInvocation.toolName}</div>
       <div className="ml-1 mt-1 mb-1 text-primary">&gt;_ args</div>
-      <table className="text-left">
-        <tbody>
-          {Object.entries(toolInvocation.args).map(([key, value]) => (
-            <tr key={key}>
-              <td className="p-1 align-top">{key}:</td>
-              <td className="p-1 whitespace-pre-wrap">
-                {typeof value === "object" ? JSON.stringify(value, null, 2) : value?.toString()}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <ToolArgsTable toolInvocation={toolInvocation} />
       <div className="ml-1 mt-2 mb-2 text-primary">&gt;_ result</div>
       {toolInvocation.state === "result" ? (
         (() => {

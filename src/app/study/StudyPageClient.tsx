@@ -12,7 +12,7 @@ import { ChatReplay } from "./ChatReplay";
 import { StudyProvider, useStudyContext } from "./hooks/StudyContext";
 import { NerdStats } from "./NerdStats";
 import { ShareReplayButton } from "./ShareReplayButton";
-import { ToolConsole } from "./ToolConsole/ToolConsole";
+import { ToolConsole } from "./ToolConsole";
 
 function Header({ studyUserChat }: { studyUserChat: StudyUserChat }) {
   const t = useTranslations("StudyPage");

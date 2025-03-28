@@ -1,6 +1,6 @@
 "use client";
 import { Markdown } from "@/components/markdown";
-import { RequestIteractionResultMessage } from "@/components/ToolMessage";
+import ToolArgsTable from "@/components/ToolArgsTable";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
 import { ToolName } from "@/tools";
@@ -9,6 +9,8 @@ import { motion } from "framer-motion";
 import { BotIcon, ChevronRight, EyeIcon, LoaderIcon, XIcon } from "lucide-react";
 import { PropsWithChildren, ReactNode, useEffect, useRef, useState } from "react";
 import { useStudyContext } from "./hooks/StudyContext";
+import { GenerateReportResultMessage } from "./tools/message/GenerateReportResultMessage";
+import { RequestIteractionResultMessage } from "./tools/message/RequestIteractionResultMessage";
 
 const ToolInvocationMessage = ({
   toolInvocation,
@@ -37,28 +39,16 @@ const ToolInvocationMessage = ({
     }
   }, [isLastPart]);
 
-  if (toolInvocation.state === "result") {
-    switch (toolInvocation.toolName) {
-      case ToolName.requestInteraction:
-        return (
-          <RequestIteractionResultMessage
-            result={toolInvocation.result}
-            onSelectAnswer={(content) => {
-              if (onUserReply) onUserReply(content);
-            }}
-          />
-        );
-    }
-  }
-
   return (
-    <div
-      className={cn(
-        "text-xs whitespace-pre-wrap rounded-lg p-2 font-mono",
-        "bg-zinc-50 dark:bg-zinc-800 border border-zinc-100 dark:border-zinc-700/50",
-      )}
-    >
-      <Collapsible className="w-full" open={open} onOpenChange={setOpen}>
+    <div>
+      <Collapsible
+        className={cn(
+          "text-xs whitespace-pre-wrap rounded-lg p-2 font-mono",
+          "bg-zinc-50 dark:bg-zinc-800 border border-zinc-100 dark:border-zinc-700/50",
+        )}
+        open={open}
+        onOpenChange={setOpen}
+      >
         <CollapsibleTrigger className="w-full flex items-center gap-1 hover:opacity-90 group">
           <ChevronRight className="h-3 w-3 transition-transform group-data-[state=open]:rotate-90 text-primary" />
           <div className="ml-1 my-2 font-bold text-xs text-primary">
@@ -76,18 +66,7 @@ const ToolInvocationMessage = ({
         </CollapsibleTrigger>
         <CollapsibleContent className="pl-4">
           <div className="ml-1 mt-1 mb-1 text-primary">&gt;_ args</div>
-          <table className="text-left">
-            <tbody>
-              {Object.entries(toolInvocation.args).map(([key, value]) => (
-                <tr key={key}>
-                  <td className="p-1 align-top">{key}:</td>
-                  <td className="p-1 whitespace-pre-wrap">
-                    {typeof value === "object" ? JSON.stringify(value, null, 2) : value?.toString()}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <ToolArgsTable toolInvocation={toolInvocation} />
           <div className="ml-1 mt-2 mb-1 text-primary w-full">&gt;_ result</div>
           {toolInvocation.state === "result" ? (
             // <div className="text-xs whitespace-pre-wrap p-1">{toolInvocation.result.plainText}</div>
@@ -119,6 +98,24 @@ const ToolInvocationMessage = ({
           )}
         </CollapsibleContent>
       </Collapsible>
+      {toolInvocation.state === "result" &&
+        (() => {
+          switch (toolInvocation.toolName) {
+            case ToolName.requestInteraction:
+              return (
+                <RequestIteractionResultMessage
+                  result={toolInvocation.result}
+                  onSelectAnswer={(content) => {
+                    if (onUserReply) onUserReply(content);
+                  }}
+                />
+              );
+            case ToolName.generateReport:
+              return <GenerateReportResultMessage result={toolInvocation.result} />;
+            default:
+              return null;
+          }
+        })()}
     </div>
   );
 };
