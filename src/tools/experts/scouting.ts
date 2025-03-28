@@ -15,6 +15,7 @@ import { reasoningThinkingTool } from "./reasoning";
 
 export interface ScoutTaskCreateResult extends PlainTextToolResult {
   scoutUserChatId: number;
+  title: string;
   plainText: string;
 }
 
@@ -36,15 +37,16 @@ export const scoutTaskCreateTool = (userId: number) =>
     experimental_toToolResultContent: (result: PlainTextToolResult) => {
       return [{ type: "text", text: result.plainText }];
     },
-    execute: async ({ description }) => {
+    execute: async ({ description }): Promise<ScoutTaskCreateResult> => {
       const title = description.substring(0, 50);
       const scoutUserChat = await prisma.userChat.create({
         data: { userId, title, kind: "scout", messages: [] },
       });
       return {
         scoutUserChatId: scoutUserChat.id,
+        title: scoutUserChat.title,
         plainText: JSON.stringify({
-          id: scoutUserChat.id,
+          scoutUserChatId: scoutUserChat.id,
           title: scoutUserChat.title,
         }),
       };

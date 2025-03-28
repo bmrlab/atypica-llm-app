@@ -126,6 +126,7 @@ async function generateReport({
       }
     },
     onFinish: async (result) => {
+      console.log(`Report one page HTML generated for ${report.id}`);
       await prisma.analystReport.update({
         where: { id: report.id },
         data: {
@@ -163,9 +164,10 @@ async function generateCover({
     },
     system: reportCoverSystem(),
     messages: [{ role: "user", content: reportCoverPrologue(analyst, report) }],
-    maxSteps: 3,
-    maxTokens: 20000,
+    maxSteps: 10,
+    maxTokens: 50000,
     onFinish: async (result) => {
+      console.log(`Report cover SVG generated for ${report.id}`);
       await prisma.analystReport.update({
         where: { id: report.id },
         data: {

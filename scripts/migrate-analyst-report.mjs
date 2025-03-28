@@ -74,6 +74,26 @@ async function migrateMessages() {
           }
           const toolInvocation = { ...part.toolInvocation };
           console.log("old", toolInvocation);
+          if (toolInvocation.toolName === "scoutTaskCreate") {
+            if (toolInvocation.state === "result" && toolInvocation.result.chatId) {
+              toolInvocation.result.scoutUserChatId = toolInvocation.result.chatId;
+              delete toolInvocation.result.chatId;
+              try {
+                const data = JSON.parse(toolInvocation.result.plainText);
+                data.scoutUserChatId = toolInvocation.result.scoutUserChatId;
+                delete data.id;
+                toolInvocation.result.plainText = JSON.stringify(data);
+              } catch (error) {
+                console.error("Error parsing JSON:", error);
+              }
+            }
+          }
+          if (toolInvocation.toolName === "scoutTaskChat") {
+            if (toolInvocation.args.chatId) {
+              toolInvocation.args.scoutUserChatId = toolInvocation.args.chatId;
+              delete toolInvocation.args.chatId;
+            }
+          }
           if (toolInvocation.toolName === "interview") {
             toolInvocation.toolName = "interviewChat";
             if (toolInvocation.args.personaId) {
