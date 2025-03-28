@@ -78,6 +78,7 @@ export const generateReportTool = ({
       await generateCover({
         analyst,
         report,
+        instruction,
         abortSignal,
         statReport,
       });
@@ -118,7 +119,7 @@ async function generateReport({
     maxTokens: 100000,
     onError: (error) => console.log(`[${report.id}] One Page HTML Error:`, error),
     onChunk: async ({ chunk }) => {
-      console.log(`[${report.id}] One Page HTML:`, JSON.stringify(chunk));
+      // console.log(`[${report.id}] One Page HTML:`, JSON.stringify(chunk));
       if (chunk.type === "text-delta") {
         onePageHtml += chunk.textDelta.toString();
         await prisma.analystReport.update({
@@ -151,11 +152,17 @@ async function generateReport({
 async function generateCover({
   analyst,
   report,
+  instruction,
   abortSignal,
   statReport,
 }: {
-  analyst: Analyst;
+  analyst: Analyst & {
+    interviews: {
+      conclusion: string;
+    }[];
+  };
   report: AnalystReport;
+  instruction: string;
   abortSignal: AbortSignal;
   statReport: StatReporter;
 }) {
@@ -164,12 +171,12 @@ async function generateCover({
     providerOptions: {
       openai: { stream_options: { include_usage: true } },
     },
-    system: reportCoverSystem(),
-    messages: [{ role: "user", content: reportCoverPrologue(analyst, report) }],
-    maxSteps: 10,
-    maxTokens: 50000,
+    system: reportCoverSystem(instruction),
+    messages: [{ role: "user", content: reportCoverPrologue(analyst) }],
+    maxSteps: 3,
+    maxTokens: 30000,
     onError: (error) => console.log(`[${report.id}] Cover SVG Error:`, error),
-    onChunk: (chunk) => console.log(`[${report.id}] Cover SVG:`, JSON.stringify(chunk)),
+    // onChunk: (chunk) => console.log(`[${report.id}] Cover SVG:`, JSON.stringify(chunk)),
     onFinish: async (result) => {
       console.log(`Report cover SVG generated for ${report.id}`);
       await prisma.analystReport.update({

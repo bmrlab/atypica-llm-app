@@ -12,7 +12,7 @@ import { saveInterviewConclusionTool } from "../system/saveInterviewConclusion";
 import { xhsSearchTool } from "../xhs/search";
 import { reasoningThinkingTool } from "./reasoning";
 
-export interface InterviewResult extends PlainTextToolResult {
+export interface InterviewChatResult extends PlainTextToolResult {
   interviews: {
     analystId: number;
     personaId: number;
@@ -46,7 +46,7 @@ export const interviewChatTool = ({
     experimental_toToolResultContent: (result: PlainTextToolResult) => {
       return [{ type: "text", text: result.plainText }];
     },
-    execute: async ({ analystId, personas }): Promise<InterviewResult> => {
+    execute: async ({ analystId, personas }): Promise<InterviewChatResult> => {
       const single = async ({ id: personaId, name: personaName }: { id: number; name: string }) => {
         const [interview, persona, analyst] = await Promise.all([
           prisma.analystInterview.upsert({

@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { InputJsonValue } from "@prisma/client/runtime/library";
 import { requestInteractionTool } from "./experts/interaction";
-import { interviewChatTool } from "./experts/interview";
+import { interviewChatTool } from "./experts/interviewChat";
 import { reasoningThinkingTool } from "./experts/reasoning";
 import { generateReportTool } from "./experts/report";
 import { scoutTaskChatTool, scoutTaskCreateTool } from "./experts/scouting";

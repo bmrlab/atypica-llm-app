@@ -1,4 +1,4 @@
-import { Analyst, AnalystReport } from "@/data";
+import { Analyst } from "@/data";
 
 export const reportHTMLSystem = (instruction: string) => `
 你是一位创意十足的研究报告设计专家。请基于用户访谈生成一份引人入胜的HTML研究报告。
@@ -64,7 +64,7 @@ ${analyst.studySummary}
 重要说明：请不要在报告中包含虚构的图片链接（如"example.com/image.jpg"或占位图片URL），因为这会导致报告中出现损坏的图片图标。如果没有真实可用的图片素材，请设计不依赖图片的报告布局。
 `;
 
-export const reportCoverSystem = () => `
+export const reportCoverSystem = (instruction: string) => `
 你是一个专业的插画师，请为主题的网页报告生成一张引人入胜的插画，
 
 设计原则：
@@ -87,17 +87,24 @@ SVG技术要求：
 - 使用相对坐标系统，避免硬编码固定像素值
 - 确保图形元素在缩放时保持完整且不被裁剪
 
+${instruction ? `用户特别指示：\n\n<instruction>\n${instruction}\n</instruction>\n` : ""}
+
 请直接生成完整的SVG代码，无需解释或评论。
 `;
 
-export const reportCoverPrologue = (analyst: Analyst, report: AnalystReport) => `
-主题为：
+export const reportCoverPrologue = (analyst: Analyst) => `
+  我的角色是<role>${analyst.role}</role>
 
-<topic>
-${analyst.topic}
-</topic>
+  研究主题是：
 
-网页报告内容为：
+  <topic>
+  ${analyst.topic}
+  </topic>
 
-${report.onePageHtml}
+  以下是调研专家的结论：
+
+  <studySummary>
+  ${analyst.studySummary}
+  </studySummary>
 `;
+// 这里本来放了 report.onePageHTML 作为输入，但请求 litellm 的时候好像会被阿里云防火墙 block，先去掉
