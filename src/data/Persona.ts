@@ -8,13 +8,17 @@ export type Persona = Omit<PersonaPrisma, "tags"> & {
   tags: string[];
 };
 
-export async function fetchPersonas(scoutUserChatId?: number): Promise<Persona[]> {
+export async function fetchPersonas({
+  scoutUserChatId,
+  take = 30,
+}: { scoutUserChatId?: number; take?: number } = {}): Promise<Persona[]> {
   try {
     const personas = await prisma.persona.findMany({
       where: scoutUserChatId ? { scoutUserChatId } : undefined,
       orderBy: {
         createdAt: "desc",
       },
+      take,
     });
     return personas.map((persona) => {
       return {

@@ -6,7 +6,7 @@ import withAuth from "./withAuth";
 
 export type Analyst = AnalystPrisma;
 
-export async function fetchAnalysts() {
+export async function fetchAnalysts({ take = 30 }: { take?: number } = {}) {
   return withAuth(async (user) => {
     const analysts = await prisma.analyst.findMany({
       where: {
@@ -19,6 +19,7 @@ export async function fetchAnalysts() {
       orderBy: {
         createdAt: "desc",
       },
+      take,
     });
     return analysts.map((analyst) => {
       return { ...analyst };

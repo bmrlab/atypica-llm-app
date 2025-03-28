@@ -79,6 +79,7 @@ export async function createUserChat<TKind extends UserChat["kind"]>(
 
 export async function fetchUserChats<Tkind extends UserChat["kind"]>(
   kind: Tkind,
+  { take = 30 }: { take?: number } = {},
 ): Promise<
   (Omit<UserChat, "kind" | "messages"> & {
     kind: Tkind;
@@ -92,7 +93,7 @@ export async function fetchUserChats<Tkind extends UserChat["kind"]>(
           kind,
         },
         orderBy: {
-          createdAt: "desc",
+          updatedAt: "desc",
         },
         select: {
           id: true,
@@ -104,6 +105,7 @@ export async function fetchUserChats<Tkind extends UserChat["kind"]>(
           updatedAt: true,
           messages: false,
         },
+        take,
       });
       return userChats.map((chat) => {
         return {

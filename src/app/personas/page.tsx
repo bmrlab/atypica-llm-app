@@ -17,7 +17,7 @@ export default async function PersonasPage({
   if (userChatParam) {
     const scoutUserChatId = parseInt(userChatParam);
     const scoutUserChat = await fetchUserChatById(scoutUserChatId, "scout");
-    const personas = await fetchPersonas(scoutUserChatId);
+    const personas = await fetchPersonas({ scoutUserChatId });
     return <PersonasList personas={personas} scoutUserChat={scoutUserChat} />;
   } else {
     const personas = await fetchPersonas();
