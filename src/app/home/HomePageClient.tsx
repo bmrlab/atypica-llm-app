@@ -7,7 +7,6 @@ import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { StudyHistoryDrawer } from "./HistoryDrawer";
 import { InputSection } from "./InputSection";
-import { ExampleCards } from "./ExampleCards";
 
 export default function HomePageClient({ anonymous }: { anonymous: boolean }) {
   const t = useTranslations();
@@ -48,9 +47,9 @@ export default function HomePageClient({ anonymous }: { anonymous: boolean }) {
       <div className="animate-in fade-in slide-in-from-bottom-8 duration-1000 px-8">
         <InputSection />
       </div>
-      <div className="animate-in fade-in slide-in-from-bottom-10 duration-1000 px-8">
+      {/* <div className="animate-in fade-in slide-in-from-bottom-10 duration-1000 px-8">
         <ExampleCards />
-      </div>
+      </div> */}
       {!anonymous ? (
         <div className="fixed left-2 top-2 sm:top-4 sm:left-4">
           <StudyHistoryDrawer />
