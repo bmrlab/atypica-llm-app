@@ -232,3 +232,49 @@ export async function deleteMessageFromUserChat(
     }
   });
 }
+
+export async function fetchFeaturedStudyUserChats(): Promise<
+  (Pick<UserChat, "title" | "token" | "kind"> & {
+    readonly replayUrl: string;
+    kind: "study";
+  })[]
+> {
+  return withAuth(async (user) => {
+    try {
+      const userChats = await prisma.userChat.findMany({
+        where: {
+          token: {
+            not: null,
+          },
+          kind: "study",
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+        select: {
+          id: false,
+          token: true,
+          userId: false,
+          title: true,
+          kind: true,
+          createdAt: false,
+          updatedAt: false,
+          messages: false,
+        },
+        take: 3,
+      });
+      return userChats
+        .filter((chat) => chat.token)
+        .map((chat) => {
+          return {
+            ...chat,
+            kind: "study",
+            replayUrl: `/study/${chat.token}/share?replay=1`,
+          };
+        });
+    } catch (error) {
+      console.log("Error fetching featured study user chats:", error);
+      throw error;
+    }
+  });
+}
