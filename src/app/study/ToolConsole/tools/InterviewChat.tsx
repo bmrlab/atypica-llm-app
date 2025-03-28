@@ -20,11 +20,7 @@ import { StreamSteps } from "./StreamSteps";
 const InterviewChat = ({ toolInvocation }: { toolInvocation: ToolInvocation }) => {
   const t = useTranslations("StudyPage.ToolConsole");
   const analystId = toolInvocation.args.analystId as number;
-  let personasArg = toolInvocation.args.personas as { id: number; name: string }[];
-  if (!personasArg || toolInvocation.args.personaId) {
-    // 兼容旧版，interview 是一个一个开始的，args 上只有 personaId
-    personasArg = [{ id: toolInvocation.args.personaId, name: "User" }];
-  }
+  const personasArg = toolInvocation.args.personas as { id: number; name: string }[];
 
   const [analyst, setAnalyst] = useState<Analyst>();
   useEffect(() => {

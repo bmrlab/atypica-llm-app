@@ -48,12 +48,10 @@ export function ToolConsole() {
   switch (activeTool?.toolName) {
     case ToolName.scoutTaskChat:
       return <ScoutTaskChat toolInvocation={activeTool} />;
-    case ToolName.interview: // @TODO[LEGACY] legacy tool name
     case ToolName.interviewChat:
       return <InterviewChat toolInvocation={activeTool} />;
     case ToolName.reasoningThinking:
       return <ReasoningThinking toolInvocation={activeTool} />;
-    case ToolName.analystReport: // @TODO[LEGACY] legacy tool name
     case ToolName.generateReport:
       return <GenerateReport toolInvocation={activeTool} />;
     default:

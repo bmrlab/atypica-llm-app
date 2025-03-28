@@ -241,7 +241,7 @@ export async function fetchFeaturedStudyUserChats(): Promise<
     kind: "study";
   })[]
 > {
-  return withAuth(async (user) => {
+  return withAuth(async () => {
     try {
       const userChats = await prisma.userChat.findMany({
         where: {

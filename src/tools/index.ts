@@ -13,8 +13,6 @@ import { xhsSearchTool } from "./xhs/search";
 import { xhsUserNotesTool } from "./xhs/userNotes";
 
 export enum ToolName {
-  analystReport = "analystReport", // @TODO[LEGACY] legacy tool name
-  interview = "interview", // @TODO[LEGACY] legacy tool name
   interviewChat = "interviewChat",
   generateReport = "generateReport",
   reasoningThinking = "reasoningThinking",

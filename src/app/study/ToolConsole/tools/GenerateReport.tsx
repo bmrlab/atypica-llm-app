@@ -1,9 +1,4 @@
-import {
-  AnalystReport,
-  fetchAnalystReportById,
-  fetchFirstReportByAnalystId,
-  fetchPendingReportByAnalystId,
-} from "@/data";
+import { AnalystReport, fetchAnalystReportById, fetchPendingReportByAnalystId } from "@/data";
 import { cn } from "@/lib/utils";
 import { GenerateReportResult } from "@/tools/experts/report";
 import { ToolInvocation } from "ai";
@@ -59,23 +54,14 @@ const GenerateReport = ({ toolInvocation }: { toolInvocation: ToolInvocation }) 
     }
   }, [analystId]);
 
-  const fetchAnalystReport = useCallback(
-    async (reportId: number) => {
-      try {
-        if (!reportId) {
-          // @TODO[LEGACY] For legacy analystReport tool, without reportId in toolInvocation.result
-          const firstReport = await fetchFirstReportByAnalystId(analystId);
-          setAnalystReport(firstReport);
-        } else {
-          const report = await fetchAnalystReportById(reportId);
-          setAnalystReport(report);
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    },
-    [analystId],
-  );
+  const fetchAnalystReport = useCallback(async (reportId: number) => {
+    try {
+      const report = await fetchAnalystReportById(reportId);
+      setAnalystReport(report);
+    } catch (error) {
+      console.error(error);
+    }
+  }, []);
 
   useEffect(() => {
     if (toolInvocation.state === "result") {
@@ -84,7 +70,8 @@ const GenerateReport = ({ toolInvocation }: { toolInvocation: ToolInvocation }) 
     } else {
       fetchPendingReport();
     }
-  }, [toolInvocation.state, fetchAnalystReport, fetchPendingReport]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [toolInvocation.state, fetchAnalystReport, fetchPendingReport]); // toolInvocation.result
 
   return (
     <div className="h-full relative pb-10">

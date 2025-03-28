@@ -119,5 +119,5 @@ async function migrateMessages() {
   }
 }
 
-// await migrateAnalystReports();
+// await migrateAnalystReports();  // migrateMessages 里面会创建新的 report，所以这里不用执行了
 await migrateMessages();
