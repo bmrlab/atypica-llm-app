@@ -34,9 +34,9 @@ export function StudyHistoryDrawer() {
     return () => clearInterval(interval);
   }, []);
 
-  const handleSelectChat = (userChatId: number) => {
-    // const chat = await fetchUserChatById(chatId, "scout");
-    window.location.replace(`/study?id=${userChatId}`);
+  const handleSelectChat = (studyUserChatId: number) => {
+    // const chat = await fetchUserChatById(studyUserChatId, "scout");
+    window.location.replace(`/study?id=${studyUserChatId}`);
     setOpen(false); // Close drawer when a chat is selected
   };
 

@@ -27,11 +27,11 @@ export async function POST(req: Request) {
   const userId = session.user.id;
 
   const payloadAwaited = await req.json();
-  const chatId = parseInt(payloadAwaited["chatId"]);
+  const studyUserChatId = parseInt(payloadAwaited["studyUserChatId"]);
   const messages = payloadAwaited["messages"] as Message[];
 
   const abortSignal = req.signal;
-  const { statReport } = initStatReporter(chatId);
+  const { statReport } = initStatReporter(studyUserChatId);
   let streamStartTime = Date.now();
 
   const result = streamText({
@@ -46,7 +46,7 @@ export async function POST(req: Request) {
       [ToolName.scoutTaskCreate]: scoutTaskCreateTool(userId),
       [ToolName.scoutTaskChat]: scoutTaskChatTool({ abortSignal, statReport }),
       [ToolName.saveAnalystStudySummary]: saveAnalystStudySummaryTool(),
-      [ToolName.saveAnalyst]: saveAnalystTool(userId, chatId),
+      [ToolName.saveAnalyst]: saveAnalystTool(userId, studyUserChatId),
       [ToolName.interview]: interviewTool({ abortSignal, statReport }),
       [ToolName.analystReport]: analystReportTool,
       [ToolName.reasoningThinking]: reasoningThinkingTool({ abortSignal, statReport }),

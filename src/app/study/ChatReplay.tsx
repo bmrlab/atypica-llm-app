@@ -5,10 +5,10 @@ import { StudyUserChat } from "@/data";
 import { useProgressiveMessages } from "./hooks/useProgressiveMessages";
 import { SingleMessage } from "./SingleMessage";
 
-export function ChatReplay({ studyChat }: { studyChat: StudyUserChat }) {
+export function ChatReplay({ studyUserChat }: { studyUserChat: StudyUserChat }) {
   const { partialMessages: messagesDisplay } = useProgressiveMessages({
-    uniqueId: `studyChat-${studyChat.id}`,
-    messages: studyChat.messages,
+    uniqueId: `studyUserChat-${studyUserChat.id}`,
+    messages: studyUserChat.messages,
     enabled: true,
   });
   const [messagesContainerRef, messagesEndRef] = useScrollToBottom<HTMLDivElement>();
@@ -21,7 +21,7 @@ export function ChatReplay({ studyChat }: { studyChat: StudyUserChat }) {
         {messagesDisplay.map((message, index) => (
           <SingleMessage
             key={message.id}
-            avatar={{ assistant: <HippyGhostAvatar seed={studyChat.id} /> }}
+            avatar={{ assistant: <HippyGhostAvatar seed={studyUserChat.id} /> }}
             role={message.role}
             content={message.content}
             parts={message.parts}

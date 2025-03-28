@@ -5,11 +5,11 @@ import Link from "next/link";
 import { useMemo } from "react";
 
 export function StatusDisplay({
-  chatId,
+  scoutUserChatId,
   status,
   messages,
 }: {
-  chatId: number;
+  scoutUserChatId: number;
   status: string;
   messages: Message[];
 }) {
@@ -68,7 +68,7 @@ export function StatusDisplay({
       <span>{getStatusMessage(status)}</span>
       {personasScouted && (
         <Link
-          href={`/personas?userChat=${chatId}`}
+          href={`/personas?scoutUserChat=${scoutUserChatId}`}
           target="_blank"
           className="text-blue-500 hover:underline mx-1"
         >

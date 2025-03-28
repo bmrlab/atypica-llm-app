@@ -27,10 +27,10 @@ import { useState } from "react";
 
 export default function PersonasList({
   personas,
-  userChat,
+  scoutUserChat,
 }: {
   personas: Persona[];
-  userChat?: UserChat;
+  scoutUserChat?: UserChat;
 }) {
   const t = useTranslations("PersonasPage");
   const router = useRouter();
@@ -71,13 +71,13 @@ export default function PersonasList({
           </div>
         </div>
 
-        {userChat && (
+        {scoutUserChat && (
           <div className="flex items-center justify-start gap-3">
             <div className="flex items-center justify-center size-8 rounded-md border">🔍</div>
             <p className="text-sm text-muted-foreground">
               {t("searchResult")}「
               <span className="truncate inline-block align-bottom max-w-[20ch]">
-                {userChat.title}
+                {scoutUserChat.title}
               </span>
               」
             </p>

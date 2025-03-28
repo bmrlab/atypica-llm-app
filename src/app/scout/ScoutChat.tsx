@@ -27,7 +27,7 @@ export function ScoutChat() {
           <ScoutChatHistory onSelectChat={setCurrentChat} />
         </div>
       </div>
-      <ScoutChatMessages scoutChat={currentChat} />
+      <ScoutChatMessages scoutUserChat={currentChat} />
     </div>
   );
 }

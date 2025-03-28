@@ -11,7 +11,7 @@ import { StatusDisplay } from "./StatusDisplay";
 
 function popLastUserMessage(messages: Message[]) {
   if (messages.length > 0 && messages[messages.length - 1].role === "user") {
-    // pop 会修改 messages，导致调用 popLastUserMessage 的 scoutChat 产生 state 变化，会有问题
+    // pop 会修改 messages，导致调用 popLastUserMessage 的 scoutUserChat 产生 state 变化，会有问题
     // const lastUserMessage = messages.pop();
     return { messages: messages.slice(0, -1), lastUserMessage: messages[messages.length - 1] };
   } else {
@@ -20,18 +20,18 @@ function popLastUserMessage(messages: Message[]) {
 }
 
 export function ScoutChatMessages({
-  scoutChat,
+  scoutUserChat,
   environment = "chat",
 }: {
-  scoutChat: ScoutUserChat | null;
+  scoutUserChat: ScoutUserChat | null;
   environment?: "console" | "chat";
 }) {
   const t = useTranslations("ScoutPage");
-  const [chatId, setChatId] = useState<number | null>(scoutChat?.id ?? null);
+  const [scoutUserChatId, setScoutUserChatId] = useState<number | null>(scoutUserChat?.id ?? null);
 
   // https://github.com/vercel/ai/blob/50555848a54e6bace3e22d175db58c04f04ea5a4/packages/react/src/use-chat.ts#L230
   // useChat 会监听 credentials,headers,body, 的变化，但是其他的不监听
-  // onResponse 和 onFinish 也被 hook 保存状态了，所以他俩都监听不到 chatId 的变化，只能在下面 useEffect 里主动监听 messages
+  // onResponse 和 onFinish 也被 hook 保存状态了，所以他俩都监听不到 scoutUserChatId 的变化，只能在下面 useEffect 里主动监听 messages
 
   const {
     messages,
@@ -48,7 +48,7 @@ export function ScoutChatMessages({
     maxSteps: 30,
     api: "/api/chat/scout",
     body: {
-      chatId: chatId,
+      scoutUserChatId,
       autoChat: environment === "console",
     },
   });
@@ -59,26 +59,26 @@ export function ScoutChatMessages({
 
   // 监听最新的 message
   useEffect(() => {
-    if (!chatId || messages.length < 2) return; // 有了 chatId 并且 AI 回复了再保存
+    if (!scoutUserChatId || messages.length < 2) return; // 有了 scoutUserChatId 并且 AI 回复了再保存
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
     // this is debouncing, 5s 以后保存在这个过程中，如果新的出现，就保存新的，旧的被 clear
     timeoutRef.current = setTimeout(async () => {
-      // console.log("Saving chat...", chatId, messages);
+      // console.log("Saving chat...", scoutUserChatId, messages);
       // 保存之前先 fix 一下，清除异常的数据
-      await updateUserChat(chatId, fixChatMessages(messages));
+      await updateUserChat(scoutUserChatId, fixChatMessages(messages));
       timeoutRef.current = null;
     }, 5000);
-  }, [chatId, messages]);
+  }, [scoutUserChatId, messages]);
 
   // 监听对话切换
   useEffect(() => {
     useChatRef.current.stop();
-    if (scoutChat) {
-      setChatId(scoutChat.id);
-      const { lastUserMessage } = popLastUserMessage(scoutChat.messages);
-      useChatRef.current.setMessages(scoutChat.messages);
+    if (scoutUserChat) {
+      setScoutUserChatId(scoutUserChat.id);
+      const { lastUserMessage } = popLastUserMessage(scoutUserChat.messages);
+      useChatRef.current.setMessages(scoutUserChat.messages);
       if (lastUserMessage) {
         useChatRef.current.reload();
       }
@@ -92,38 +92,38 @@ export function ScoutChatMessages({
       // }
     } else {
       setMessages([]);
-      setChatId(null);
+      setScoutUserChatId(null);
     }
     return () => {
       // 上一个定时保存 messages 的 clearTimeout 要写在这里，不能写在上一个 useEffect 里，否则 messages 更新就会导致 clearTimeout
       console.log("Cleaning up timeoutRef.current");
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
-    // 只能监听 scoutChat, 其他的不要监听，不然就死循环了！
+    // 只能监听 scoutUserChat, 其他的不要监听，不然就死循环了！
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scoutChat]);
+  }, [scoutUserChat]);
 
   const handleSubmitMessage = useCallback(
     async (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
       if (!input) return;
-      if (!chatId) {
-        const userChat = await createUserChat("scout", {
+      if (!scoutUserChatId) {
+        const scoutUserChat = await createUserChat("scout", {
           role: "user",
           content: input,
         });
-        setChatId(userChat.id);
+        setScoutUserChatId(scoutUserChat.id);
         // 这里设置了，在调用 handleSubmit 的时候还没有更新 useChat 的 body，所以 setChatId 以后，还要在 handleSubmit 里直接提交
         handleSubmit(event, {
-          body: { chatId: userChat.id },
+          body: { scoutUserChatId: scoutUserChat.id },
         });
       } else {
         handleSubmit(event, {
-          body: { chatId },
+          body: { scoutUserChatId },
         });
       }
     },
-    [handleSubmit, chatId, input],
+    [handleSubmit, scoutUserChatId, input],
   );
 
   const [messagesContainerRef, messagesEndRef] = useScrollToBottom<HTMLDivElement>();
@@ -173,7 +173,9 @@ export function ScoutChatMessages({
         <div ref={messagesEndRef} />
       </div>
 
-      {chatId && <StatusDisplay chatId={chatId} status={status} messages={messages} />}
+      {scoutUserChatId && (
+        <StatusDisplay scoutUserChatId={scoutUserChatId} status={status} messages={messages} />
+      )}
 
       {environment === "chat" && (
         <form onSubmit={handleSubmitMessage}>

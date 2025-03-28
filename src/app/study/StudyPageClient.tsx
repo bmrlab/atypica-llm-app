@@ -14,7 +14,7 @@ import { NerdStats } from "./NerdStats";
 import { ShareReplayButton } from "./ShareReplayButton";
 import { ToolConsole } from "./ToolConsole/ToolConsole";
 
-function Header({ studyChat }: { studyChat: StudyUserChat }) {
+function Header({ studyUserChat }: { studyUserChat: StudyUserChat }) {
   const t = useTranslations("StudyPage");
   const { replay } = useStudyContext();
   return (
@@ -26,13 +26,13 @@ function Header({ studyChat }: { studyChat: StudyUserChat }) {
         </Link>
       </Button>
       <h1 className="flex-1 sm:text-lg font-medium text-center truncate">
-        {studyChat.title || t("research")}
+        {studyUserChat.title || t("research")}
       </h1>
       {/* <div className="absolute right-0 top-1/2 -translate-y-1/2"> */}
       {!replay ? (
-        <ShareReplayButton studyChat={studyChat} />
+        <ShareReplayButton studyUserChat={studyUserChat} />
       ) : (
-        <NerdStats studyUserChatId={studyChat.id} />
+        <NerdStats studyUserChatId={studyUserChat.id} />
       )}
     </div>
   );
@@ -58,11 +58,11 @@ const FollowButton = () => {
 };
 
 export function StudyPageClient({
-  studyChat,
+  studyUserChat,
   readOnly,
   replay,
 }: {
-  studyChat: StudyUserChat;
+  studyUserChat: StudyUserChat;
   readOnly: boolean;
   replay: boolean;
 }) {
@@ -83,11 +83,11 @@ export function StudyPageClient({
             "w-1/2 max-lg:w-full max-lg:mb-14",
           )}
         >
-          <Header studyChat={studyChat} />
+          <Header studyUserChat={studyUserChat} />
           {replay ? (
-            <ChatReplay studyChat={studyChat} />
+            <ChatReplay studyUserChat={studyUserChat} />
           ) : (
-            <ChatBox studyChat={studyChat} readOnly={readOnly} />
+            <ChatBox studyUserChat={studyUserChat} readOnly={readOnly} />
           )}
         </div>
         <div

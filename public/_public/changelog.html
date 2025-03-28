@@ -230,9 +230,9 @@ export async function generateMetadata({
   if (!id) {
     return {};
   }
-  const chatId = parseInt(id);
-  const userChat = await fetchUserChatById(chatId, "study");
-  return userChat.title ? { title: userChat.title } : {};
+  const studyUserChatId = parseInt(id);
+  const studyUserChat = await fetchUserChatById(studyUserChatId, "study");
+  return studyUserChat.title ? { title: studyUserChat.title } : {};
 }
 
 export const dynamic = "force-dynamic";
@@ -246,18 +246,18 @@ export default async function StudyPage({
   if (!id) {
     redirect("/");
   }
-  const chatId = parseInt(id);
-  const userChat = await fetchUserChatById(chatId, "study");
+  const studyUserChatId = parseInt(id);
+  const studyUserChat = await fetchUserChatById(studyUserChatId, "study");
 
   const session = await getServerSession(authOptions);
   if (!session?.user) {
     redirect("/auth/signin?callbackUrl=/study");
   }
-  if (userChat.userId !== session.user.id) {
+  if (studyUserChat.userId !== session.user.id) {
     forbidden();
   }
 
-  return &lt;StudyPageClient studyChat={userChat} readOnly={false} replay={false} />;
+  return &lt;StudyPageClient studyUserChat={studyUserChat} readOnly={false} replay={false} />;
 }
             </pre
         >
@@ -370,7 +370,7 @@ atypica.LLM 是一个面向主观世界建模的用户研究平台，通过大�
   } = <span class="text-yellow-300">useChat</span>({
     api: <span class="text-yellow-300">"/api/chat/scout"</span>,
     <span class="text-blue-400">body</span>: {
-      <span class="text-blue-400">chatId</span>: chatId,
+      <span class="text-blue-400">scoutUserChatId</span>: scoutUserChatId,
     },
   });
 

@@ -14,7 +14,7 @@ import { xhsUserNotesTool } from "../xhs/userNotes";
 import { reasoningThinkingTool } from "./reasoning";
 
 export interface ScoutTaskCreateResult extends PlainTextToolResult {
-  chatId: number;
+  scoutUserChatId: number;
   plainText: string;
 }
 
@@ -38,14 +38,14 @@ export const scoutTaskCreateTool = (userId: number) =>
     },
     execute: async ({ description }) => {
       const title = description.substring(0, 50);
-      const userChat = await prisma.userChat.create({
+      const scoutUserChat = await prisma.userChat.create({
         data: { userId, title, kind: "scout", messages: [] },
       });
       return {
-        chatId: userChat.id,
+        scoutUserChatId: scoutUserChat.id,
         plainText: JSON.stringify({
-          id: userChat.id,
-          title: userChat.title,
+          id: scoutUserChat.id,
+          title: scoutUserChat.title,
         }),
       };
     },
@@ -61,26 +61,26 @@ export const scoutTaskChatTool = ({
   tool({
     description: "开始执行用户画像搜索任务",
     parameters: z.object({
-      chatId: z.number().describe("用户画像搜索任务 (scoutTask) 的 chatId"),
+      scoutUserChatId: z.number().describe("用户画像搜索任务 (scoutTask) 的 chatId"),
       description: z.string().describe('用户画像搜索需求描述，用"帮我寻找"开头'),
     }),
     experimental_toToolResultContent: (result: PlainTextToolResult) => {
       return [{ type: "text", text: result.plainText }];
     },
-    execute: async ({ chatId, description }) => {
-      const messages = await prepareMessagesForLLM(chatId, description);
-      return await scoutTaskChatStream({ chatId, messages, abortSignal, statReport });
+    execute: async ({ scoutUserChatId, description }) => {
+      const messages = await prepareMessagesForLLM(scoutUserChatId, description);
+      return await scoutTaskChatStream({ scoutUserChatId, messages, abortSignal, statReport });
     },
   });
 
 /**
  * 从数据库读取历史消息，并追加一条最新的用户消息
  */
-async function prepareMessagesForLLM(chatId: number, content: string) {
-  const userChat = await prisma.userChat.findUniqueOrThrow({
-    where: { id: chatId },
+async function prepareMessagesForLLM(scoutUserChatId: number, content: string) {
+  const scoutUserChat = await prisma.userChat.findUniqueOrThrow({
+    where: { id: scoutUserChatId, kind: "scout" },
   });
-  let messages = fixChatMessages(userChat.messages as unknown as Message[]);
+  let messages = fixChatMessages(scoutUserChat.messages as unknown as Message[]);
   if (messages.length > 1 && messages[messages.length - 1].role === "user") {
     messages = messages.slice(0, -1);
   }
@@ -89,12 +89,12 @@ async function prepareMessagesForLLM(chatId: number, content: string) {
 }
 
 async function scoutTaskChatStream({
-  chatId,
+  scoutUserChatId,
   messages: _messages,
   abortSignal,
   statReport,
 }: {
-  chatId: number;
+  scoutUserChatId: number;
   messages: Message[];
   abortSignal: AbortSignal;
   statReport: StatReporter;
@@ -102,18 +102,18 @@ async function scoutTaskChatStream({
   let messages = [..._messages];
 
   while (true) {
-    const saveToolMessages = ((chatId: number, initialMessages: Message[]) => {
+    const saveToolMessages = ((scoutUserChatId: number, initialMessages: Message[]) => {
       // 这里要保持上一条消息不变，不断更新最后一条消息的 parts，所以要在闭包里暂存 initialMessages
       return async (message: Omit<Message, "role">) => {
         const messages: Message[] = [...initialMessages, { role: "assistant", ...message }];
         await prisma.userChat.update({
-          where: { id: chatId },
+          where: { id: scoutUserChatId },
           data: {
             messages: messages as unknown as InputJsonValue,
           },
         });
       };
-    })(chatId, messages);
+    })(scoutUserChatId, messages);
 
     await new Promise<Omit<Message, "role">>(async (resolve, reject) => {
       const message: Omit<Message, "role"> = {
@@ -135,16 +135,17 @@ async function scoutTaskChatStream({
           [ToolName.xhsSearch]: xhsSearchTool,
           [ToolName.xhsUserNotes]: xhsUserNotesTool,
           [ToolName.xhsNoteComments]: xhsNoteCommentsTool,
-          [ToolName.savePersona]: savePersonaTool({ scoutUserChatId: chatId, statReport }),
+          [ToolName.savePersona]: savePersonaTool({ scoutUserChatId, statReport }),
         },
         maxSteps: 15,
-        onChunk: (chunk) => console.log(`[${chatId}] ScoutTaskChat:`, JSON.stringify(chunk)),
+        onChunk: (chunk) =>
+          console.log(`[${scoutUserChatId}] ScoutTaskChat:`, JSON.stringify(chunk)),
         onFinish: async ({ steps }) => {
           const message = streamStepsToUIMessage(steps);
           resolve(message);
           await statReport("steps", steps.length, {
             reportedBy: "scoutTaskChat tool",
-            scoutUserChatId: chatId,
+            scoutUserChatId,
           });
         },
         onStepFinish: async (step) => {
@@ -155,7 +156,7 @@ async function scoutTaskChatStream({
           if (step.usage.totalTokens > 0) {
             await statReport("tokens", step.usage.totalTokens, {
               reportedBy: "scoutTaskChat tool",
-              scoutUserChatId: chatId,
+              scoutUserChatId,
             });
           }
         },
@@ -169,13 +170,13 @@ async function scoutTaskChatStream({
     });
 
     const personasResult = await prisma.persona.findMany({
-      where: { scoutUserChatId: chatId },
+      where: { scoutUserChatId },
       orderBy: { createdAt: "desc" },
     });
 
     if (personasResult.length < 5) {
       // 开始一轮新的搜索
-      messages = await prepareMessagesForLLM(chatId, "目前总结的personas还不够，请继续");
+      messages = await prepareMessagesForLLM(scoutUserChatId, "目前总结的personas还不够，请继续");
       continue;
     }
 

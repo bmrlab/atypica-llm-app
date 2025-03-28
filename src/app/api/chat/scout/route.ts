@@ -14,7 +14,7 @@ import { Message, streamText } from "ai";
 export async function POST(req: Request) {
   const payloadAwaited = await req.json();
   const messages = payloadAwaited["messages"] as Message[];
-  const chatId = parseInt(payloadAwaited["chatId"]);
+  const scoutUserChatId = parseInt(payloadAwaited["scoutUserChatId"]);
   const autoChat =
     typeof payloadAwaited["autoChat"] === "boolean" ? payloadAwaited["autoChat"] : false;
 
@@ -33,7 +33,7 @@ export async function POST(req: Request) {
       [ToolName.xhsSearch]: xhsSearchTool,
       [ToolName.xhsUserNotes]: xhsUserNotesTool,
       [ToolName.xhsNoteComments]: xhsNoteCommentsTool,
-      [ToolName.savePersona]: savePersonaTool({ scoutUserChatId: chatId }),
+      [ToolName.savePersona]: savePersonaTool({ scoutUserChatId }),
     },
     onError: async (error) => {
       console.log("Error occurred:", error);

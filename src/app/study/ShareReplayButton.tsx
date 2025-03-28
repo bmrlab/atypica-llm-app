@@ -17,7 +17,7 @@ import { useTranslations } from "next-intl";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
 
-export function ShareReplayButton({ studyChat }: { studyChat: StudyUserChat }) {
+export function ShareReplayButton({ studyUserChat }: { studyUserChat: StudyUserChat }) {
   const t = useTranslations("StudyPage.ShareReplayButton");
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -26,7 +26,7 @@ export function ShareReplayButton({ studyChat }: { studyChat: StudyUserChat }) {
     setIsLoading(true);
     setShareUrl(null);
     try {
-      const chatWithToken = await setUserChatToken(studyChat.id, "study");
+      const chatWithToken = await setUserChatToken(studyUserChat.id, "study");
       if (chatWithToken.token) {
         const url = `${window.location.origin}/study/${chatWithToken.token}/share?replay=1`;
         setShareUrl(url);
@@ -37,7 +37,7 @@ export function ShareReplayButton({ studyChat }: { studyChat: StudyUserChat }) {
     } finally {
       setIsLoading(false);
     }
-  }, [t, studyChat]);
+  }, [t, studyUserChat]);
   const handleCopyUrl = useCallback(() => {
     if (shareUrl) {
       navigator.clipboard.writeText(shareUrl);

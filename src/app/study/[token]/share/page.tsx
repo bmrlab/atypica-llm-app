@@ -12,8 +12,8 @@ export async function generateMetadata({
   if (!token) {
     return {};
   }
-  const userChat = await fetchUserChatByToken(token, "study");
-  return userChat.title ? { title: userChat.title } : {};
+  const studyUserChat = await fetchUserChatByToken(token, "study");
+  return studyUserChat.title ? { title: studyUserChat.title } : {};
 }
 
 export const dynamic = "force-dynamic";
@@ -33,6 +33,6 @@ export default async function StudyPage({
   if (replay !== "1") {
     redirect(`/study/${token}/share?replay=1`);
   }
-  const userChat = await fetchUserChatByToken(token, "study");
-  return <StudyPageClient studyChat={userChat} readOnly={true} replay={true} />;
+  const studyUserChat = await fetchUserChatByToken(token, "study");
+  return <StudyPageClient studyUserChat={studyUserChat} readOnly={true} replay={true} />;
 }

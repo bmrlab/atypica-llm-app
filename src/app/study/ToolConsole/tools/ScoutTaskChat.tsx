@@ -9,18 +9,18 @@ import { consoleStreamWaitTime, useProgressiveMessages } from "../../hooks/usePr
 import { StreamSteps } from "./StreamSteps";
 
 const ScoutTaskChat = ({ toolInvocation }: { toolInvocation: ToolInvocation }) => {
-  const chatId = toolInvocation.args.chatId as number;
+  const scoutUserChatId = toolInvocation.args.scoutUserChatId as number;
   const [messages, setMessages] = useState<Message[]>([]);
 
   const fetchUpdate = useCallback(async () => {
     try {
-      const updated = await fetchUserChatById(chatId, "scout");
+      const updated = await fetchUserChatById(scoutUserChatId, "scout");
       // 可能有异常的保存数据，取下来修复一下
       setMessages(fixChatMessages(updated.messages));
     } catch (error) {
-      console.log("Error fetching userChat:", error);
+      console.log("Error fetching scoutUserChat:", error);
     }
-  }, [chatId]);
+  }, [scoutUserChatId]);
 
   const { replay } = useStudyContext();
   const { partialMessages: messagesDisplay } = useProgressiveMessages({
@@ -54,7 +54,7 @@ const ScoutTaskChat = ({ toolInvocation }: { toolInvocation: ToolInvocation }) =
         <StreamSteps
           key={`message-${message.id}`}
           avatar={{
-            assistant: <HippyGhostAvatar seed={chatId} />,
+            assistant: <HippyGhostAvatar seed={scoutUserChatId} />,
           }}
           role={message.role}
           content={message.content}

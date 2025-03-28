@@ -34,7 +34,7 @@ const InterviewChat = ({ toolInvocation }: { toolInvocation: ToolInvocation }) =
         const analyst = await fetchAnalystById(analystId);
         setAnalyst(analyst);
       } catch (error) {
-        console.log("Error fetching userChat:", error);
+        console.log("Error fetching analyst:", error);
       }
     })();
   }, [analystId]);
@@ -124,7 +124,7 @@ const SingleInterviewChat = ({
       setInterviewId(interview.id);
       setConclusion(interview.conclusion);
     } catch (error) {
-      console.log("Error fetching userChat:", error);
+      console.log("Error fetching interview:", error);
     }
   }, [analyst.id, personaId]);
 

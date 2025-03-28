@@ -22,8 +22,14 @@ function popLastUserMessage(messages: Message[]) {
   }
 }
 
-export function ChatBox({ studyChat, readOnly }: { studyChat: StudyUserChat; readOnly: boolean }) {
-  const [chatId, setChatId] = useState<number>(studyChat.id);
+export function ChatBox({
+  studyUserChat,
+  readOnly,
+}: {
+  studyUserChat: StudyUserChat;
+  readOnly: boolean;
+}) {
+  const [studyUserChatId, setStudyUserChatId] = useState<number>(studyUserChat.id);
 
   const {
     messages,
@@ -37,11 +43,11 @@ export function ChatBox({ studyChat, readOnly }: { studyChat: StudyUserChat; rea
     reload,
     append,
   } = useChat({
-    // id: `userChat-${studyChat.id}`,  // 和 ToolConsole 不再使用 messages 通信，使用 context 通信
+    // id: `studyUserChat-${studyUserChat.id}`,  // 和 ToolConsole 不再使用 messages 通信，使用 context 通信
     maxSteps: 30,
     api: "/api/chat/study",
     body: {
-      chatId: chatId,
+      studyUserChatId,
     },
     // onFinish: async (message, { finishReason }) => {
     //   console.log(message, finishReason);
@@ -53,23 +59,23 @@ export function ChatBox({ studyChat, readOnly }: { studyChat: StudyUserChat; rea
 
   // 监听最新的 message
   useEffect(() => {
-    if (!chatId || messages.length < 2) return; // 有了 chatId 并且 AI 回复了再保存
+    if (!studyUserChatId || messages.length < 2) return; // 有了 studyUserChatId 并且 AI 回复了再保存
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
     timeoutRef.current = setTimeout(async () => {
-      // console.log("Saving chat...", chatId, messages);
-      await updateUserChat(chatId, fixChatMessages(messages));
+      // console.log("Saving chat...", studyUserChatId, messages);
+      await updateUserChat(studyUserChatId, fixChatMessages(messages));
       timeoutRef.current = null;
     }, 5000);
-  }, [chatId, messages]);
+  }, [studyUserChatId, messages]);
 
   // 监听对话切换
   useEffect(() => {
     useChatRef.current.stop();
-    setChatId(studyChat.id);
-    const { lastUserMessage } = popLastUserMessage(studyChat.messages);
-    useChatRef.current.setMessages(studyChat.messages);
+    setStudyUserChatId(studyUserChat.id);
+    const { lastUserMessage } = popLastUserMessage(studyUserChat.messages);
+    useChatRef.current.setMessages(studyUserChat.messages);
     if (lastUserMessage) {
       useChatRef.current.reload();
     }
@@ -83,29 +89,29 @@ export function ChatBox({ studyChat, readOnly }: { studyChat: StudyUserChat; rea
       console.log("Cleaning up timeoutRef.current");
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
-  }, [studyChat]);
+  }, [studyUserChat]);
 
   const handleSubmitMessage = useCallback(
     async (event: React.FormEvent<HTMLFormElement>) => {
-      // console.log("handleSubmitMessage", input, chatId); // 有时候第一次聊天会出现提交2条消息，这里打印debug下
+      // console.log("handleSubmitMessage", input, studyUserChatId); // 有时候第一次聊天会出现提交2条消息，这里打印debug下
       event.preventDefault();
       if (!input) return;
-      if (!chatId) {
-        const userChat = await createUserChat("study", {
+      if (!studyUserChatId) {
+        const studyUserChat = await createUserChat("study", {
           role: "user",
           content: input,
         });
-        setChatId(userChat.id);
+        setStudyUserChatId(studyUserChat.id);
         handleSubmit(event, {
-          body: { chatId: userChat.id },
+          body: { studyUserChatId: studyUserChat.id },
         });
       } else {
         handleSubmit(event, {
-          body: { chatId },
+          body: { studyUserChatId },
         });
       }
     },
-    [handleSubmit, chatId, input],
+    [handleSubmit, studyUserChatId, input],
   );
 
   // const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -121,7 +127,7 @@ export function ChatBox({ studyChat, readOnly }: { studyChat: StudyUserChat; rea
         {messages.map((message, index) => (
           <SingleMessage
             key={message.id}
-            avatar={{ assistant: <HippyGhostAvatar seed={studyChat.id} /> }}
+            avatar={{ assistant: <HippyGhostAvatar seed={studyUserChat.id} /> }}
             role={message.role}
             content={message.content}
             parts={message.parts}
@@ -129,7 +135,7 @@ export function ChatBox({ studyChat, readOnly }: { studyChat: StudyUserChat; rea
               message.role === "user" && index >= messages.length - 2
                 ? async () => {
                     const newMessages = await deleteMessageFromUserChat(
-                      studyChat.id,
+                      studyUserChat.id,
                       messages,
                       message.id,
                     );
@@ -151,11 +157,11 @@ export function ChatBox({ studyChat, readOnly }: { studyChat: StudyUserChat; rea
         <div ref={messagesEndRef} />
       </div>
 
-      {chatId && (
+      {studyUserChatId && (
         <div className="relative">
-          <StatusDisplay chatId={chatId} status={status} messages={messages} />
+          <StatusDisplay studyUserChatId={studyUserChatId} status={status} messages={messages} />
           <div className="absolute right-0 top-1/2 -translate-y-1/2">
-            <NerdStats studyUserChatId={chatId} />
+            <NerdStats studyUserChatId={studyUserChatId} />
           </div>
         </div>
       )}

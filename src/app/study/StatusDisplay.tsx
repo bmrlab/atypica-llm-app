@@ -2,7 +2,13 @@
 import { Message } from "ai";
 import { useTranslations } from "next-intl";
 
-export function StatusDisplay({ status }: { chatId: number; status: string; messages: Message[] }) {
+export function StatusDisplay({
+  status,
+}: {
+  studyUserChatId: number;
+  status: string;
+  messages: Message[];
+}) {
   const t = useTranslations("StudyPage.StatusDisplay");
   const getStatusMessage = (status: string) => {
     switch (status) {

@@ -14,9 +14,9 @@ export async function generateMetadata({
   if (!id) {
     return {};
   }
-  const chatId = parseInt(id);
-  const userChat = await fetchUserChatById(chatId, "study");
-  return userChat.title ? { title: userChat.title } : {};
+  const studyUserChatId = parseInt(id);
+  const studyUserChat = await fetchUserChatById(studyUserChatId, "study");
+  return studyUserChat.title ? { title: studyUserChat.title } : {};
 }
 
 export const dynamic = "force-dynamic";
@@ -30,16 +30,16 @@ export default async function StudyPage({
   if (!id) {
     redirect("/");
   }
-  const chatId = parseInt(id);
-  const userChat = await fetchUserChatById(chatId, "study");
+  const studyUserChatId = parseInt(id);
+  const studyUserChat = await fetchUserChatById(studyUserChatId, "study");
 
   const session = await getServerSession(authOptions);
   if (!session?.user) {
     redirect("/auth/signin?callbackUrl=/study");
   }
-  if (userChat.userId !== session.user.id) {
+  if (studyUserChat.userId !== session.user.id) {
     forbidden();
   }
 
-  return <StudyPageClient studyChat={userChat} readOnly={false} replay={false} />;
+  return <StudyPageClient studyUserChat={studyUserChat} readOnly={false} replay={false} />;
 }

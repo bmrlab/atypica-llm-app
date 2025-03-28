@@ -37,12 +37,12 @@ export function ScoutChatHistory({
     return () => clearInterval(interval);
   }, []);
 
-  const handleSelectChat = async (chatId: number | null) => {
-    if (!chatId) {
+  const handleSelectChat = async (scoutUserChatId: number | null) => {
+    if (!scoutUserChatId) {
       onSelectChat(null);
     } else {
-      const chat = await fetchUserChatById(chatId, "scout");
-      onSelectChat(chat);
+      const scoutUserChat = await fetchUserChatById(scoutUserChatId, "scout");
+      onSelectChat(scoutUserChat);
     }
     setOpen(false); // Close drawer when a chat is selected
   };
