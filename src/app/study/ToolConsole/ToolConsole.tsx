@@ -4,7 +4,7 @@ import { ToolInvocation } from "ai";
 import { LoaderIcon } from "lucide-react";
 import { useMemo } from "react";
 import { useStudyContext } from "../hooks/StudyContext";
-import AnalystReport from "./tools/AnalystReport";
+import GenerateReport from "./tools/GenerateReport";
 import InterviewChat from "./tools/InterviewChat";
 import ReasoningThinking from "./tools/ReasoningThinking";
 import ScoutTaskChat from "./tools/ScoutTaskChat";
@@ -48,13 +48,14 @@ export function ToolConsole() {
   switch (activeTool?.toolName) {
     case ToolName.scoutTaskChat:
       return <ScoutTaskChat toolInvocation={activeTool} />;
-    case ToolName.interview: // legacy tool name
+    case ToolName.interview: // @TODO[LEGACY] legacy tool name
     case ToolName.interviewChat:
       return <InterviewChat toolInvocation={activeTool} />;
     case ToolName.reasoningThinking:
       return <ReasoningThinking toolInvocation={activeTool} />;
-    case ToolName.analystReport:
-      return <AnalystReport toolInvocation={activeTool} />;
+    case ToolName.analystReport: // @TODO[LEGACY] legacy tool name
+    case ToolName.generateReport:
+      return <GenerateReport toolInvocation={activeTool} />;
     default:
       return activeTool ? <FallbackToolDisplay toolInvocation={activeTool} /> : null;
   }

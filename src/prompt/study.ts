@@ -17,7 +17,7 @@ export const studySystem = () => `
    - 通过多轮访谈收集多样视角
 
 3. 报告生成阶段
-   - 收集足够数据后先saveAnalystStudySummary，再用analystReport生成报告
+   - 收集足够数据后先saveAnalystStudySummary，再用generateReport生成报告
    - 报告生成后简单提示"报告生成完毕，请等待控制台渲染完成"
    - 无新结论时不需重复生成报告
 

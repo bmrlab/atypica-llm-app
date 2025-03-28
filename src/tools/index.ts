@@ -3,7 +3,7 @@ import { InputJsonValue } from "@prisma/client/runtime/library";
 import { requestInteractionTool } from "./experts/interaction";
 import { interviewChatTool } from "./experts/interview";
 import { reasoningThinkingTool } from "./experts/reasoning";
-import { analystReportTool } from "./experts/report";
+import { generateReportTool } from "./experts/report";
 import { scoutTaskChatTool, scoutTaskCreateTool } from "./experts/scouting";
 import { saveAnalystStudySummaryTool, saveAnalystTool } from "./system/saveAnalyst";
 import { saveInterviewConclusionTool } from "./system/saveInterviewConclusion";
@@ -13,9 +13,10 @@ import { xhsSearchTool } from "./xhs/search";
 import { xhsUserNotesTool } from "./xhs/userNotes";
 
 export enum ToolName {
-  analystReport = "analystReport", // legacy tool name
-  interview = "interview", // legacy tool name
+  analystReport = "analystReport", // @TODO[LEGACY] legacy tool name
+  interview = "interview", // @TODO[LEGACY] legacy tool name
   interviewChat = "interviewChat",
+  generateReport = "generateReport",
   reasoningThinking = "reasoningThinking",
   requestInteraction = "requestInteraction",
   saveAnalyst = "saveAnalyst",
@@ -30,7 +31,7 @@ export enum ToolName {
 }
 
 export {
-  analystReportTool,
+  generateReportTool,
   interviewChatTool,
   reasoningThinkingTool,
   requestInteractionTool,

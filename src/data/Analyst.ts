@@ -28,7 +28,7 @@ export async function fetchAnalysts({ take = 30 }: { take?: number } = {}) {
 }
 
 export async function fetchAnalystById(analystId: number): Promise<Analyst> {
-  // @AUTHTODO: 读取 Analyst 暂时不需要 user 有 Analyst 权限
+  // @TODO[AUTH]: 读取 Analyst 暂时不需要 user 有 Analyst 权限
   // return withAuth(async () => {
   try {
     // const userAnalyst = await prisma.userAnalyst.findUnique({
@@ -57,7 +57,7 @@ export async function createAnalyst({
         // Empty report for new analysts
         data: { role, topic, report: "", studySummary: "" },
       });
-      // @AUTHTODO: 创建 Analyst 依然需要 user 有 Analyst 权限
+      // @TODO[AUTH]: 创建 Analyst 依然需要 user 有 Analyst 权限
       await prisma.userAnalyst.create({
         data: {
           userId: user.id,
@@ -76,7 +76,7 @@ export async function updateAnalyst(
   analystId: number,
   { role, topic, report }: Partial<Pick<Analyst, "role" | "topic" | "report">>,
 ): Promise<Analyst> {
-  // @AUTHTODO: 读取 Analyst 暂时不需要 user 有 Analyst 权限
+  // @TODO[AUTH]: 读取 Analyst 暂时不需要 user 有 Analyst 权限
   // return withAuth(async () => {
   try {
     // const userAnalyst = await prisma.userAnalyst.findUnique({

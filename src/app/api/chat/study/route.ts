@@ -3,7 +3,7 @@ import openai from "@/lib/openai";
 import { fixChatMessages } from "@/lib/utils";
 import { studySystem } from "@/prompt";
 import {
-  analystReportTool,
+  generateReportTool,
   initStatReporter,
   interviewChatTool,
   reasoningThinkingTool,
@@ -41,14 +41,14 @@ export async function POST(req: Request) {
       openai: { stream_options: { include_usage: true } },
     },
     system: studySystem(),
-    messages: fixChatMessages(messages),
+    messages: fixChatMessages(messages), // 传给 LLM 的时候需要修复
     tools: {
       [ToolName.scoutTaskCreate]: scoutTaskCreateTool(userId),
       [ToolName.scoutTaskChat]: scoutTaskChatTool({ abortSignal, statReport }),
       [ToolName.saveAnalystStudySummary]: saveAnalystStudySummaryTool(),
       [ToolName.saveAnalyst]: saveAnalystTool(userId, studyUserChatId),
       [ToolName.interviewChat]: interviewChatTool({ abortSignal, statReport }),
-      [ToolName.analystReport]: analystReportTool,
+      [ToolName.generateReport]: generateReportTool({ abortSignal, statReport }),
       [ToolName.reasoningThinking]: reasoningThinkingTool({ abortSignal, statReport }),
       [ToolName.requestInteraction]: requestInteractionTool,
       // [ToolName.xhsSearch]: xhsSearchTool,

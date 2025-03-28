@@ -88,9 +88,30 @@ const ToolInvocationMessage = ({
               ))}
             </tbody>
           </table>
-          <div className="ml-1 mt-2 mb-1 text-primary">&gt;_ result</div>
+          <div className="ml-1 mt-2 mb-1 text-primary w-full">&gt;_ result</div>
           {toolInvocation.state === "result" ? (
-            <div className="text-xs whitespace-pre-wrap p-1">{toolInvocation.result.plainText}</div>
+            // <div className="text-xs whitespace-pre-wrap p-1">{toolInvocation.result.plainText}</div>
+            <table className="text-left">
+              <tbody>
+                {Object.entries(toolInvocation.result).map(([key, value]) => (
+                  <tr key={key}>
+                    <td className="p-1 align-top">{key}:</td>
+                    {key === "plainText" ? (
+                      <td className="p-1 whitespace-pre-wrap">
+                        {/* 随便设置个最大宽度，因为 table 是撑满的，最终还是撑满，但是不会超出 */}
+                        {value?.toString()}
+                      </td>
+                    ) : (
+                      <td className="p-1 whitespace-pre-wrap">
+                        {typeof value === "object"
+                          ? JSON.stringify(value, null, 2)
+                          : value?.toString()}
+                      </td>
+                    )}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           ) : (
             <div className="p-1">
               <LoaderIcon className="animate-spin" size={16} />

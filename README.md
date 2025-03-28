@@ -68,7 +68,7 @@ atypica.LLM 是一个面向主观世界建模的用户研究平台，通过大�
 - **reasoningThinking**：深度思考分析工具
 - **interview**：自动化访谈管理
 - **scoutTaskChat**：用户发现与画像构建
-- **analystReport**：报告生成与渲染
+- **generateReport**：报告生成与渲染
 
 #### 3. 实时协作界面
 

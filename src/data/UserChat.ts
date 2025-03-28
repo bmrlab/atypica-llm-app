@@ -128,7 +128,7 @@ export async function fetchUserChatById<Tkind extends UserChat["kind"]>(
     kind: Tkind;
   }
 > {
-  // @AUTHTODO: 现在读取 UserChat 没有判断权限
+  // @TODO[AUTH]: 现在读取 UserChat 没有判断权限
   // return withAuth(async () => {
   try {
     const userChat = await prisma.userChat.findUnique({

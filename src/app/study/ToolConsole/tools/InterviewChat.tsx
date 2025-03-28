@@ -9,7 +9,6 @@ import {
   fetchPersonaById,
   Persona,
 } from "@/data";
-import { fixChatMessages } from "@/lib/utils";
 import { ToolName } from "@/tools";
 import { Message, ToolInvocation } from "ai";
 import { useTranslations } from "next-intl";
@@ -117,8 +116,7 @@ const SingleInterviewChat = ({
         await fetchInterviewByAnalystAndPersona({ analystId: analyst.id, personaId }),
         await fetchPersonaById(personaId),
       ]);
-      // 可能有异常的保存数据，取下来修复一下
-      setMessages(fixChatMessages(interview.messages));
+      setMessages(interview.messages);
       setPersona(persona);
       setInterviewToken(interview.interviewToken);
       setInterviewId(interview.id);

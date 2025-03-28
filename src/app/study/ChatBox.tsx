@@ -65,6 +65,7 @@ export function ChatBox({
     }
     timeoutRef.current = setTimeout(async () => {
       // console.log("Saving chat...", studyUserChatId, messages);
+      // 保存之前先 fix 一下，清除异常的数据
       await updateUserChat(studyUserChatId, fixChatMessages(messages));
       timeoutRef.current = null;
     }, 5000);

@@ -69,12 +69,13 @@ model Analyst {
 }
 
 model AnalystReport {
-  id          Int     @id @default(autoincrement())
-  token       String  @unique @db.VarChar(64)
-  analystId   Int     @db.Int
-  analyst     Analyst @relation(fields: [analystId], references: [id])
-  coverSvg    String  @db.Text
-  onePageHtml String  @db.Text
+  id          Int       @id @default(autoincrement())
+  token       String    @unique @db.VarChar(64)
+  analystId   Int       @db.Int
+  analyst     Analyst   @relation(fields: [analystId], references: [id])
+  coverSvg    String    @db.Text
+  onePageHtml String    @db.Text
+  generatedAt DateTime?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

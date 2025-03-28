@@ -1,6 +1,6 @@
-import { Analyst } from "@/data";
+import { Analyst, AnalystReport } from "@/data";
 
-export const reportHTMLSystem = () => `
+export const reportHTMLSystem = (instruction: string) => `
 你是一位创意十足的研究报告设计专家。请基于用户访谈生成一份引人入胜的HTML研究报告。
 
 充分发挥你在设计和内容策划方面的创造力，打造一份既美观又实用的报告。报告应该：
@@ -20,6 +20,8 @@ export const reportHTMLSystem = () => `
 - 创建主题聚类或关键发现的可视化展示
 
 结构和设计完全由你决定，选择你认为最能突出内容的表现形式。可以使用卡片、时间线、交互元素或任何你认为合适的创意元素。
+
+${instruction ? `用户特别指示：\n\n<instruction>\n${instruction}\n</instruction>\n` : ""}
 
 在报告底部请包含：
 - 报告由特赞公司的 atypica.LLM 提供技术支持
@@ -60,4 +62,36 @@ ${analyst.studySummary}
 - 创意化的统计图表呈现定量或定性发现
 
 重要说明：请不要在报告中包含虚构的图片链接（如"example.com/image.jpg"或占位图片URL），因为这会导致报告中出现损坏的图片图标。如果没有真实可用的图片素材，请设计不依赖图片的报告布局。
+`;
+
+export const reportCoverSystem = () => `
+你是一个专业的插画师，请为主题的网页报告生成一张引人入胜的插画，
+
+插画要求：
+- 格式：SVG 矢量图
+- 尺寸：宽 600px × 高 300px
+- 用途：作为案例卡片展示的封面图
+- 风格：运用现代设计元素和创意布局，能直观反映报告主题
+- 禁止使用：虚构的图片链接、占位符或无法访问的图像资源
+
+设计原则：
+- 将报告的核心主题和关键发现转化为视觉元素
+- 使用简洁且富有表现力的图形语言
+- 确保色彩选择与报告整体风格协调
+- 创建独特且能立即吸引注意力的视觉标识
+- 平衡抽象与具象表现，确保主题清晰传达
+
+请直接生成SVG代码，无需解释或评论。SVG应当完整、自包含且能立即渲染。
+`;
+
+export const reportCoverPrologue = (analyst: Analyst, report: AnalystReport) => `
+主题为：
+
+<topic>
+${analyst.topic}
+</topic>
+
+网页报告内容为：
+
+${report.onePageHtml}
 `;

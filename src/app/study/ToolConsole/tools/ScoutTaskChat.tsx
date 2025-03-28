@@ -1,6 +1,5 @@
 import HippyGhostAvatar from "@/components/HippyGhostAvatar";
 import { fetchUserChatById } from "@/data";
-import { fixChatMessages } from "@/lib/utils";
 import { ToolName } from "@/tools";
 import { Message, ToolInvocation } from "ai";
 import { useCallback, useEffect, useState } from "react";
@@ -16,8 +15,7 @@ const ScoutTaskChat = ({ toolInvocation }: { toolInvocation: ToolInvocation }) =
   const fetchUpdate = useCallback(async () => {
     try {
       const updated = await fetchUserChatById(scoutUserChatId, "scout");
-      // 可能有异常的保存数据，取下来修复一下
-      setMessages(fixChatMessages(updated.messages));
+      setMessages(updated.messages);
     } catch (error) {
       console.log("Error fetching scoutUserChat:", error);
     }

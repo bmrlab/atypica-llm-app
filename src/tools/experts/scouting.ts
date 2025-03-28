@@ -129,7 +129,7 @@ async function scoutTaskChatStream({
         system: scoutSystem({
           doNotStopUntilScouted: false, // 不需要，下面自己会处理 continue
         }),
-        messages: fixChatMessages(messages as unknown as Message[]),
+        messages: fixChatMessages(messages as unknown as Message[]), // 传给 LLM 的时候需要修复
         tools: {
           [ToolName.reasoningThinking]: reasoningThinkingTool({ abortSignal, statReport }),
           [ToolName.xhsSearch]: xhsSearchTool,
