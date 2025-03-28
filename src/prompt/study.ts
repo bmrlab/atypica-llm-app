@@ -18,7 +18,6 @@ export const studySystem = () => `
 
 3. 报告生成阶段
    - 收集足够数据后先saveAnalystStudySummary，再用generateReport生成报告
-   - 报告生成后简单提示"报告生成完毕，请等待控制台渲染完成"
    - 无新结论时不需重复生成报告
 
 访谈原则：优先理解用户的背景和上下文，通过开放问题帮助用户自由表达，拓展思考空间。
