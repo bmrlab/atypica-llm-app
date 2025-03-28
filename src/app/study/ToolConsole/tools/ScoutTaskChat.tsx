@@ -9,7 +9,8 @@ import { consoleStreamWaitTime, useProgressiveMessages } from "../../hooks/usePr
 import { StreamSteps } from "./StreamSteps";
 
 const ScoutTaskChat = ({ toolInvocation }: { toolInvocation: ToolInvocation }) => {
-  const scoutUserChatId = toolInvocation.args.scoutUserChatId as number;
+  const scoutUserChatId = (toolInvocation.args.scoutUserChatId ||
+    toolInvocation.args.chatId) as number; // 需要兼容老的 tool 参数: chatId
   const [messages, setMessages] = useState<Message[]>([]);
 
   const fetchUpdate = useCallback(async () => {
