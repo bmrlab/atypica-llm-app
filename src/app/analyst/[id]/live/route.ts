@@ -6,7 +6,7 @@ import { reportHTMLPrologue, reportHTMLSystem } from "@/prompt";
 import { initStatReporter } from "@/tools";
 import { streamText } from "ai";
 import { getServerSession } from "next-auth";
-import { forbidden, redirect } from "next/navigation";
+import { forbidden } from "next/navigation";
 
 const listenScript = (redirect: string) => `
 <script>
@@ -43,7 +43,13 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
   // live route 需要登录，并需要权限
   const session = await getServerSession(authOptions);
   if (!session?.user) {
-    redirect(`/auth/signin?callbackUrl=/analyst/${analystId}/live`);
+    // redirect(`/auth/signin?callbackUrl=/analyst/${analystId}/live`);
+    return new Response(null, {
+      status: 307,
+      headers: {
+        Location: `/auth/signin?callbackUrl=/analyst/${analystId}/live`,
+      },
+    });
   }
   const userAnalyst = await prisma.userAnalyst.findUnique({
     where: { userId_analystId: { userId: session.user.id, analystId } },
@@ -68,7 +74,13 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
   const publicReportUrl = await encryptAnalystReportUrl(analystId);
 
   if (analyst.report && !regenerate) {
-    redirect(publicReportUrl);
+    // redirect(publicReportUrl);
+    return new Response(null, {
+      status: 308,
+      headers: {
+        Location: publicReportUrl,
+      },
+    });
   }
 
   const streamStartTime = Date.now();

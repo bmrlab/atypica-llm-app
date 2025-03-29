@@ -1,6 +1,6 @@
 import { encryptAnalystReportUrl } from "@/app/analyst/report/encrypt";
 import { prisma } from "@/lib/prisma";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const analystId = parseInt((await params).id);
@@ -19,5 +19,11 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   }
 
   const publicReportUrl = await encryptAnalystReportUrl(analystId);
-  redirect(publicReportUrl);
+  // redirect(publicReportUrl);
+  return new Response(null, {
+    status: 308,
+    headers: {
+      Location: publicReportUrl,
+    },
+  });
 }
