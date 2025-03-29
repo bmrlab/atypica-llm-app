@@ -71,17 +71,17 @@ async function xhsNoteComments({ noteid }: { noteid: string }) {
         return result;
       } else {
         console.log("Failed to fetch XHS note comments, retrying...", i + 1);
+        await new Promise((resolve) => setTimeout(resolve, 3000));
         continue;
       }
     }
-    return {
-      notes: [],
-      plainText: "Failed to fetch XHS note comments after 3 attempts",
-    };
   } catch (error) {
     console.log("Error fetching XHS note comments:", error);
-    throw error;
   }
+  return {
+    notes: [],
+    plainText: "Failed to fetch XHS note comments after 3 attempts",
+  };
 }
 
 export const xhsNoteCommentsTool = tool({

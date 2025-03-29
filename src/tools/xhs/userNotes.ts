@@ -77,22 +77,33 @@ function parseXHSUserNotes(data: {
 
 async function xhsUserNotes({ userid }: { userid: string }) {
   try {
-    const params = {
-      token: process.env.XHS_API_TOKEN!,
-      userId: userid,
-    };
-    const queryString = new URLSearchParams(params).toString();
-    const response = await fetch(
-      `${process.env.XHS_API_BASE_URL}/get-user-note-list/v1?${queryString}`,
-    );
-    const data = await response.json();
-    console.log("Response text:", JSON.stringify(data).slice(0, 100));
-    const result = parseXHSUserNotes(data);
-    return result;
+    for (let i = 0; i < 3; i++) {
+      const params = {
+        token: process.env.XHS_API_TOKEN!,
+        userId: userid,
+      };
+      const queryString = new URLSearchParams(params).toString();
+      const response = await fetch(
+        `${process.env.XHS_API_BASE_URL}/get-user-note-list/v1?${queryString}`,
+      );
+      const data = await response.json();
+      console.log("Response text:", JSON.stringify(data).slice(0, 100));
+      if (data.code === 0) {
+        const result = parseXHSUserNotes(data);
+        return result;
+      } else {
+        console.log("Failed to fetch XHS user notes, retrying...", i + 1);
+        await new Promise((resolve) => setTimeout(resolve, 3000));
+        continue;
+      }
+    }
   } catch (error) {
     console.log("Error fetching XHS user posts:", error);
-    throw error;
   }
+  return {
+    notes: [],
+    plainText: "Failed to fetch XHS user notes after 3 retries",
+  };
 }
 
 export const xhsUserNotesTool = tool({

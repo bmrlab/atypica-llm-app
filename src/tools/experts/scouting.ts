@@ -70,15 +70,20 @@ export const scoutTaskChatTool = ({
       return [{ type: "text", text: result.plainText }];
     },
     execute: async ({ scoutUserChatId, description }) => {
-      const messages = await prepareMessagesForLLM(scoutUserChatId, description);
+      const messages = await prepareMessagesForLLM(scoutUserChatId);
+      if (messages.length) {
+        messages.push({ id: generateId(), role: "user", content: "继续" });
+      } else {
+        messages.push({ id: generateId(), role: "user", content: description });
+      }
       return await scoutTaskChatStream({ scoutUserChatId, messages, abortSignal, statReport });
     },
   });
 
 /**
- * 从数据库读取历史消息，并追加一条最新的用户消息
+ * 从数据库读取历史消息并修复一下
  */
-async function prepareMessagesForLLM(scoutUserChatId: number, content: string) {
+async function prepareMessagesForLLM(scoutUserChatId: number) {
   const scoutUserChat = await prisma.userChat.findUniqueOrThrow({
     where: { id: scoutUserChatId, kind: "scout" },
   });
@@ -86,7 +91,6 @@ async function prepareMessagesForLLM(scoutUserChatId: number, content: string) {
   if (messages.length > 1 && messages[messages.length - 1].role === "user") {
     messages = messages.slice(0, -1);
   }
-  messages.push({ id: generateId(), role: "user", content });
   return messages;
 }
 
@@ -178,7 +182,12 @@ async function scoutTaskChatStream({
 
     if (personasResult.length < 5) {
       // 开始一轮新的搜索
-      messages = await prepareMessagesForLLM(scoutUserChatId, "目前总结的personas还不够，请继续");
+      messages = await prepareMessagesForLLM(scoutUserChatId);
+      messages.push({
+        id: generateId(),
+        role: "user",
+        content: "目前总结的personas还不够，请继续",
+      });
       continue;
     }
 

@@ -10,7 +10,7 @@ import Link from "next/link";
 import { FC } from "react";
 // import { ImageCarousel } from "./ImageCarousel";
 
-export const XHSSearchResultMessage: FC<{ result: XHSSearchResult }> = ({ result: { notes } }) => {
+export const XHSSearchResultMessage: FC<{ result: XHSSearchResult }> = ({ result }) => {
   return (
     <div
       className={cn(
@@ -19,7 +19,7 @@ export const XHSSearchResultMessage: FC<{ result: XHSSearchResult }> = ({ result
       )}
     >
       {/* 只挑选 5 条展示 */}
-      {notes.slice(0, 5).map((note) => (
+      {(result.notes ?? []).slice(0, 5).map((note) => (
         <div key={note.id} className="flex flex-col items-center w-[120px]">
           {/* <ImageCarousel images={note.images_list} /> */}
           <div className="relative w-[120px] h-[120px] rounded-lg overflow-hidden">
@@ -55,9 +55,7 @@ export const XHSSearchResultMessage: FC<{ result: XHSSearchResult }> = ({ result
   );
 };
 
-export const XHSUserNotesResultMessage: FC<{ result: XHSUserNotesResult }> = ({
-  result: { notes },
-}) => {
+export const XHSUserNotesResultMessage: FC<{ result: XHSUserNotesResult }> = ({ result }) => {
   return (
     <div
       className={cn(
@@ -66,7 +64,7 @@ export const XHSUserNotesResultMessage: FC<{ result: XHSUserNotesResult }> = ({
       )}
     >
       {/* 只挑选 5 条展示 */}
-      {notes.slice(0, 5).map((note) => (
+      {(result.notes ?? []).slice(0, 5).map((note) => (
         <div key={note.id} className="flex flex-col items-center w-[120px]">
           {/* <ImageCarousel images={note.images_list} /> */}
           <div className="relative w-[120px] h-[120px] rounded-lg overflow-hidden">
@@ -102,11 +100,11 @@ export const XHSUserNotesResultMessage: FC<{ result: XHSUserNotesResult }> = ({
 
 export const XHSNoteCommentsResultMessage: FC<{
   result: XHSNoteCommentsResult;
-}> = ({ result: { comments } }) => {
+}> = ({ result }) => {
   return (
     <div className="p-3 bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-md">
       {/* 只挑选 10 条展示 */}
-      {comments.slice(0, 10).map((comment) => (
+      {(result.comments ?? []).slice(0, 10).map((comment) => (
         <div key={comment.id} className="flex items-start justify-start gap-3 mb-2">
           <div className="relative mt-2 w-6 h-6 rounded-full overflow-hidden">
             <Image

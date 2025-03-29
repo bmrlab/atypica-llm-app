@@ -100,17 +100,17 @@ async function xhsSearch({ keyword }: { keyword: string }) {
         return result;
       } else {
         console.log("Failed to fetch XHS feed, retrying...", i + 1);
+        await new Promise((resolve) => setTimeout(resolve, 3000));
         continue;
       }
     }
-    return {
-      notes: [],
-      plainText: "Failed to fetch XHS feed after 3 retries",
-    };
   } catch (error) {
     console.log("Error fetching XHS feed:", error);
-    throw error;
   }
+  return {
+    notes: [],
+    plainText: "Failed to fetch XHS feed after 3 retries",
+  };
 }
 
 export const xhsSearchTool = tool({
