@@ -3,7 +3,7 @@ import HippyGhostAvatar from "@/components/HippyGhostAvatar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useScrollToBottom } from "@/components/use-scroll-to-bottom";
-import { createUserChat, deleteMessageFromUserChat, StudyUserChat, updateUserChat } from "@/data";
+import { deleteMessageFromUserChat, StudyUserChat, updateUserChat } from "@/data";
 import { cn, fixChatMessages } from "@/lib/utils";
 import { Message, useChat } from "@ai-sdk/react";
 import { ArrowRightIcon } from "lucide-react";
@@ -42,6 +42,7 @@ export function ChatBox({
     stop,
     reload,
     append,
+    addToolResult,
   } = useChat({
     // id: `studyUserChat-${studyUserChat.id}`,  // 和 ToolConsole 不再使用 messages 通信，使用 context 通信
     maxSteps: 30,
@@ -57,9 +58,9 @@ export function ChatBox({
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const useChatRef = useRef({ reload, append, stop, setMessages });
 
-  // 监听最新的 message
+  // 监听最新的 messages 并保存，使用 rebounce, 5s 没任何更新则保存
   useEffect(() => {
-    if (!studyUserChatId || messages.length < 2) return; // 有了 studyUserChatId 并且 AI 回复了再保存
+    if (messages.length < 2) return; // 有了 studyUserChatId 并且 AI 回复了再保存
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
@@ -96,21 +97,9 @@ export function ChatBox({
     async (event: React.FormEvent<HTMLFormElement>) => {
       // console.log("handleSubmitMessage", input, studyUserChatId); // 有时候第一次聊天会出现提交2条消息，这里打印debug下
       event.preventDefault();
-      if (!input) return;
-      if (!studyUserChatId) {
-        const studyUserChat = await createUserChat("study", {
-          role: "user",
-          content: input,
-        });
-        setStudyUserChatId(studyUserChat.id);
-        handleSubmit(event, {
-          body: { studyUserChatId: studyUserChat.id },
-        });
-      } else {
-        handleSubmit(event, {
-          body: { studyUserChatId },
-        });
-      }
+      handleSubmit(event, {
+        body: { studyUserChatId },
+      });
     },
     [handleSubmit, studyUserChatId, input],
   );
@@ -128,10 +117,9 @@ export function ChatBox({
         {messages.map((message, index) => (
           <SingleMessage
             key={message.id}
+            message={message}
+            addToolResult={addToolResult}
             avatar={{ assistant: <HippyGhostAvatar seed={studyUserChat.id} /> }}
-            role={message.role}
-            content={message.content}
-            parts={message.parts}
             onDelete={
               message.role === "user" && index >= messages.length - 2
                 ? async () => {
@@ -144,9 +132,6 @@ export function ChatBox({
                   }
                 : undefined
             }
-            onUserReply={(content) => {
-              useChatRef.current.append({ role: "user", content });
-            }}
             isLastMessage={index === messages.length - 1}
           ></SingleMessage>
         ))}

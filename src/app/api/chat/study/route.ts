@@ -41,7 +41,7 @@ export async function POST(req: Request) {
       openai: { stream_options: { include_usage: true } },
     },
     system: studySystem(),
-    messages: fixChatMessages(messages), // 传给 LLM 的时候需要修复
+    messages: fixChatMessages(messages, { removePendingTool: true }), // 传给 LLM 的时候需要修复
     tools: {
       [ToolName.scoutTaskCreate]: scoutTaskCreateTool(userId),
       [ToolName.scoutTaskChat]: scoutTaskChatTool({ studyUserChatId, abortSignal, statReport }),

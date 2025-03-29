@@ -1,24 +1,32 @@
 "use client";
 import { Markdown } from "@/components/markdown";
 import ToolArgsTable from "@/components/ToolArgsTable";
+import ToolResultTable from "@/components/ToolResultTable";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
 import { ToolName } from "@/tools";
-import { Message as MessageType, ToolInvocation } from "ai";
+import { PlainTextToolResult } from "@/tools/utils";
+import { Message, Message as MessageType, ToolInvocation } from "ai";
 import { motion } from "framer-motion";
 import { BotIcon, ChevronRight, EyeIcon, LoaderIcon, XIcon } from "lucide-react";
 import { PropsWithChildren, ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { useStudyContext } from "./hooks/StudyContext";
 import { GenerateReportResultMessage } from "./tools/message/GenerateReportResultMessage";
-import { RequestIteractionResultMessage } from "./tools/message/RequestIteractionResultMessage";
+import { RequestIteractionMessage } from "./tools/message/RequestIteractionMessage";
 
 const ToolInvocationMessage = ({
   toolInvocation,
-  onUserReply,
+  addToolResult,
   isLastToolPart,
 }: {
   toolInvocation: ToolInvocation;
-  onUserReply?: (content: string) => void;
+  addToolResult: ({
+    toolCallId,
+    result,
+  }: {
+    toolCallId: string;
+    result: PlainTextToolResult;
+  }) => void;
   isLastToolPart?: boolean;
 }) => {
   const [open, setOpen] = useState(false);
@@ -38,6 +46,20 @@ const ToolInvocationMessage = ({
       setOpen(false);
     }
   }, [isLastToolPart]);
+
+  const renderToolCallUI = useCallback((toolInvocation: ToolInvocation) => {
+    // 特殊显示的工具调用 UI
+    const { toolName, state } = toolInvocation;
+    if (toolName == ToolName.requestInteraction) {
+      return (
+        <RequestIteractionMessage toolInvocation={toolInvocation} addToolResult={addToolResult} />
+      );
+    }
+    if (state === "result" && toolName == ToolName.generateReport) {
+      return <GenerateReportResultMessage result={toolInvocation.result} />;
+    }
+    return null;
+  }, []);
 
   return (
     <div>
@@ -70,20 +92,7 @@ const ToolInvocationMessage = ({
           <div className="ml-1 mt-2 mb-1 text-primary w-full">&gt;_ result</div>
           {toolInvocation.state === "result" ? (
             <>
-              <table className="text-left">
-                <tbody>
-                  {Object.entries(toolInvocation.result)
-                    .filter(([key]) => key !== "plainText")
-                    .map(([key, value]) => (
-                      <tr key={key}>
-                        <td className="p-1 align-top">{key}:</td>
-                        <td className="p-1 whitespace-pre-wrap">
-                          {typeof value === "object" ? JSON.stringify(value) : value?.toString()}
-                        </td>
-                      </tr>
-                    ))}
-                </tbody>
-              </table>
+              <ToolResultTable toolInvocation={toolInvocation} />
               <div className="ml-1 mt-2 mb-1 text-primary w-full">&gt;_ message</div>
               <div className="text-xs whitespace-pre-wrap p-1">
                 {toolInvocation.result.plainText}
@@ -96,24 +105,7 @@ const ToolInvocationMessage = ({
           )}
         </CollapsibleContent>
       </Collapsible>
-      {toolInvocation.state === "result" &&
-        (() => {
-          switch (toolInvocation.toolName) {
-            case ToolName.requestInteraction:
-              return (
-                <RequestIteractionResultMessage
-                  result={toolInvocation.result}
-                  onSelectAnswer={(content) => {
-                    if (onUserReply) onUserReply(content);
-                  }}
-                />
-              );
-            case ToolName.generateReport:
-              return <GenerateReportResultMessage result={toolInvocation.result} />;
-            default:
-              return null;
-          }
-        })()}
+      <div className="my-4">{renderToolCallUI(toolInvocation)}</div>
     </div>
   );
 };
@@ -127,22 +119,27 @@ const PlainText = ({ children }: PropsWithChildren) => {
 };
 
 export const SingleMessage = ({
+  message: { role, content, parts },
+  addToolResult,
   avatar,
   nickname,
-  role,
-  content,
-  parts,
   onDelete,
-  onUserReply,
   isLastMessage,
 }: {
+  // role: "assistant" | "user" | "system" | "data";
+  // content: string | ReactNode;
+  // parts?: MessageType["parts"];
+  message: Message;
+  addToolResult: ({
+    toolCallId,
+    result,
+  }: {
+    toolCallId: string;
+    result: PlainTextToolResult;
+  }) => void;
   avatar?: Partial<{ user: ReactNode; assistant: ReactNode; system: ReactNode }>;
   nickname?: string;
-  role: "assistant" | "user" | "system" | "data";
-  content: string | ReactNode;
-  parts?: MessageType["parts"];
   onDelete?: () => void;
-  onUserReply?: (content: string) => void;
   isLastMessage?: boolean;
 }) => {
   const renderUserMessage = useCallback(() => {
@@ -184,7 +181,6 @@ export const SingleMessage = ({
 
   const renderParts = (parts: NonNullable<MessageType["parts"]>) => {
     const lastToolPartIndex = parts.findLastIndex((part) => part.type === "tool-invocation");
-
     return (
       <div className="flex flex-col gap-4">
         {parts.map((part, i) => {
@@ -201,7 +197,7 @@ export const SingleMessage = ({
                   key={i}
                   toolInvocation={part.toolInvocation}
                   isLastToolPart={isLastMessage && i === lastToolPartIndex}
-                  onUserReply={onUserReply}
+                  addToolResult={addToolResult}
                 />
               );
             default:
@@ -214,22 +210,24 @@ export const SingleMessage = ({
 
   if (role === "user") {
     return renderUserMessage();
+  } else if (role === "assistant") {
+    return (
+      <motion.div
+        className={cn("flex flex-row gap-2 w-full")}
+        initial={{ y: 15, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.4, ease: "easeOut" }}
+      >
+        {avatar?.assistant || <BotIcon className="size-6" />}
+        <div className="flex flex-col gap-6 flex-1 overflow-hidden">
+          {nickname && (
+            <div className="leading-[24px] text-zinc-800 text-sm font-medium">{nickname}</div>
+          )}
+          {parts ? renderParts(parts) : <PlainText>{content}</PlainText>}
+        </div>
+      </motion.div>
+    );
+  } else {
+    return null;
   }
-
-  return (
-    <motion.div
-      className={cn("flex flex-row gap-2 w-full")}
-      initial={{ y: 15, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.4, ease: "easeOut" }}
-    >
-      {avatar?.assistant || <BotIcon className="size-6" />}
-      <div className="flex flex-col gap-6 flex-1 overflow-hidden">
-        {nickname && (
-          <div className="leading-[24px] text-zinc-800 text-sm font-medium">{nickname}</div>
-        )}
-        {parts ? renderParts(parts) : <PlainText>{content}</PlainText>}
-      </div>
-    </motion.div>
-  );
 };

@@ -101,6 +101,7 @@ export async function fetchUserChats<Tkind extends UserChat["kind"]>(
           userId: true,
           title: true,
           kind: true,
+          backgroundToken: true,
           createdAt: true,
           updatedAt: true,
           messages: false,
@@ -120,17 +121,34 @@ export async function fetchUserChats<Tkind extends UserChat["kind"]>(
   });
 }
 
-export async function fetchUserChatById<Tkind extends UserChat["kind"]>(
+export async function checkUserChatBackgroundRunning<Tkind extends UserChat["kind"]>(
   userChatId: number,
   kind: Tkind,
-): Promise<
-  Omit<UserChat, "kind"> & {
-    kind: Tkind;
-  }
-> {
+): Promise<boolean> {
   // @TODO[AUTH]: 现在读取 UserChat 没有判断权限
   // return withAuth(async () => {
   try {
+    // Make sure all fields in UserChat are set to true or false in select
+    const userChat = await prisma.userChat.findUnique({
+      where: { id: userChatId, kind },
+    });
+    if (!userChat) notFound();
+    return !!userChat.backgroundToken;
+  } catch (error) {
+    console.log("Error fetching user chat:", error);
+    throw error;
+  }
+  // });
+}
+
+export async function fetchUserChatById<Tkind extends UserChat["kind"]>(
+  userChatId: number,
+  kind: Tkind,
+): Promise<Omit<UserChat, "kind"> & { kind: Tkind }> {
+  // @TODO[AUTH]: 现在读取 UserChat 没有判断权限
+  // return withAuth(async () => {
+  try {
+    // Make sure all fields in UserChat are set to true or false in select
     const userChat = await prisma.userChat.findUnique({
       where: { id: userChatId, kind },
     });
@@ -141,7 +159,7 @@ export async function fetchUserChatById<Tkind extends UserChat["kind"]>(
       messages: userChat.messages as unknown as Message[],
     };
   } catch (error) {
-    console.log("Error fetching user scout chat:", error);
+    console.log("Error fetching user chat:", error);
     throw error;
   }
   // });
@@ -166,7 +184,7 @@ export async function fetchUserChatByToken<Tkind extends UserChat["kind"]>(
       messages: userChat.messages as unknown as Message[],
     };
   } catch (error) {
-    console.log("Error fetching user scout chat:", error);
+    console.log("Error fetching user chat:", error);
     throw error;
   }
 }

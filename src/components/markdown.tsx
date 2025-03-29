@@ -27,7 +27,7 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
     },
     ol: ({ node, children, ...props }: any) => {
       return (
-        <ol className="list-decimal ml-4" {...props}>
+        <ol className="list-decimal ml-7" {...props}>
           {children}
         </ol>
       );

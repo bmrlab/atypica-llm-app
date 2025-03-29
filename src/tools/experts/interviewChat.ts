@@ -239,7 +239,7 @@ async function saveMessages({
   }
 }
 
-async function backgroundRunInterview({
+async function runInterview({
   analyst,
   persona,
   analystInterviewId,
@@ -271,7 +271,7 @@ async function backgroundRunInterview({
         abortSignal,
         statReport,
       });
-      console.log(`\n[${analystInterviewId}] Persona:\n${message.content}\n`);
+      // console.log(`\n[${analystInterviewId}] Persona:\n${message.content}\n`);
       personaAgent.messages.push({ ...message, role: "assistant" });
       interviewer.messages.push({ ...message, role: "user" });
     } catch (error) {
@@ -295,7 +295,7 @@ async function backgroundRunInterview({
         abortSignal,
         statReport,
       });
-      console.log(`\n[${analystInterviewId}] Interviewer:\n${message.content}\n`);
+      // console.log(`\n[${analystInterviewId}] Interviewer:\n${message.content}\n`);
       interviewer.messages.push({ ...message, role: "assistant" });
       personaAgent.messages.push({ ...message, role: "user" });
       if (message.content.includes("本次访谈结束，谢谢您的参与！")) {
@@ -313,17 +313,6 @@ async function backgroundRunInterview({
     });
 
     if (interviewer.terminated) {
-      try {
-        await prisma.analystInterview.update({
-          where: { id: analystInterviewId, interviewToken },
-          data: { interviewToken: null },
-        });
-      } catch (error) {
-        console.log(
-          `Error clearing interview token with interview id ${analystInterviewId} and token ${interviewToken}`,
-          error,
-        );
-      }
       break;
     }
   }
@@ -377,16 +366,33 @@ async function startInterview({
     };
     tick();
 
-    await backgroundRunInterview({
-      analyst,
-      persona,
-      analystInterviewId,
-      interviewToken,
-      abortSignal,
-      statReport,
-    });
+    try {
+      await runInterview({
+        analyst,
+        persona,
+        analystInterviewId,
+        interviewToken,
+        abortSignal,
+        statReport,
+      });
+      stop = true;
+      resolve(null);
+    } catch (error) {
+      console.log(`[${analystInterviewId}] Interview run error:`, (error as Error).message);
+      stop = true;
+      reject(new Error(`[${analystInterviewId}] Interview run aborted`));
+    }
 
-    stop = true;
-    resolve(null);
+    try {
+      await prisma.analystInterview.update({
+        where: { id: analystInterviewId, interviewToken },
+        data: { interviewToken: null },
+      });
+    } catch (error) {
+      console.log(
+        `Error clearing interview token with interview id ${analystInterviewId} and token ${interviewToken}`,
+        error,
+      );
+    }
   });
 }

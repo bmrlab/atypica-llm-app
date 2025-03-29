@@ -6,7 +6,12 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function fixChatMessages(messages: Message[]) {
+export function fixChatMessages(
+  messages: Message[],
+  options: {
+    removePendingTool?: boolean;
+  } = {},
+) {
   let fixed = messages.map((message) => {
     if (!message.parts) {
       return message;
@@ -14,7 +19,11 @@ export function fixChatMessages(messages: Message[]) {
     const parts = message.parts.filter((part) => {
       if (part.type === "tool-invocation") {
         // 如果不是 result，一定是执行了一半挂了，丢弃
-        return part.toolInvocation.state === "result";
+        if (options.removePendingTool) {
+          return part.toolInvocation.state === "result";
+        } else {
+          return true;
+        }
       } else if (part.type === "text") {
         return part.text.trim();
       } else {

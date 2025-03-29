@@ -100,7 +100,7 @@ async function prepareMessagesForLLM(scoutUserChatId: number) {
   const scoutUserChat = await prisma.userChat.findUniqueOrThrow({
     where: { id: scoutUserChatId, kind: "scout" },
   });
-  let messages = fixChatMessages(scoutUserChat.messages as unknown as Message[]);
+  let messages = scoutUserChat.messages as unknown as Message[];
   if (messages.length > 1 && messages[messages.length - 1].role === "user") {
     messages = messages.slice(0, -1);
   }
@@ -120,7 +120,9 @@ async function scoutTaskChatStream({
   // abortSignal: AbortSignal;
   statReport: StatReporter;
 }) {
-  const backgroundToken = new Date().valueOf().toString();
+  const abortController = new AbortController(); // 后台运行，自己控制 abort
+  const abortSignal = abortController.signal;
+  const backgroundToken = `ScoutUserChat:${scoutUserChatId}:${new Date().valueOf().toString()}`;
 
   try {
     // mark as running in background
@@ -149,7 +151,8 @@ async function scoutTaskChatStream({
         if (elapsedSeconds > 600) {
           console.log(`\n[${scoutUserChatId}] ScoutTask timeout\n`);
           stop = true;
-          reject(new Error("Timeout"));
+          abortController.abort();
+          reject(new Error(`[${scoutUserChatId}] ScoutTask background run timeout`));
         }
         if (stop) {
           console.log(`\n[${scoutUserChatId}] ScoutTask stopped\n`);
@@ -161,39 +164,45 @@ async function scoutTaskChatStream({
       tick();
 
       try {
-        const personas = await backgroundRun({
+        await backgroundRun({
           backgroundToken,
           studyUserChatId,
           scoutUserChatId,
           messages,
-          // abortSignal,
+          abortSignal,
           statReport,
         });
-        personas; // TODO: 这个没用到
+        stop = true;
+        resolve(null);
       } catch (error) {
         console.log(
           `[${scoutUserChatId}] ScoutTaskChat backgroundRun error:`,
           (error as Error).message,
         );
         stop = true;
-        reject(new Error("Background run aborted"));
+        abortController.abort();
+        reject(new Error(`[${scoutUserChatId}] ScoutTask background run aborted`));
       }
 
-      // mark as background running end
-      await prisma.userChat.updateMany({
-        where: {
-          OR: [
-            { id: studyUserChatId, kind: "study" },
-            { id: scoutUserChatId, kind: "scout" },
-          ],
-        },
-        data: {
-          backgroundToken: null,
-        },
-      });
-
-      stop = true;
-      resolve(null);
+      try {
+        // mark as background running end
+        await prisma.userChat.updateMany({
+          where: {
+            OR: [
+              { id: studyUserChatId, backgroundToken, kind: "study" },
+              { id: scoutUserChatId, backgroundToken, kind: "scout" },
+            ],
+          },
+          data: {
+            backgroundToken: null,
+          },
+        });
+      } catch (error) {
+        console.log(
+          `Error clearing background token with scoutUserChatId ${scoutUserChatId} studyUserChatId ${studyUserChatId} and backgroundToken ${backgroundToken}`,
+          error,
+        );
+      }
     }).catch(() => {
       // 遇到错误不需要处理
     }),
@@ -205,18 +214,16 @@ async function backgroundRun({
   // studyUserChatId,
   scoutUserChatId,
   messages: _messages,
-  // abortSignal,
+  abortSignal,
   statReport,
 }: {
   backgroundToken: string;
   studyUserChatId: number;
   scoutUserChatId: number;
   messages: Message[];
-  // abortSignal: AbortSignal;
+  abortSignal: AbortSignal;
   statReport: StatReporter;
 }): Promise<ScoutTaskChatResult["personas"]> {
-  const abortController = new AbortController();
-  const abortSignal = abortController.signal; // 后台运行，自己控制 abort
   let messages = [..._messages];
 
   while (true) {
@@ -248,7 +255,7 @@ async function backgroundRun({
         system: scoutSystem({
           doNotStopUntilScouted: false, // 不需要，下面自己会处理 continue
         }),
-        messages: fixChatMessages(messages as unknown as Message[]), // 传给 LLM 的时候需要修复
+        messages: fixChatMessages(messages, { removePendingTool: true }), // 传给 LLM 的时候需要修复
         tools: {
           [ToolName.reasoningThinking]: reasoningThinkingTool({ abortSignal, statReport }),
           [ToolName.xhsSearch]: xhsSearchTool,
@@ -285,7 +292,6 @@ async function backgroundRun({
                 `Error updating last message with scoutUserChatId ${scoutUserChatId} and token ${backgroundToken}, aborting streamText`,
               ),
             );
-            abortController.abort();
           }
         },
         onError: (error) => {
@@ -327,7 +333,7 @@ async function backgroundRun({
       tags: persona.tags as string[],
       prompt: persona.prompt,
     }));
-
+    // personas 没用到
     return personas;
   }
 }

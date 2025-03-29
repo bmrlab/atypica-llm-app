@@ -3,8 +3,7 @@ import { tool } from "ai";
 import { z } from "zod";
 
 export interface RequestInteractionResult extends PlainTextToolResult {
-  question: string;
-  options: string[];
+  answer: string;
   plainText: string;
 }
 
@@ -17,11 +16,12 @@ export const requestInteractionTool = tool({
   experimental_toToolResultContent: (result: PlainTextToolResult) => {
     return [{ type: "text", text: result.plainText }];
   },
-  execute: async ({ question, options }) => {
-    return {
-      question,
-      options,
-      plainText: "等待用户输入或选择答案", // 这样让 llm 知道可以停下来
-    };
-  },
+  // 不实现 execute, 让前端通过 addToolResult 方法来回复，AI SDK 这个功能很好用
+  // execute: async ({ question, options }) => {
+  //   return {
+  //     question,
+  //     options,
+  //     plainText: "等待用户输入或选择答案", // 这样让 llm 知道可以停下来
+  //   };
+  // },
 });

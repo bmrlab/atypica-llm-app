@@ -27,7 +27,7 @@ export async function POST(req: Request) {
     system: scoutSystem({
       doNotStopUntilScouted: autoChat,
     }),
-    messages: fixChatMessages(messages), // 传给 LLM 的时候需要修复
+    messages: fixChatMessages(messages, { removePendingTool: true }), // 传给 LLM 的时候需要修复
     tools: {
       [ToolName.reasoningThinking]: reasoningThinkingTool(),
       [ToolName.xhsSearch]: xhsSearchTool,

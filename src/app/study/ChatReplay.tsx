@@ -21,10 +21,9 @@ export function ChatReplay({ studyUserChat }: { studyUserChat: StudyUserChat }) 
         {messagesDisplay.map((message, index) => (
           <SingleMessage
             key={message.id}
+            addToolResult={() => {}}
+            message={message}
             avatar={{ assistant: <HippyGhostAvatar seed={studyUserChat.id} /> }}
-            role={message.role}
-            content={message.content}
-            parts={message.parts}
             isLastMessage={index === messagesDisplay.length - 1}
           ></SingleMessage>
         ))}
