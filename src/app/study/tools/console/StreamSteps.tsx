@@ -12,7 +12,7 @@ import { ToolName } from "@/tools";
 import { Message as MessageType, ToolInvocation } from "ai";
 import { motion } from "framer-motion";
 import { BotIcon, CpuIcon, LoaderIcon, UserIcon } from "lucide-react";
-import { PropsWithChildren, ReactNode } from "react";
+import { PropsWithChildren, ReactNode, useCallback } from "react";
 import ReasoningThinking from "./ReasoningThinking";
 
 const PlainText = ({ children }: PropsWithChildren) => {
@@ -24,6 +24,35 @@ const PlainText = ({ children }: PropsWithChildren) => {
 };
 
 const StreamStep = ({ toolInvocation }: { toolInvocation: ToolInvocation }) => {
+  const ToolResultDisplay = ({
+    toolInvocation,
+  }: {
+    toolInvocation: ToolInvocation & { state: "result" };
+  }) => {
+    switch (toolInvocation.toolName) {
+      case ToolName.xhsSearch:
+        return <XHSSearchResultMessage result={toolInvocation.result} />;
+      case ToolName.xhsUserNotes:
+        return <XHSUserNotesResultMessage result={toolInvocation.result} />;
+      case ToolName.xhsNoteComments:
+        return <XHSNoteCommentsResultMessage result={toolInvocation.result} />;
+      case ToolName.reasoningThinking:
+        return <ReasoningThinking toolInvocation={toolInvocation} />;
+      default:
+        return (
+          <pre
+            className={cn(
+              "text-xs font-mono whitespace-pre-wrap p-4",
+              "text-zinc-800 bg-zinc-100 dark:text-zinc-200 dark:bg-zinc-800",
+              "border border-zinc-200 dark:border-zinc-700 rounded-lg",
+            )}
+          >
+            {toolInvocation.result.plainText ?? "-"}
+          </pre>
+        );
+    }
+  };
+
   return (
     <div className={cn("text-xs whitespace-pre-wrap font-mono")}>
       <div className="ml-1 my-2 font-bold">exec {toolInvocation.toolName}</div>
@@ -31,30 +60,7 @@ const StreamStep = ({ toolInvocation }: { toolInvocation: ToolInvocation }) => {
       <ToolArgsTable toolInvocation={toolInvocation} />
       <div className="ml-1 mt-2 mb-2 text-primary">&gt;_ result</div>
       {toolInvocation.state === "result" ? (
-        (() => {
-          switch (toolInvocation.toolName) {
-            case ToolName.xhsSearch:
-              return <XHSSearchResultMessage result={toolInvocation.result} />;
-            case ToolName.xhsUserNotes:
-              return <XHSUserNotesResultMessage result={toolInvocation.result} />;
-            case ToolName.xhsNoteComments:
-              return <XHSNoteCommentsResultMessage result={toolInvocation.result} />;
-            case ToolName.reasoningThinking:
-              return <ReasoningThinking toolInvocation={toolInvocation} />;
-            default:
-              return (
-                <pre
-                  className={cn(
-                    "text-xs font-mono whitespace-pre-wrap p-4",
-                    "text-zinc-800 bg-zinc-100 dark:text-zinc-200 dark:bg-zinc-800",
-                    "border border-zinc-200 dark:border-zinc-700 rounded-lg",
-                  )}
-                >
-                  {toolInvocation.result.plainText ?? "-"}
-                </pre>
-              );
-          }
-        })()
+        <ToolResultDisplay toolInvocation={toolInvocation} />
       ) : (
         <div className="p-1">
           <LoaderIcon className="animate-spin" size={16} />
@@ -77,6 +83,29 @@ export const StreamSteps = ({
   content: string | ReactNode;
   parts?: MessageType["parts"];
 }) => {
+  const renderedParts = useCallback((parts: NonNullable<MessageType["parts"]>) => {
+    return (
+      <div className={cn("flex flex-col gap-4")}>
+        {parts.map((part, i) => {
+          // 小红书搜索任务之类的，是多个 step 一起显示，搜索结果和总结，所以需要显示超过1条在一起，更好
+          switch (part.type) {
+            case "text":
+              return <PlainText key={i}>{part.text}</PlainText>;
+            case "reasoning":
+              return <PlainText key={i}>{part.reasoning}</PlainText>;
+            case "source":
+              return <PlainText key={i}>{JSON.stringify(part.source)}</PlainText>;
+            case "tool-invocation":
+              console.log(part.toolInvocation.toolCallId, i);
+              return <StreamStep key={i} toolInvocation={part.toolInvocation} />;
+            default:
+              return null;
+          }
+        })}
+      </div>
+    );
+  }, []);
+
   return (
     <motion.div
       className={cn("flex flex-col w-full")}
@@ -113,27 +142,7 @@ export const StreamSteps = ({
               : "",
         )}
       >
-        {parts ? (
-          <div className={cn("flex flex-col gap-4")}>
-            {parts.map((part, i) => {
-              // 小红书搜索任务之类的，是多个 step 一起显示，搜索结果和总结，所以需要显示超过1条在一起，更好
-              switch (part.type) {
-                case "text":
-                  return <PlainText key={i}>{part.text}</PlainText>;
-                case "reasoning":
-                  return <PlainText key={i}>{part.reasoning}</PlainText>;
-                case "source":
-                  return <PlainText key={i}>{JSON.stringify(part.source)}</PlainText>;
-                case "tool-invocation":
-                  return <StreamStep key={i} toolInvocation={part.toolInvocation} />;
-                default:
-                  return null;
-              }
-            })}
-          </div>
-        ) : (
-          <PlainText>{content}</PlainText>
-        )}
+        {parts ? renderedParts(parts) : <PlainText>{content}</PlainText>}
       </div>
     </motion.div>
   );

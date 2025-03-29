@@ -49,17 +49,19 @@ const ScoutTaskChat = ({ toolInvocation }: { toolInvocation: ToolInvocation }) =
 
   return (
     <div className="space-y-6 w-full">
-      {messagesDisplay.map((message) => (
-        <StreamSteps
-          key={`message-${message.id}`}
-          avatar={{
-            assistant: <HippyGhostAvatar seed={scoutUserChatId} />,
-          }}
-          role={message.role}
-          content={message.content}
-          parts={message.parts}
-        ></StreamSteps>
-      ))}
+      {messagesDisplay.map((message) => {
+        return (
+          <StreamSteps
+            key={`message-${message.id}`}
+            avatar={{
+              assistant: <HippyGhostAvatar seed={scoutUserChatId} />,
+            }}
+            role={message.role}
+            content={message.content}
+            parts={message.parts}
+          ></StreamSteps>
+        );
+      })}
       {toolInvocation.state !== "result" && (
         <div className="w-full flex py-4 gap-px items-center justify-start text-zinc-500 text-xs font-mono">
           <span className="mr-2">Looking for target users </span>
