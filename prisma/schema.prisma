@@ -116,13 +116,14 @@ model UserAnalyst {
 }
 
 model UserChat {
-  id       Int     @id @default(autoincrement())
-  token    String? @unique @db.VarChar(64)
-  userId   Int
-  user     User    @relation(fields: [userId], references: [id])
-  title    String  @db.VarChar(255)
-  messages Json
-  kind     String  @db.VarChar(255) // scout | study | analyst | interview
+  id              Int     @id @default(autoincrement())
+  token           String? @unique @db.VarChar(64)
+  userId          Int
+  user            User    @relation(fields: [userId], references: [id])
+  title           String  @db.VarChar(255)
+  messages        Json
+  kind            String  @db.VarChar(255) // scout | study | analyst | interview
+  backgroundToken String? @db.VarChar(255)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
