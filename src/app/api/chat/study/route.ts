@@ -44,7 +44,7 @@ export async function POST(req: Request) {
     messages: fixChatMessages(messages), // 传给 LLM 的时候需要修复
     tools: {
       [ToolName.scoutTaskCreate]: scoutTaskCreateTool(userId),
-      [ToolName.scoutTaskChat]: scoutTaskChatTool({ abortSignal, statReport }),
+      [ToolName.scoutTaskChat]: scoutTaskChatTool({ studyUserChatId, abortSignal, statReport }),
       [ToolName.saveAnalystStudySummary]: saveAnalystStudySummaryTool(),
       [ToolName.saveAnalyst]: saveAnalystTool(userId, studyUserChatId),
       [ToolName.interviewChat]: interviewChatTool({ abortSignal, statReport }),

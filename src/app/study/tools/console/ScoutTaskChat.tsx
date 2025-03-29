@@ -11,11 +11,13 @@ const ScoutTaskChat = ({ toolInvocation }: { toolInvocation: ToolInvocation }) =
   const scoutUserChatId = (toolInvocation.args.scoutUserChatId ||
     toolInvocation.args.chatId) as number; // 需要兼容老的 tool 参数: chatId
   const [messages, setMessages] = useState<Message[]>([]);
+  const [backgroundRunning, setBackgroundRunning] = useState(false);
 
   const fetchUpdate = useCallback(async () => {
     try {
       const updated = await fetchUserChatById(scoutUserChatId, "scout");
       setMessages(updated.messages);
+      setBackgroundRunning(!!updated.backgroundToken);
     } catch (error) {
       console.log("Error fetching scoutUserChat:", error);
     }
@@ -49,20 +51,18 @@ const ScoutTaskChat = ({ toolInvocation }: { toolInvocation: ToolInvocation }) =
 
   return (
     <div className="space-y-6 w-full">
-      {messagesDisplay.map((message) => {
-        return (
-          <StreamSteps
-            key={`message-${message.id}`}
-            avatar={{
-              assistant: <HippyGhostAvatar seed={scoutUserChatId} />,
-            }}
-            role={message.role}
-            content={message.content}
-            parts={message.parts}
-          ></StreamSteps>
-        );
-      })}
-      {toolInvocation.state !== "result" && (
+      {messagesDisplay.map((message) => (
+        <StreamSteps
+          key={`message-${message.id}`}
+          avatar={{
+            assistant: <HippyGhostAvatar seed={scoutUserChatId} />,
+          }}
+          role={message.role}
+          content={message.content}
+          parts={message.parts}
+        ></StreamSteps>
+      ))}
+      {(toolInvocation.state !== "result" || backgroundRunning) && (
         <div className="w-full flex py-4 gap-px items-center justify-start text-zinc-500 text-xs font-mono">
           <span className="mr-2">Looking for target users </span>
           <span className="animate-bounce">✨ </span>

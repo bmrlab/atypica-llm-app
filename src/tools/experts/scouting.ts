@@ -4,6 +4,7 @@ import { appendStreamStepToUIMessage, fixChatMessages, streamStepsToUIMessage } 
 import { scoutSystem } from "@/prompt";
 import { PlainTextToolResult } from "@/tools/utils";
 import { InputJsonValue } from "@prisma/client/runtime/library";
+import { waitUntil } from "@vercel/functions";
 import { generateId, Message, streamText, tool } from "ai";
 import { z } from "zod";
 import { StatReporter, ToolName } from "..";
@@ -54,10 +55,12 @@ export const scoutTaskCreateTool = (userId: number) =>
   });
 
 export const scoutTaskChatTool = ({
-  abortSignal,
+  studyUserChatId,
+  // abortSignal, 因为是后台运行，abortSignal 不要传递下去
   statReport,
 }: {
-  abortSignal: AbortSignal;
+  studyUserChatId: number;
+  abortSignal?: AbortSignal;
   statReport: StatReporter;
 }) =>
   tool({
@@ -76,7 +79,17 @@ export const scoutTaskChatTool = ({
       } else {
         messages.push({ id: generateId(), role: "user", content: description });
       }
-      return await scoutTaskChatStream({ scoutUserChatId, messages, abortSignal, statReport });
+      await scoutTaskChatStream({
+        studyUserChatId,
+        scoutUserChatId,
+        messages,
+        // abortSignal,
+        statReport,
+      });
+      return {
+        personas: [],
+        plainText: "任务正在后台运行，请等待完成后再继续对话。",
+      };
     },
   });
 
@@ -95,34 +108,134 @@ async function prepareMessagesForLLM(scoutUserChatId: number) {
 }
 
 async function scoutTaskChatStream({
+  studyUserChatId,
   scoutUserChatId,
-  messages: _messages,
-  abortSignal,
+  messages,
+  // abortSignal,
   statReport,
 }: {
+  studyUserChatId: number;
   scoutUserChatId: number;
   messages: Message[];
-  abortSignal: AbortSignal;
+  // abortSignal: AbortSignal;
   statReport: StatReporter;
-}): Promise<ScoutTaskChatResult> {
+}) {
+  const backgroundToken = new Date().valueOf().toString();
+
+  try {
+    // mark as running in background
+    await prisma.userChat.updateMany({
+      where: {
+        OR: [
+          { id: studyUserChatId, kind: "study" },
+          { id: scoutUserChatId, kind: "scout" },
+        ],
+      },
+      data: {
+        backgroundToken,
+      },
+    });
+  } catch (error) {
+    console.log("Error updating backgroundToken:", error);
+  }
+
+  waitUntil(
+    new Promise(async (resolve, reject) => {
+      let stop = false;
+      const start = Date.now();
+      const tick = () => {
+        const now = Date.now();
+        const elapsedSeconds = Math.floor((now - start) / 1000);
+        if (elapsedSeconds > 600) {
+          console.log(`\n[${scoutUserChatId}] ScoutTask timeout\n`);
+          stop = true;
+          reject(new Error("Timeout"));
+        }
+        if (stop) {
+          console.log(`\n[${scoutUserChatId}] ScoutTask stopped\n`);
+        } else {
+          console.log(`\n[${scoutUserChatId}] ScoutTask is ongoing, ${elapsedSeconds} seconds`);
+          setTimeout(() => tick(), 5000);
+        }
+      };
+      tick();
+
+      try {
+        const personas = await backgroundRun({
+          backgroundToken,
+          studyUserChatId,
+          scoutUserChatId,
+          messages,
+          // abortSignal,
+          statReport,
+        });
+        personas; // TODO: 这个没用到
+      } catch (error) {
+        console.log(
+          `[${scoutUserChatId}] ScoutTaskChat backgroundRun error:`,
+          (error as Error).message,
+        );
+        stop = true;
+        reject(new Error("Background run aborted"));
+      }
+
+      // mark as background running end
+      await prisma.userChat.updateMany({
+        where: {
+          OR: [
+            { id: studyUserChatId, kind: "study" },
+            { id: scoutUserChatId, kind: "scout" },
+          ],
+        },
+        data: {
+          backgroundToken: null,
+        },
+      });
+
+      stop = true;
+      resolve(null);
+    }).catch(() => {
+      // 遇到错误不需要处理
+    }),
+  );
+}
+
+async function backgroundRun({
+  backgroundToken,
+  // studyUserChatId,
+  scoutUserChatId,
+  messages: _messages,
+  // abortSignal,
+  statReport,
+}: {
+  backgroundToken: string;
+  studyUserChatId: number;
+  scoutUserChatId: number;
+  messages: Message[];
+  // abortSignal: AbortSignal;
+  statReport: StatReporter;
+}): Promise<ScoutTaskChatResult["personas"]> {
+  const abortController = new AbortController();
+  const abortSignal = abortController.signal; // 后台运行，自己控制 abort
   let messages = [..._messages];
 
   while (true) {
-    const saveToolMessages = ((scoutUserChatId: number, initialMessages: Message[]) => {
-      // 这里要保持上一条消息不变，不断更新最后一条消息的 parts，所以要在闭包里暂存 initialMessages
-      return async (message: Omit<Message, "role">) => {
-        const messages: Message[] = [...initialMessages, { role: "assistant", ...message }];
+    const updateLastMessage = ((scoutUserChatId: number, initialMessages: Message[]) => {
+      // 这里要保持之前的消息不变，不断更新最后一条消息的 parts，所以要在闭包里暂存 initialMessages
+      return async (streamingMessage: Omit<Message, "role">) => {
+        const messages: Message[] = [
+          ...initialMessages,
+          { role: "assistant", ...streamingMessage },
+        ];
         await prisma.userChat.update({
-          where: { id: scoutUserChatId },
-          data: {
-            messages: messages as unknown as InputJsonValue,
-          },
+          where: { id: scoutUserChatId, backgroundToken },
+          data: { messages: messages as unknown as InputJsonValue },
         });
       };
     })(scoutUserChatId, messages);
 
     await new Promise<Omit<Message, "role">>(async (resolve, reject) => {
-      const message: Omit<Message, "role"> = {
+      const streamingMessage: Omit<Message, "role"> = {
         id: generateId(),
         content: "",
         parts: [],
@@ -144,8 +257,7 @@ async function scoutTaskChatStream({
           [ToolName.savePersona]: savePersonaTool({ scoutUserChatId, statReport }),
         },
         maxSteps: 15,
-        onChunk: (chunk) =>
-          console.log(`[${scoutUserChatId}] ScoutTaskChat:`, JSON.stringify(chunk)),
+        // onChunk: (chunk) => console.log(`[${scoutUserChatId}] ScoutTaskChat:`, JSON.stringify(chunk).substring(0, 100)),
         onFinish: async ({ steps }) => {
           const message = streamStepsToUIMessage(steps);
           resolve(message);
@@ -155,24 +267,42 @@ async function scoutTaskChatStream({
           });
         },
         onStepFinish: async (step) => {
-          appendStreamStepToUIMessage(message, step);
-          if (message.parts?.length && message.content.trim()) {
-            await saveToolMessages(message);
-          }
+          appendStreamStepToUIMessage(streamingMessage, step);
           if (step.usage.totalTokens > 0) {
             await statReport("tokens", step.usage.totalTokens, {
               reportedBy: "scoutTaskChat tool",
               scoutUserChatId,
             });
           }
+          try {
+            if (streamingMessage.parts?.length && streamingMessage.content.trim()) {
+              await updateLastMessage(streamingMessage);
+            }
+          } catch (error) {
+            console.log(`[${scoutUserChatId}] ScoutTaskChat updateLastMessage error:`);
+            reject(
+              new Error(
+                `Error updating last message with scoutUserChatId ${scoutUserChatId} and token ${backgroundToken}, aborting streamText`,
+              ),
+            );
+            abortController.abort();
+          }
         },
         onError: (error) => {
-          console.log(error);
+          console.log(`[${scoutUserChatId}] ScoutTaskChat streamText error:`, error);
           reject(error);
         },
         abortSignal,
       });
-      await response.consumeStream();
+      try {
+        await response.consumeStream();
+      } catch (error) {
+        console.log(
+          `[${scoutUserChatId}] ScoutTaskChat consumeStream error:`,
+          (error as Error).message,
+        );
+        reject(error);
+      }
     });
 
     const personasResult = await prisma.persona.findMany({
@@ -186,7 +316,7 @@ async function scoutTaskChatStream({
       messages.push({
         id: generateId(),
         role: "user",
-        content: "目前总结的personas还不够，请继续",
+        content: `目前总结了${personasResult.length}个personas，还不够5个，请继续`,
       });
       continue;
     }
@@ -198,9 +328,6 @@ async function scoutTaskChatStream({
       prompt: persona.prompt,
     }));
 
-    return {
-      personas,
-      plainText: JSON.stringify(personas),
-    };
+    return personas;
   }
 }
