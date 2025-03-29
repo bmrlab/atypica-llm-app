@@ -8,7 +8,7 @@ export default function ToolArgsTable({ toolInvocation }: { toolInvocation: Tool
           <tr key={key}>
             <td className="p-1 align-top">{key}:</td>
             <td className="p-1 whitespace-pre-wrap">
-              {typeof value === "object" ? JSON.stringify(value, null, 2) : value?.toString()}
+              {typeof value === "object" ? JSON.stringify(value) : value?.toString()}
             </td>
           </tr>
         ))}

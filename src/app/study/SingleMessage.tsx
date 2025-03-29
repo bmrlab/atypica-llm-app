@@ -7,7 +7,7 @@ import { ToolName } from "@/tools";
 import { Message as MessageType, ToolInvocation } from "ai";
 import { motion } from "framer-motion";
 import { BotIcon, ChevronRight, EyeIcon, LoaderIcon, XIcon } from "lucide-react";
-import { PropsWithChildren, ReactNode, useEffect, useRef, useState } from "react";
+import { PropsWithChildren, ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { useStudyContext } from "./hooks/StudyContext";
 import { GenerateReportResultMessage } from "./tools/message/GenerateReportResultMessage";
 import { RequestIteractionResultMessage } from "./tools/message/RequestIteractionResultMessage";
@@ -15,29 +15,29 @@ import { RequestIteractionResultMessage } from "./tools/message/RequestIteractio
 const ToolInvocationMessage = ({
   toolInvocation,
   onUserReply,
-  isLastPart,
+  isLastToolPart,
 }: {
   toolInvocation: ToolInvocation;
   onUserReply?: (content: string) => void;
-  isLastPart?: boolean;
+  isLastToolPart?: boolean;
 }) => {
   const [open, setOpen] = useState(false);
   const { setViewToolInvocation, setLastToolInvocation } = useStudyContext();
 
   useEffect(() => {
-    if (isLastPart) {
+    if (isLastToolPart) {
       setLastToolInvocation(toolInvocation);
     }
-  }, [toolInvocation, setLastToolInvocation, isLastPart]);
+  }, [toolInvocation, setLastToolInvocation, isLastToolPart]);
 
-  const prevIsLastPartRef = useRef(isLastPart);
+  const prevIsLastPartRef = useRef(isLastToolPart);
   useEffect(() => {
-    if (isLastPart) {
+    if (isLastToolPart) {
       setOpen(true);
-    } else if (prevIsLastPartRef.current && !isLastPart) {
+    } else if (prevIsLastPartRef.current && !isLastToolPart) {
       setOpen(false);
     }
-  }, [isLastPart]);
+  }, [isLastToolPart]);
 
   return (
     <div>
@@ -69,28 +69,26 @@ const ToolInvocationMessage = ({
           <ToolArgsTable toolInvocation={toolInvocation} />
           <div className="ml-1 mt-2 mb-1 text-primary w-full">&gt;_ result</div>
           {toolInvocation.state === "result" ? (
-            // <div className="text-xs whitespace-pre-wrap p-1">{toolInvocation.result.plainText}</div>
-            <table className="text-left">
-              <tbody>
-                {Object.entries(toolInvocation.result).map(([key, value]) => (
-                  <tr key={key}>
-                    <td className="p-1 align-top">{key}:</td>
-                    {key === "plainText" ? (
-                      <td className="p-1 whitespace-pre-wrap">
-                        {/* 随便设置个最大宽度，因为 table 是撑满的，最终还是撑满，但是不会超出 */}
-                        {value?.toString()}
-                      </td>
-                    ) : (
-                      <td className="p-1 whitespace-pre-wrap">
-                        {typeof value === "object"
-                          ? JSON.stringify(value, null, 2)
-                          : value?.toString()}
-                      </td>
-                    )}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <>
+              <table className="text-left">
+                <tbody>
+                  {Object.entries(toolInvocation.result)
+                    .filter(([key]) => key !== "plainText")
+                    .map(([key, value]) => (
+                      <tr key={key}>
+                        <td className="p-1 align-top">{key}:</td>
+                        <td className="p-1 whitespace-pre-wrap">
+                          {typeof value === "object" ? JSON.stringify(value) : value?.toString()}
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+              <div className="ml-1 mt-2 mb-1 text-primary w-full">&gt;_ message</div>
+              <div className="text-xs whitespace-pre-wrap p-1">
+                {toolInvocation.result.plainText}
+              </div>
+            </>
           ) : (
             <div className="p-1">
               <LoaderIcon className="animate-spin" size={16} />
@@ -147,7 +145,7 @@ export const SingleMessage = ({
   onUserReply?: (content: string) => void;
   isLastMessage?: boolean;
 }) => {
-  if (role === "user") {
+  const renderUserMessage = useCallback(() => {
     const contentLength = (content?.toString() ?? "").length;
     return (
       <div
@@ -182,6 +180,40 @@ export const SingleMessage = ({
         ) : null}
       </div>
     );
+  }, [content, onDelete]);
+
+  const renderParts = (parts: NonNullable<MessageType["parts"]>) => {
+    const lastToolPartIndex = parts.findLastIndex((part) => part.type === "tool-invocation");
+
+    return (
+      <div className="flex flex-col gap-4">
+        {parts.map((part, i) => {
+          switch (part.type) {
+            case "text":
+              return <PlainText key={i}>{part.text}</PlainText>;
+            case "reasoning":
+              return <PlainText key={i}>{part.reasoning}</PlainText>;
+            case "source":
+              return <PlainText key={i}>{JSON.stringify(part.source)}</PlainText>;
+            case "tool-invocation":
+              return (
+                <ToolInvocationMessage
+                  key={i}
+                  toolInvocation={part.toolInvocation}
+                  isLastToolPart={isLastMessage && i === lastToolPartIndex}
+                  onUserReply={onUserReply}
+                />
+              );
+            default:
+              return null;
+          }
+        })}
+      </div>
+    );
+  };
+
+  if (role === "user") {
+    return renderUserMessage();
   }
 
   return (
@@ -196,33 +228,7 @@ export const SingleMessage = ({
         {nickname && (
           <div className="leading-[24px] text-zinc-800 text-sm font-medium">{nickname}</div>
         )}
-        {parts ? (
-          <div className="flex flex-col gap-4">
-            {parts.map((part, i) => {
-              switch (part.type) {
-                case "text":
-                  return <PlainText key={i}>{part.text}</PlainText>;
-                case "reasoning":
-                  return <PlainText key={i}>{part.reasoning}</PlainText>;
-                case "source":
-                  return <PlainText key={i}>{JSON.stringify(part.source)}</PlainText>;
-                case "tool-invocation":
-                  return (
-                    <ToolInvocationMessage
-                      key={i}
-                      toolInvocation={part.toolInvocation}
-                      isLastPart={isLastMessage && i === parts.length - 1}
-                      onUserReply={onUserReply}
-                    />
-                  );
-                default:
-                  return null;
-              }
-            })}
-          </div>
-        ) : (
-          <PlainText>{content}</PlainText>
-        )}
+        {parts ? renderParts(parts) : <PlainText>{content}</PlainText>}
       </div>
     </motion.div>
   );
