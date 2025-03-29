@@ -82,8 +82,8 @@ function parseXHSSearchResult(data: {
 }
 
 async function xhsSearch({ keyword }: { keyword: string }) {
-  try {
-    for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < 3; i++) {
+    try {
       const params = {
         token: process.env.XHS_API_TOKEN!,
         keyword,
@@ -103,9 +103,9 @@ async function xhsSearch({ keyword }: { keyword: string }) {
         await new Promise((resolve) => setTimeout(resolve, 3000));
         continue;
       }
+    } catch (error) {
+      console.log("Error fetching XHS feed:", error);
     }
-  } catch (error) {
-    console.log("Error fetching XHS feed:", error);
   }
   return {
     notes: [],

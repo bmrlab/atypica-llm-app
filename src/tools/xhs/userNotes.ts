@@ -76,8 +76,8 @@ function parseXHSUserNotes(data: {
 }
 
 async function xhsUserNotes({ userid }: { userid: string }) {
-  try {
-    for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < 3; i++) {
+    try {
       const params = {
         token: process.env.XHS_API_TOKEN!,
         userId: userid,
@@ -96,9 +96,9 @@ async function xhsUserNotes({ userid }: { userid: string }) {
         await new Promise((resolve) => setTimeout(resolve, 3000));
         continue;
       }
+    } catch (error) {
+      console.log("Error fetching XHS user posts:", error);
     }
-  } catch (error) {
-    console.log("Error fetching XHS user posts:", error);
   }
   return {
     notes: [],

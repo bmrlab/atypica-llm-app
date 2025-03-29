@@ -54,8 +54,8 @@ function parseXHSNoteComments(data: {
 }
 
 async function xhsNoteComments({ noteid }: { noteid: string }) {
-  try {
-    for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < 3; i++) {
+    try {
       const params = {
         token: process.env.XHS_API_TOKEN!,
         noteId: noteid,
@@ -74,12 +74,12 @@ async function xhsNoteComments({ noteid }: { noteid: string }) {
         await new Promise((resolve) => setTimeout(resolve, 3000));
         continue;
       }
+    } catch (error) {
+      console.log("Error fetching XHS note comments:", error);
     }
-  } catch (error) {
-    console.log("Error fetching XHS note comments:", error);
   }
   return {
-    notes: [],
+    comments: [],
     plainText: "Failed to fetch XHS note comments after 3 attempts",
   };
 }
